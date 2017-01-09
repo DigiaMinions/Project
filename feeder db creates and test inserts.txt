@@ -34,7 +34,7 @@ CREATE TABLE Unit(
 
 id int(10),
 
-name NVARCHAR(10),
+val NVARCHAR(10),
 
 PRIMARY KEY (id)
 
@@ -59,3 +59,12 @@ FOREIGN KEY (FK_device_id) REFERENCES Device(id),
 FOREIGN KEY (FK_unit_id) REFERENCES Unit(id)
 
 );
+
+
+INSERT INTO Unit(val) VALUES ('g');
+
+INSERT INTO Device(mac) VALUES ('test');
+
+INSERT INTO User(email, pass, salt, FK_device_id) VALUES ('test@test.test', 'test', 'test', (SELECT id FROM Device WHERE mac = 'test'));
+
+INSERT INTO Log(val, FK_device_id, FK_unit_id) VALUES (1234.56, (SELECT id FROM Device WHERE mac = 'test'), (SELECT id FROM Unit WHERE val = 'g')); 
