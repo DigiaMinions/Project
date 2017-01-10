@@ -1,0 +1,34 @@
+
+CREATE TABLE User(
+id int(10) AUTO_INCREMENT,
+email NVARCHAR(50) UNIQUE NOT NULL,
+pass NVARCHAR(100) NOT NULL,
+salt NVARCHAR(50) NOT NULL,
+PRIMARY KEY (id)
+);
+
+CREATE TABLE Device(
+id int(10) AUTO_INCREMENT,
+mac NVARCHAR(50) UNIQUE NOT NULL,
+FK_user_id int(10),
+FOREIGN KEY (FK_user_id) REFERENCES User(id),
+PRIMARY KEY (id)
+);
+
+CREATE TABLE Unit(
+id int(10) AUTO_INCREMENT,
+val NVARCHAR(10),
+PRIMARY KEY (id)
+);
+
+CREATE TABLE Log(
+id int(10) AUTO_INCREMENT,
+val decimal(10,2) NOT NULL,
+datetime datetime NOT NULL,
+FK_device_id int(10) NOT NULL,
+FK_unit_id int(10) NOT NULL,
+PRIMARY KEY (id),
+FOREIGN KEY (FK_device_id) REFERENCES Device(id),
+FOREIGN KEY (FK_unit_id) REFERENCES Unit(id)
+);
+
