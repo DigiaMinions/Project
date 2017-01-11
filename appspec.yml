@@ -7,3 +7,6 @@ hooks:
   BeforeInstall:
     - location: Scripts/installnode.sh
       runas: root
+  AfterInstall:
+    - location: Scripts/startnode.sh
+      runas: root
