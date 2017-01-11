@@ -6,4 +6,4 @@ files:
 hooks:
   BeforeInstall:
     - location: Scripts/installnode.sh
-      runas: root
+      runas: ec2-user
