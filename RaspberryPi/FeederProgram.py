@@ -30,12 +30,17 @@ import HX711 # HX711 AD Converter
 from JSONMaker import JSONMaker # DIY library for handling JSONs
 import urllib # Download updates
 
+
+
+#################################
+### CLASS DECLARATIONS ##########
+
 # Global variables
 class globalVars:
 	def __init__(self):
 		self.messagesList = [0] * 12
 		self.ID = 0
-
+		self.scheduledFeed = None
 
 # GPIO variables
 class servoControl:
@@ -48,8 +53,12 @@ class servoControl:
 		self.servo_lower = 26	# GPIO 26
 
 
+
+#################################
+### AWS IOT CALLBACKS ###########
+
 # Custom MQTT message callback
-def customCallback(client, userdata, message):
+def customCallback(client, userdata, message): # Is this necessary?
 	print("Received a new message: ")
 	print(message.payload)
 	print("from topic: ")
@@ -63,22 +72,22 @@ def callback_update(client, userdata, message):
 	print("New version: " + message.payload)
 	fetchUpdate()
 
-
-# Download available update
-def fetchUpdate():
-	url = 'https://github.com/DigiaMinions/Project/trunk/RaspberryPi' # INCOMPLETE
-	location = 'update/'
-	# Download the file using system command and save it locally
-	os.system("svn export " + url + " " + location + " --force")
-
-
 # Callback for foodfeed
 def callback_foodfeed(client, userdata, message):
-	print("Food feed pressed")
-	servo_feedFood()	
+	feedTime = validateFeedMessage(message.payload)
+	if (feedTime == "now"):
+		print("Instant foodfeed pressed")
+		servo_feedFood()	
+	elif (feedTime == ""):
+		print("Food feed scheduled to: " + message.payload)
+		gVars.scheduledFeed = message.payload
 	# Tell AWS IoT the feed button has been clicked
 	JsonCreator.createObject("FeedClick", getDateTime())
 
+
+
+#################################
+### SERVO FUNCTIONS #############
 
 # Calibrate servos on boot
 def servo_calibrate():
@@ -91,7 +100,6 @@ def servo_calibrate():
 	pi.set_servo_pulsewidth(servoVars.servo_upper, servoVars.pw_min)
 	pi.set_servo_pulsewidth(servoVars.servo_lower, servoVars.pw_min)
 
-
 # Feed food from feedtube
 def servo_feedFood():
 	pi.set_servo_pulsewidth(servoVars.servo_lower, servoVars.pw_max)
@@ -100,16 +108,19 @@ def servo_feedFood():
 	time.sleep(1)
 	servo_fillFeeder() # Fill the feedtube after feeding
 
-
 # Fill feedtube with new food
 def servo_fillFeeder():
 	pi.set_servo_pulsewidth(servoVars.servo_upper, servoVars.pw_max)
 	time.sleep(3)
 	pi.set_servo_pulsewidth(servoVars.servo_upper, servoVars.pw_min)
 	time.sleep(1)
-	
 
-# Usage
+
+
+####################################
+### USAGE INFO AND CONFIGURATIONS ##
+
+# Usage info (Credit: AWS)
 usageInfo = """Usage:
 
 Use certificate based mutual authentication:
@@ -120,7 +131,7 @@ python basicPubSub.py -e <endpoint> -r <rootCAFilePath> -w
 
 Type "python basicPubSub.py -h" for available options.
 """
-# Help info
+# Help info (credit: AWS)
 helpInfo = """-e, --endpoint
 	Your AWS IoT custom endpoint
 -r, --rootCA
@@ -137,7 +148,7 @@ helpInfo = """-e, --endpoint
 
 """
 
-# Read in command-line parameters
+# Read in command-line parameters (credit: AWS)
 useWebsocket = False
 host = ""
 rootCAPath = ""
@@ -165,8 +176,7 @@ except getopt.GetoptError:
 	print(usageInfo)
 	exit(1)
 
-
-# Missing configuration notification
+# Missing configuration notification (credit: AWS)
 missingConfiguration = False
 if not host:
 	print("Missing '-e' or '--endpoint'")
@@ -185,7 +195,7 @@ if missingConfiguration:
 	exit(2)
 
 
-# Configure logging
+# Configure logging (AWS)
 logger = logging.getLogger("AWSIoTPythonSDK.core")
 logger.setLevel(logging.DEBUG)
 streamHandler = logging.StreamHandler()
@@ -193,8 +203,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
-
-# Init AWSIoTMQTTClient
+# Init AWSIoTMQTTClient (AWS)
 myAWSIoTMQTTClient = None
 if useWebsocket:
 	myAWSIoTMQTTClient = AWSIoTMQTTClient("DogFeeder", useWebsocket=True)
@@ -205,16 +214,14 @@ else:
 	myAWSIoTMQTTClient.configureEndpoint(host, 8883)
 	myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
 
-
-# AWSIoTMQTTClient connection configuration
+# AWSIoTMQTTClient connection configuration (AWS)
 myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
 myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
 myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
 myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
-
-# Connect and subscribe to AWS IoT
+# Connect and subscribe to AWS IoT (partly AWS)
 myAWSIoTMQTTClient.connect()
 myAWSIoTMQTTClient.subscribe("sdk/test/Python", 1, customCallback)
 myAWSIoTMQTTClient.subscribe("sdk/test/Foodfeed", 1, callback_foodfeed)
@@ -222,7 +229,19 @@ myAWSIoTMQTTClient.subscribe("sdk/test/Update", 1, callback_update)
 time.sleep(2)
 
 
-# Get Load Cell data from sensor
+
+#################################
+### LOAD CELL ###################
+
+# Initialize load cell. Do this before usage
+def lc_init():
+	print("Start Load Cell with CH_B_GAIN_32 without callback")
+	cell = HX711.sensor(pi, DATA=9, CLOCK=11, mode=CH_B_GAIN_32) # GPIO PORTS 9 AND 11
+	time.sleep(1)
+	cell.start()
+	time.sleep(1)
+
+# Get sensor data from load cell
 def getLoadCellValue():
 	# read data from Load Cell
 	count, mode, reading = cell.get_reading()
@@ -230,6 +249,10 @@ def getLoadCellValue():
 	returnvalue = random.randint(0,1000) # MOCK DATA
 	return returnvalue	
 
+
+
+################################
+### HARDWARE MISC ##############
 
 # Get hardware MAC address
 def getMac():
@@ -240,26 +263,52 @@ def getMac():
 		print("Error retrieving MAC address")
 	return mac
 
-
 # Get current date and time
 def getDateTime():
 	dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	return dateTime
 
+# Download available update
+def fetchUpdate():
+	url = 'https://github.com/DigiaMinions/Project/trunk/RaspberryPi' # INCOMPLETE. Should there be an update folder after testing?
+	location = 'update/'
+	# Download the file using system command and save it locally
+	os.system("svn export " + url + " " + location + " --force")
+
+def checkFeedSchedule():
+	if (gVars.scheduledFeed is None):
+		return
+	elif (getDateTime() <= gVars.scheduledFeed):
+		return
+	else:
+		gVars.scheduledFeed = None
+		servo_feedFood()
+
+
+	
+#################################
+### MESSAGE FUNCTIONS ###########
+
+# Check if feedmessage from user is instant or scheduled feed
+def validateFeedMessage(message):
+	messageValue = 0
+	try:
+		datetime.datetime.strptime(message, "%Y-%m-%d %H:%M:%S")
+		messageValue = "datetime"
+	except ValueError:
+		messageValue = "now"
+	return messageValue
 
 # Create a message part to AWS IoT
-def createMessageSegment(index):
-	load = getLoadCellValue()
+def createMessageSegment(load, index):
 	dateTime = getDateTime() #str(datetime.now().strftime("%d-%m-%Y %H:%M:%S"))
 	JsonCreator.createArray("load", str(dateTime) + '": "' + str(load))
 	print(index) # DEBUG ONLY
 	#message = "{\n" + "'ID': " + "'" + str(ID) + "'" + ",\n" + "'time': " + "'" + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "',\n" + "'load': " + "'" + str(load) + "'\n" + "}"
 
-
 # Add ID stamp to AWS IoT message
 def createMessageIDStamp():
 	JsonCreator.createObject("ID", gVars.ID)
-
 
 # Assemble the full message from parts created
 def getFinalMessage():
@@ -272,37 +321,34 @@ def getFinalMessage():
 
 versionInfo = "0.3"
 
+CH_A_GAIN_64 = 0 # Channel A gain 64
+CH_A_GAIN_128 = 1 # Channel A gain 128
+CH_B_GAIN_32 = 2 # Channel B gain 32
+
 gVars = globalVars() # Init globalVars -class
 gVars.ID = getMac() # Get MAC address for identification
 
 pi = pigpio.pi() # Init pigpio library
 servoVars = servoControl() # Init custom servo data
 
-CH_A_GAIN_64 = 0 # Channel A gain 64
-CH_A_GAIN_128 = 1 # Channel A gain 128
-CH_B_GAIN_32 = 2 # Channel B gain 32
-
 # Load cell data
 count = 0
 mode = 0
 reading = 0
 
-print("Start Load Cell with CH_B_GAIN_32 without callback")
-cell = HX711.sensor(pi, DATA=9, CLOCK=11, mode=CH_B_GAIN_32) # GPIO PORTS 9 AND 11
-time.sleep(2)
-cell.start()
-time.sleep(1)
-count, mode, reading = cell.get_reading()
+# Init load cell before main loop
+lc_init()
 
 # Infinite loop
 while True:
 	JsonCreator = JSONMaker()
 	loop_count = 0
 	while loop_count < 12: # Create 12 message segments
-		message = createMessageSegment(loop_count)
+		message = createMessageSegment(getLoadCellValue(), loop_count)
+		checkFeedSchedule() # Check if foodfeed scheduled, and feed if necessary
 		loop_count += 1
 		time.sleep(1)
 
-	createMessageIDStamp() # Insert ID to message
-	fmessage = getFinalMessage() # Get final message (assembles from parts)
-	myAWSIoTMQTTClient.publish("sdk/test/Python", str(fmessage), 1) # Send created message
+	createMessageIDStamp() # Add device ID (MAC) to message before sending
+	#fmessage = getFinalMessage() # Get final message (assembles from parts)
+	myAWSIoTMQTTClient.publish("sdk/test/Python", str(getFinalMessage()), 1) # Create final message from previously made pieces and send it to AWS IoT
