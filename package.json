@@ -1,0 +1,11 @@
+{
+  "name": "feeder",
+  "main": "server.js",
+  "dependencies" : {
+    "express" : "latest",           
+	"forever" : "latest",
+	"react" : "latest",
+	"react-dom" : "latest",
+	"react-router" : "latest"
+  }
+}
