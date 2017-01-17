@@ -61,6 +61,10 @@
 	
 	var _AwesomeComponent2 = _interopRequireDefault(_AwesomeComponent);
 	
+	var _GraphComponent = __webpack_require__(/*! ./components/GraphComponent.jsx */ 179);
+	
+	var _GraphComponent2 = _interopRequireDefault(_GraphComponent);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -85,10 +89,20 @@
 	        'div',
 	        null,
 	        _react2.default.createElement(
-	          'p',
-	          null,
-	          ' Hello React!'
+	          'div',
+	          { className: 'jumbotron' },
+	          _react2.default.createElement(
+	            'h1',
+	            null,
+	            'Feeder'
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            null,
+	            'T\xE4ss\xE4 se nyt on!'
+	          )
 	        ),
+	        _react2.default.createElement(_GraphComponent2.default, { url: 'http://www.clocktab.com/' }),
 	        _react2.default.createElement(_AwesomeComponent2.default, null)
 	      );
 	    }
@@ -22116,7 +22130,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        'Likes : ',
+	        'Koirista tykk\xE4\xE4j\xE4t: ',
 	        _react2.default.createElement(
 	          'span',
 	          null,
@@ -22128,7 +22142,7 @@
 	          _react2.default.createElement(
 	            'button',
 	            { onClick: this.onLike },
-	            'Like Me'
+	            'Tykk\xE4\xE4!'
 	          )
 	        )
 	      );
@@ -22139,6 +22153,57 @@
 	}(_react2.default.Component);
 	
 	exports.default = AwesomeComponent;
+
+/***/ },
+/* 179 */
+/*!*******************************************!*\
+  !*** ./src/components/GraphComponent.jsx ***!
+  \*******************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var GraphComponent = function (_React$Component) {
+		_inherits(GraphComponent, _React$Component);
+	
+		function GraphComponent(props) {
+			_classCallCheck(this, GraphComponent);
+	
+			var _this = _possibleConstructorReturn(this, (GraphComponent.__proto__ || Object.getPrototypeOf(GraphComponent)).call(this, props));
+	
+			_this.url = props.url;
+			return _this;
+		}
+	
+		_createClass(GraphComponent, [{
+			key: "render",
+			value: function render() {
+				return _react2.default.createElement("iframe", { src: this.url, height: "200", width: "300" });
+			}
+		}]);
+	
+		return GraphComponent;
+	}(_react2.default.Component);
+	
+	exports.default = GraphComponent;
 
 /***/ }
 /******/ ]);

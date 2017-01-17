@@ -16,8 +16,8 @@ class AwesomeComponent extends React.Component {
   render() {
     return (
       <div>
-        Likes : <span>{this.state.likesCount}</span>
-        <div><button onClick={this.onLike}>Like Me</button></div>
+        Koirista tykkääjät: <span>{this.state.likesCount}</span>
+        <div><button onClick={this.onLike}>Tykkää!</button></div>
       </div>
     );
   }
