@@ -6,9 +6,9 @@ var app = express();
 var serv = require('http').Server(app);
 
 app.get('/', function(req, res){
-	res.sendFile(__dirname + '/static/index.html'); //tyhjä pyyntö -> lähetetään /static/index.html
+	res.sendFile(__dirname + '/src/static/index.html'); //tyhjä pyyntö -> lähetetään /static/index.html
 });
-app.use(express.static(__dirname + '/static')); //pyyntö alkaa /static -> lähetetään pyydetty tiedosto /static kansiosta
+app.use(express.static(__dirname + '/src/static')); //pyyntö static-kansioon -> lähetetään pyydetty tiedosto kansiosta
 
 /* client voi pyytää tiedostoja vain kahdesta yllä olevasta paikasta */
 /* eli jos pyydetään esim. /server/secureFile.js -> ei tee yhtikäs mitään */

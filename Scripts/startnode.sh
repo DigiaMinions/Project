@@ -5,4 +5,4 @@ cd /home/ec2-user # home folder
 npm install # install all node dependencies
 killall node # kill existing node processes
 npm run dev # run scripts (webpack bundle) in dev mode
-forever start ./src/server.js # start node via forever
+./node_modules/.bin/forever start server.js # start node via forever
