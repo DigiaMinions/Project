@@ -1,4 +1,4 @@
 #!/bin/bash
-sudo su
-curl -sL https://rpm.nodesource.com/setup_4.x | bash -
-yum -y install nodejs
+sudo su # run as root
+curl -sL https://rpm.nodesource.com/setup_4.x | bash - # install node via script
+yum -y install nodejs # install node via yum

@@ -1,21 +1,22 @@
-var path = require('path');
 var webpack = require('webpack');
+var path = require('path');
+
+var BUILD_DIR = path.resolve(__dirname, 'src/static/js');
+var APP_DIR = path.resolve(__dirname, 'src');
  
 module.exports = {
-  entry: [
-    './src/app'
-  ],
-  devtool: 'eval-source-map',
+  entry: APP_DIR + '/app.jsx',
   output: {
-    path: __dirname,
-    filename: 'bundle.js',
-    publicPath: '/static/js/'
+    path: BUILD_DIR,
+    filename: 'bundle.js'
   },
-  module: {
-	  loaders: [{
-		test: /\.js$/,
-		loaders: ['babel'],
-		include: path.join(__dirname, 'src')
-	  }]
+  module : {
+    loaders : [
+      {
+        test : /\.jsx?/,
+        include : APP_DIR,
+        loader : 'babel'
+      }
+    ]
   }
 };

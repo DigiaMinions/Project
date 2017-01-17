@@ -1,11 +1,29 @@
 {
   "name": "feeder",
-  "main": "server.js",
-  "dependencies" : {
-    "express" : "latest",           
-	"forever" : "latest",
-	"react" : "latest",
-	"react-dom" : "latest",
-	"react-router" : "latest"
+  "version": "0.0.1",
+  "description": "",
+  "main": "./src/app.js",
+  "scripts": {
+    "dev": "webpack -d",
+    "build" : "webpack -p"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DigiaMinions/Project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DigiaMinions/Project/issues"
+  },
+  "homepage": "https://github.com/DigiaMinions/Project#readme",
+  "dependencies": {
+    "babel-loader": "^6.2.10",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "webpack": "^1.14.0",
+	"forever": "latest"
   }
 }
