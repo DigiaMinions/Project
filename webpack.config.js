@@ -5,7 +5,7 @@ var BUILD_DIR = path.resolve(__dirname, 'src/static/js');
 var APP_DIR = path.resolve(__dirname, 'src');
  
 module.exports = {
-  entry: APP_DIR + '/app.jsx',
+  entry: APP_DIR + '/index.js',
   output: {
     path: BUILD_DIR,
     filename: 'bundle.js'

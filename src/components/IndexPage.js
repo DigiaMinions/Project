@@ -5,7 +5,7 @@ export default class IndexPage extends React.Component {
   render() {
     return (
       <div className="home">
-        <h2>Se elää...ehkä?</h2>
+        <h2>Index sivu</h2>
         <p>
           <Link to="/">Linkki johonkin...</Link>
         </p>

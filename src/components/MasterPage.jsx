@@ -13,7 +13,7 @@ export default class MasterPage extends React.Component {
         <div className="app-content">{this.props.children}</div>
         <footer>
           <p>
-            This is a demo app to showcase universal rendering and routing with <strong>React</strong> and <strong>Express</strong>.
+            Hieno footteri...
           </p>
         </footer>
       </div>
