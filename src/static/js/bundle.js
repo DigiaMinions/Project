@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+/******/ 	__webpack_require__.p = "/assets/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -22735,7 +22735,7 @@
 	        children = _props.children;
 	
 	
-	    !history.getCurrentLocation ? process.env.NODE_ENV !== 'production' ? (0, _invariant2.default)(false, 'You have provided a history object created with history v2.x or ' + 'earlier. This version of React Router is only compatible with v3 ' + 'history objects. Please upgrade to history v3.x.') : (0, _invariant2.default)(false) : void 0;
+	    !history.getCurrentLocation ? process.env.NODE_ENV !== 'production' ? (0, _invariant2.default)(false, 'You have provided a history object created with history v4.x or v2.x ' + 'and earlier. This version of React Router is only compatible with v3 ' + 'history objects. Please change to history v3.x.') : (0, _invariant2.default)(false) : void 0;
 	
 	    return (0, _createTransitionManager3.default)(history, (0, _RouteUtils.createRoutes)(routes || children));
 	  },
@@ -27241,7 +27241,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+		value: true
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -27267,27 +27267,36 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var App = function (_React$Component) {
-	  _inherits(App, _React$Component);
+		_inherits(App, _React$Component);
 	
-	  function App() {
-	    _classCallCheck(this, App);
+		function App(props) {
+			_classCallCheck(this, App);
 	
-	    return _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).apply(this, arguments));
-	  }
+			var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 	
-	  _createClass(App, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'content' },
-	        _react2.default.createElement(_DevicesComponent2.default, null),
-	        _react2.default.createElement(_GraphComponent2.default, { url: 'http://www.google.fi' })
-	      );
-	    }
-	  }]);
+			_this.state = { activeDevice: '' };
+			_this.onUpdate = _this.onUpdate.bind(_this);
+			return _this;
+		}
 	
-	  return App;
+		_createClass(App, [{
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'div',
+					{ className: 'content' },
+					_react2.default.createElement(_DevicesComponent2.default, { onUpdate: this.onUpdate }),
+					_react2.default.createElement(_GraphComponent2.default, { activeDevice: this.state.activeDevice })
+				);
+			}
+		}, {
+			key: 'onUpdate',
+			value: function onUpdate(activeDevice) {
+				this.setState({ activeDevice: activeDevice });
+			}
+		}]);
+	
+		return App;
 	}(_react2.default.Component);
 	
 	exports.default = App;
@@ -27299,7 +27308,7 @@
   \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 		value: true
@@ -27325,16 +27334,24 @@
 		function GraphComponent(props) {
 			_classCallCheck(this, GraphComponent);
 	
-			var _this = _possibleConstructorReturn(this, (GraphComponent.__proto__ || Object.getPrototypeOf(GraphComponent)).call(this, props));
-	
-			_this.url = props.url;
-			return _this;
+			return _possibleConstructorReturn(this, (GraphComponent.__proto__ || Object.getPrototypeOf(GraphComponent)).call(this, props));
 		}
 	
 		_createClass(GraphComponent, [{
-			key: "render",
+			key: 'render',
 			value: function render() {
-				return _react2.default.createElement("iframe", { src: this.url, height: "200", width: "300" });
+				return (
+					//<iframe src={this.props.activeDevice}></iframe>
+					_react2.default.createElement(
+						'div',
+						null,
+						_react2.default.createElement(
+							'h1',
+							null,
+							this.props.activeDevice.label
+						)
+					)
+				);
 			}
 		}]);
 	
@@ -27385,41 +27402,25 @@
 	
 			var _this = _possibleConstructorReturn(this, (DevicesComponent.__proto__ || Object.getPrototypeOf(DevicesComponent)).call(this, props));
 	
-			_this.state = {
-				selected: userDevices[0]
-			};
-			_this._onSelect = _this._onSelect.bind(_this);
+			_this.state = { selected: userDevices[0] };
+			_this.onSelect = _this.onSelect.bind(_this);
 			return _this;
 		}
 	
 		_createClass(DevicesComponent, [{
-			key: '_onSelect',
-			value: function _onSelect(option) {
-				console.log('You selected ', option.label);
+			key: 'onSelect',
+			value: function onSelect(option) {
 				this.setState({ selected: option });
+				this.props.onUpdate(option);
 			}
 		}, {
 			key: 'render',
 			value: function render() {
-				var defaultOption = this.state.selected;
-				var placeHolderValue = typeof this.state.selected === 'string' ? this.state.selected : this.state.selected.label;
-	
+				var defaultValue = this.state.selected;
 				return _react2.default.createElement(
 					'div',
 					null,
-					_react2.default.createElement(_reactDropdown2.default, { options: userDevices, onChange: this._onSelect, value: defaultOption, placeholder: 'Valitse laite' }),
-					_react2.default.createElement(
-						'div',
-						{ className: 'result' },
-						'You selected',
-						_react2.default.createElement(
-							'strong',
-							null,
-							' ',
-							placeHolderValue,
-							' '
-						)
-					)
+					_react2.default.createElement(_reactDropdown2.default, { options: userDevices, onChange: this.onSelect, value: defaultValue, placeholder: 'Valitse laite' })
 				);
 			}
 		}]);

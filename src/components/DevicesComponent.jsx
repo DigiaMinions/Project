@@ -2,38 +2,29 @@ import React from 'react'
 import Dropdown from 'react-dropdown'
 
 const userDevices = [
-    '123', '666', '9999' //current user's devices MACs from db
+    '123', '666', '9999' // logged in user's devices MACs from db
   ]
 
-class DevicesComponent extends React.Component {
+export default class DevicesComponent extends React.Component {
 	
 	constructor (props) {
 		super(props)
-		this.state = {
-			selected: userDevices[0]
-		}
-		this._onSelect = this._onSelect.bind(this)
+		this.state = { selected: userDevices[0] }
+		this.onSelect = this.onSelect.bind(this)
 	}
   
-	_onSelect (option) {
-		console.log('You selected ', option.label)
+	onSelect (option) {
 		this.setState({selected: option})
+		this.props.onUpdate(option)
 	}
   
    render() {
-		const defaultOption = this.state.selected
-		const placeHolderValue = typeof this.state.selected === 'string' ? this.state.selected : this.state.selected.label
-		
+		const defaultValue = this.state.selected		
 		return (
 			<div>
-				<Dropdown options={userDevices} onChange={this._onSelect} value={defaultOption} placeholder="Valitse laite" />
-				<div className='result'>
-					You selected
-					<strong> {placeHolderValue} </strong>
-				</div>
+				Valitse laite:
+				<Dropdown options={userDevices} onChange={this.onSelect} value={defaultValue} placeholder="Valitse laite" />
 			</div>
-		)
+		);
 	}
 }
-
-export default DevicesComponent;
