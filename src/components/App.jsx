@@ -1,19 +1,14 @@
 import React from 'react'
+import GraphComponent from './GraphComponent.jsx'
+import DevicesComponent from './DevicesComponent.jsx'
 
 class App extends React.Component {
-	
+
   render() {
     return (
-	  <div>
-        <h1>Laitteet</h1>
-        <ul role="nav">
-		  <li><IndexLink to="/" activeClassName="active">Home</IndexLink></li>
-          <li><Link to="/stuff" activeClassName="active">Stuff</Link></li>
-		  <li><Link to="/contact" activeClassName="active">Contact</Link></li>
-        </ul>
-		<div className="content">
-          {this.props.children}
-		</div>
+	  <div className="content">
+		  <DevicesComponent />
+          <GraphComponent url="http://www.google.fi" />
       </div>
 	)
   }
