@@ -3,7 +3,7 @@ import GraphComponent from './GraphComponent.jsx'
 import DevicesComponent from './DevicesComponent.jsx'
 import HeaderComponent from './HeaderComponent.jsx';
 import { Grid, Row, Col, Button, Alert } from 'react-bootstrap';
-const deviceModule = require('../../node_modules/aws-iot-device-sdk/index.js').device;
+import { device } from 'aws-iot-device-sdk';
 
 export default class App extends React.Component {
 
@@ -20,7 +20,7 @@ export default class App extends React.Component {
 
 	onButtonPress () { 
   	console.log("Ruokaa kuppiin!");
-  	var device = deviceModule({
+  	const device = device({
    		keyPath: '/home/ec2-user/DogFeeder.private.key',
   		certPath: '/home/ec2-user/DogFeeder.cert.pem',
     	caPath: '/home/ec2-user/root-CA.crt',
@@ -31,7 +31,7 @@ export default class App extends React.Component {
 	  	.on('connect', function() {
 	    	console.log('connect');
 	    	device.subscribe('topic_1');
-	    	device.publish('topic_2', JSON.stringify({ MAC: this.state.activeDevice.value }));
+	    	device.publish('topic_2', JSON.stringify({ MAC: String(this.state.activeDevice.value) }));
 	    });
 
 		device
