@@ -31,7 +31,7 @@ export default class App extends React.Component {
 	  	.on('connect', function() {
 	    	console.log('connect');
 	    	device.subscribe('topic_1');
-	    	device.publish('topic_2', JSON.stringify({ MAC: 666 }));
+	    	device.publish('topic_2', JSON.stringify({ MAC: this.state.activeDevice }));
 	    });
 
 		device
