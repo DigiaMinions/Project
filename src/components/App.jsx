@@ -3,7 +3,7 @@ import GraphComponent from './GraphComponent.jsx'
 import DevicesComponent from './DevicesComponent.jsx'
 import HeaderComponent from './HeaderComponent.jsx';
 import { Grid, Row, Col, Button, Alert } from 'react-bootstrap';
-import { awsIot } from 'aws-iot-device-sdk';
+const deviceModule = require('../../').device;
 
 export default class App extends React.Component {
 
@@ -20,7 +20,7 @@ export default class App extends React.Component {
 
 	onButtonPress () { 
   	console.log("Ruokaa kuppiin!");
-  	var device = awsIot.device({
+  	var device = deviceModule.device({
    		keyPath: '/home/ec2-user/DogFeeder.private.key',
   		certPath: '/home/ec2-user/DogFeeder.cert.pem',
     	caPath: '/home/ec2-user/root-CA.crt',
