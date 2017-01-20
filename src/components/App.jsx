@@ -20,7 +20,7 @@ export default class App extends React.Component {
 
 	onButtonPress () { 
   	console.log("Ruokaa kuppiin!");
-  	var device = deviceModule.device({
+  	var device = deviceModule({
    		keyPath: '/home/ec2-user/DogFeeder.private.key',
   		certPath: '/home/ec2-user/DogFeeder.cert.pem',
     	caPath: '/home/ec2-user/root-CA.crt',
