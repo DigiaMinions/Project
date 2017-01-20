@@ -5,7 +5,7 @@
   "main": "./src/app.js",
   "scripts": {
     "dev": "./node_modules/.bin/webpack-dev-server --content-base src --inline --hot",
-    "build": "./node_modules/.bin/webpack -p",
+    "build": "./node_modules/.bin/webpack -d",
     "test": "mocha"
   },
   "repository": {

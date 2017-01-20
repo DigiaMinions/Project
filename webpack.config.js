@@ -19,5 +19,13 @@ module.exports = {
         loader : 'babel'
       }
     ]
-  }
+  },
+  node: {
+    console: 'empty',
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty',
+	console: true
+  },
+  debug : true
 };
