@@ -5,6 +5,13 @@ import HeaderComponent from './HeaderComponent.jsx';
 import { Grid, Row, Col, Button, Alert } from 'react-bootstrap';
 import { device } from 'aws-iot-device-sdk';
 
+const device = device({
+   		keyPath: '/home/ec2-user/DogFeeder.private.key',
+  		certPath: '/home/ec2-user/DogFeeder.cert.pem',
+    	caPath: '/home/ec2-user/root-CA.crt',
+    	host: 'axqdhi517toju.iot.eu-west-1.amazonaws.com'
+});
+
 export default class App extends React.Component {
 
 	constructor(props) {
@@ -20,21 +27,14 @@ export default class App extends React.Component {
 
 	onButtonPress () { 
   	console.log("Ruokaa kuppiin!");
-  	const device = device({
-   		keyPath: '/home/ec2-user/DogFeeder.private.key',
-  		certPath: '/home/ec2-user/DogFeeder.cert.pem',
-    	caPath: '/home/ec2-user/root-CA.crt',
-    	host: 'axqdhi517toju.iot.eu-west-1.amazonaws.com'
-		});
-
-		device
+		this.device
 	  	.on('connect', function() {
 	    	console.log('connect');
 	    	device.subscribe('topic_1');
 	    	device.publish('topic_2', JSON.stringify({ MAC: String(this.state.activeDevice.value) }));
 	    });
 
-		device
+		this.device
 	  	.on('message', function(topic, payload) {
 	    console.log('message', topic, payload.toString());
 	  });
