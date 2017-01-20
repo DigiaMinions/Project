@@ -19,7 +19,7 @@ export default class App extends React.Component {
   }
 
 	onButtonPress () { 
-  	console.log("Ruokaa kuppiin...");
+  	console.log("Ruokaa kuppiin!");
   	var device = awsIot.device({
    		keyPath: '/home/ec2-user/DogFeeder.private.key',
   		certPath: '/home/ec2-user/DogFeeder.cert.pem',
