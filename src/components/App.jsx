@@ -3,6 +3,7 @@ import GraphComponent from './GraphComponent.jsx'
 import DevicesComponent from './DevicesComponent.jsx'
 import HeaderComponent from './HeaderComponent.jsx';
 import { Grid, Row, Col, Button, Alert } from 'react-bootstrap';
+import { awsIot } from 'aws-iot-device-sdk';
 
 export default class App extends React.Component {
 
@@ -19,6 +20,24 @@ export default class App extends React.Component {
 
 	onButtonPress () { 
   	console.log("Ruokaa kuppiin...");
+  	var device = awsIot.device({
+   		keyPath: '/home/ec2-user/DogFeeder.private.key',
+  		certPath: '/home/ec2-user/DogFeeder.cert.pem',
+    	caPath: '/home/ec2-user/root-CA.crt',
+    	host: 'axqdhi517toju.iot.eu-west-1.amazonaws.com'
+		});
+
+		device
+	  	.on('connect', function() {
+	    	console.log('connect');
+	    	device.subscribe('topic_1');
+	    	device.publish('topic_2', JSON.stringify({ MAC: 666 }));
+	    });
+
+		device
+	  	.on('message', function(topic, payload) {
+	    console.log('message', topic, payload.toString());
+	  });
   }
 
   render() {
