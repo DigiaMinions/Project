@@ -3,7 +3,7 @@ import GraphComponent from './GraphComponent.jsx'
 import DevicesComponent from './DevicesComponent.jsx'
 import HeaderComponent from './HeaderComponent.jsx';
 import { Grid, Row, Col, Button, Alert } from 'react-bootstrap';
-const deviceModule = require('../../').device;
+const deviceModule = require('../../node_modules/aws-iot-device-sdk/index.js').device;
 
 export default class App extends React.Component {
 
