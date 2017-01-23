@@ -6,6 +6,7 @@ import { Grid, Row, Col, Button, Alert } from 'react-bootstrap';
 import { device } from 'aws-iot-device-sdk';
 
 
+
 export default class App extends React.Component {
 
 	constructor(props) {
