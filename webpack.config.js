@@ -6,7 +6,6 @@ var APP_DIR = path.resolve(__dirname, 'src');
  
 module.exports = {
   entry: APP_DIR + '/index.js',
-  target: 'node',
   output: {
     path: BUILD_DIR,
     publicPath: "/assets/",

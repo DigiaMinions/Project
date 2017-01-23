@@ -1,9 +1,9 @@
 import React from 'react'
 import GraphComponent from './GraphComponent.jsx'
 import DevicesComponent from './DevicesComponent.jsx'
-import HeaderComponent from './HeaderComponent.jsx';
-import { Grid, Row, Col, Button, Alert } from 'react-bootstrap';
-import { device } from 'aws-iot-device-sdk';
+import HeaderComponent from './HeaderComponent.jsx'
+import { Grid, Row, Col, Button, Alert } from 'react-bootstrap'
+import AWSMqtt from 'aws-mqtt-client'
 
 export default class App extends React.Component {
 
@@ -12,32 +12,21 @@ export default class App extends React.Component {
 		this.state = { activeDevice: '' }
 		this.onUpdate = this.onUpdate.bind(this)
 		this.onButtonPress = this.onButtonPress.bind(this)
-		this.myDevice = device({
-   		keyPath: '../../certs/DogFeeder.private.key',
-  		certPath: '../../certs/DogFeeder.cert.pem',
-    	caPath: '../../certs/root-CA.crt',
-    	clientId: 'Test',
-   		region: 'eu-west-1'
+		this.mqttClient = new AWSMqtt({
+    	accessKeyId: 'AKIAJE5T6TZOKQ7APVEA',
+    	secretAccessKey: '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',
+    	endpointAddress: 'axqdhi517toju.iot.eu-west-1.amazonaws.com',
+    	region: 'eu-west-1'
 		});
 	}
 
 	onUpdate (activeDevice) { 
-  	this.setState({ activeDevice }) 
+  		this.setState({ activeDevice }) 
   }
 
 	onButtonPress () { 
   	console.log("Ruokaa kuppiin!");
-		this.myDevice
-	  	.on('connect', function() {
-	    	console.log('connect');
-	    	device.subscribe('topic_1');
-	    	device.publish('topic_2', JSON.stringify({ MAC: String(this.state.activeDevice.value) }));
-	    });
-
-		this.myDevice
-	  	.on('message', function(topic, payload) {
-	    console.log('message', topic, payload.toString());
-	  });
+	  this.mqttClient.publish('topic', JSON.stringify({ MAC: String(this.state.activeDevice.value) }));
   }
 
   render() {
