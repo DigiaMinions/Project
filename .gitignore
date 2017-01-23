@@ -1,5 +1,5 @@
 node_modules/
 src/static/js/
-credentials.json
+src/static/js/credentials.json
 *.env
 certs/
