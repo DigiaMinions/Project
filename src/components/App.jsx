@@ -14,9 +14,9 @@ export default class App extends React.Component {
 		this.onUpdate = this.onUpdate.bind(this)
 		this.onButtonPress = this.onButtonPress.bind(this)
 		this.myDevice = device({
-   		keyPath: '/home/ec2-user/DogFeeder.private.key',
-  		certPath: '/home/ec2-user/DogFeeder.cert.pem',
-    	caPath: '/home/ec2-user/root-CA.crt',
+   		keyPath: '../../certs/DogFeeder.private.key',
+  		certPath: '../../certs/DogFeeder.cert.pem',
+    	caPath: '../../certs/root-CA.crt',
     	clientId: 'Test',
    		region: 'eu-west-1'
 		});
