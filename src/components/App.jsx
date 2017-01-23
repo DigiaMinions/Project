@@ -5,12 +5,6 @@ import HeaderComponent from './HeaderComponent.jsx';
 import { Grid, Row, Col, Button, Alert } from 'react-bootstrap';
 import { device } from 'aws-iot-device-sdk';
 
-const device = device({
-   		keyPath: '/home/ec2-user/DogFeeder.private.key',
-  		certPath: '/home/ec2-user/DogFeeder.cert.pem',
-    	caPath: '/home/ec2-user/root-CA.crt',
-    	host: 'axqdhi517toju.iot.eu-west-1.amazonaws.com'
-});
 
 export default class App extends React.Component {
 
@@ -19,6 +13,13 @@ export default class App extends React.Component {
 		this.state = { activeDevice: '' }
 		this.onUpdate = this.onUpdate.bind(this)
 		this.onButtonPress = this.onButtonPress.bind(this)
+		this.myDevice = device({
+   		keyPath: '/home/ec2-user/DogFeeder.private.key',
+  		certPath: '/home/ec2-user/DogFeeder.cert.pem',
+    	caPath: '/home/ec2-user/root-CA.crt',
+    	clientId: 'Test',
+   		region: 'eu-west-1'
+		});
 	}
 
 	onUpdate (activeDevice) { 
@@ -27,14 +28,14 @@ export default class App extends React.Component {
 
 	onButtonPress () { 
   	console.log("Ruokaa kuppiin!");
-		this.device
+		this.myDevice
 	  	.on('connect', function() {
 	    	console.log('connect');
 	    	device.subscribe('topic_1');
 	    	device.publish('topic_2', JSON.stringify({ MAC: String(this.state.activeDevice.value) }));
 	    });
 
-		this.device
+		this.myDevice
 	  	.on('message', function(topic, payload) {
 	    console.log('message', topic, payload.toString());
 	  });

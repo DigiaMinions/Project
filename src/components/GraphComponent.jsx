@@ -16,7 +16,7 @@ export default class GraphComponent extends React.Component {
 				<br />
 				<iframe src={graphanaUrl + String(this.props.activeDevice.value) + time + theme} width='800' height='400' frameBorder='0' />
 				<br />				
-				<div><h3>{"TÄSSÄ_URLI_GRAFANAAN?MAC=" + this.props.activeDevice.value}</h3></div>
+				<div><h3>{this.props.activeDevice.value}</h3></div>
 			</div>
 		);
 	}
