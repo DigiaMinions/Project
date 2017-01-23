@@ -13,8 +13,8 @@ export default class App extends React.Component {
 		this.onUpdate = this.onUpdate.bind(this)
 		this.onButtonPress = this.onButtonPress.bind(this)
 		this.mqttClient = new AWSMqtt({
-    	accessKeyId: 'AKIAJE5T6TZOKQ7APVEA',
-    	secretAccessKey: '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',
+    	accessKeyId: 'AKIAIBAYUIONI6MUNO6Q',
+    	secretAccessKey: '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',
     	endpointAddress: 'axqdhi517toju.iot.eu-west-1.amazonaws.com',
     	region: 'eu-west-1'
 		});
