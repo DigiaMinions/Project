@@ -1,5 +1,5 @@
-import React from 'react';
-import { Nav, Navbar, NavItem, Header, Brand } from 'react-bootstrap';
+import React from 'react'
+import { Nav, Navbar, NavItem, Header, Brand } from 'react-bootstrap'
 
 export default class HeaderComponent extends React.Component {
 

@@ -29,6 +29,7 @@
     "json-loader": "^0.5.4",
     "react": "^15.4.2",
     "react-bootstrap": "^0.30.7",
+    "react-bootstrap-date-picker": "^4.0.0",
     "react-dom": "^15.4.2",
     "react-dropdown": "^1.2.0",
     "react-router": "^3.0.1",
