@@ -16,5 +16,7 @@ phases:
     commands: 
       - "echo Installing source NPM dependencies..."
       - "npm install unit.js"
-
+artifacts:
+  files:
+    - target/MyApp.zip
 version: 0.1
