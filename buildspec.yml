@@ -1,7 +1,10 @@
 --- 
 phases: 
   build: 
-    artifacts:
+    artifacts: 
+      files: 
+        - appspec.yml
+        - /**
       untracked: true
     commands: 
       - "echo Build started on `date`"
