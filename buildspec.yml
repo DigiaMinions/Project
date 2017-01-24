@@ -1,6 +1,8 @@
 --- 
 phases: 
   build: 
+    artifacts:
+      untracked: true
     commands: 
       - "echo Build started on `date`"
       - "echo Compiling the Node.js code"
@@ -16,6 +18,5 @@ phases:
     commands: 
       - "echo Installing source NPM dependencies..."
       - "npm install unit.js"
-artifacts:
-  untracked: true
+
 version: 0.1
