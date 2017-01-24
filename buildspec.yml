@@ -2,10 +2,9 @@
 phases: 
   build: 
     artifacts: 
-      files: 
-        - appspec.yml
-        - /**
-      untracked: true
+      path: test.zip
+      name: MyApp
+      
     commands: 
       - "echo Build started on `date`"
       - "echo Compiling the Node.js code"
