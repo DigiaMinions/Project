@@ -1,7 +1,4 @@
 --- 
-artifacts: 
-  files: 
-    - tests/**
 phases: 
   build: 
     commands: 
