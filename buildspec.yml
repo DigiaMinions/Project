@@ -17,6 +17,5 @@ phases:
       - "echo Installing source NPM dependencies..."
       - "npm install unit.js"
 artifacts:
-  paths: 
-    - /
+  untracked: true
 version: 0.1
