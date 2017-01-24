@@ -4,6 +4,7 @@ import DevicesComponent from './DevicesComponent.jsx'
 import HeaderComponent from './HeaderComponent.jsx'
 import { Grid, Row, Col, Button, Alert } from 'react-bootstrap'
 import AWSMqtt from 'aws-mqtt-client'
+import credentials from 'json-loader!../../credentials.json'
 
 export default class App extends React.Component {
 
@@ -13,10 +14,10 @@ export default class App extends React.Component {
 		this.onUpdate = this.onUpdate.bind(this)
 		this.onButtonPress = this.onButtonPress.bind(this)
 		this.mqttClient = new AWSMqtt({
-    	accessKeyId: 'AKIAIBAYUIONI6MUNO6Q',
-    	secretAccessKey: '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',
-    	endpointAddress: 'axqdhi517toju.iot.eu-west-1.amazonaws.com',
-    	region: 'eu-west-1'
+    	accessKeyId: credentials.accessKeyId,
+    	secretAccessKey: credentials.secretAccessKey,
+    	endpointAddress: credentials.endpointAddress,
+    	region: credentials.region
 		});
 	}
 
@@ -26,7 +27,9 @@ export default class App extends React.Component {
 
 	onButtonPress () { 
   	console.log("Ruokaa kuppiin!");
-	  this.mqttClient.publish('topic', JSON.stringify({ MAC: String(this.state.activeDevice.value) }));
+	  //this.mqttClient.publish('topic', JSON.stringify({ MAC: String(this.state.activeDevice.value) }));
+	  var macParsed = String(this.state.activeDevice.value).replace(/%3A/g, ":");
+	  this.mqttClient.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
   }
 
   render() {

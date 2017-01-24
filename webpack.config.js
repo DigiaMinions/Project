@@ -16,6 +16,12 @@ module.exports = {
     extensions: ['', '.js', '.jsx']
   },
   module : {
+    rules: [
+      {
+        test: /\.json$/,
+        use: 'json-loader'
+      }
+    ],
     loaders : [
       {
         test : /\.(js|jsx)$/,
