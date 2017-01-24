@@ -10,6 +10,3 @@ hooks:
   AfterInstall:
     - location: Scripts/startnode.sh
       runas: root
-artifacts:
-  paths: 
-    - /
