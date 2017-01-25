@@ -31,10 +31,10 @@ export default class App extends React.Component {
 
 	onButtonPress () { 
 	  // Kutsu APIin fetchillä
-		fetch('34.248.234.108/feed/' + this.state.activeDevice.value, {
+		fetch('/feed/' + this.state.activeDevice.value, {
 			method: 'POST'
 		}).then(function(response) {
-			// Vastaus...
+			console.log("Sinne män!");
 		}).catch(function(err) {
 			// Error...
 		});
