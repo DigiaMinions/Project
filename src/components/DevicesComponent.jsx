@@ -2,7 +2,7 @@ import React from 'react'
 import Dropdown from 'react-dropdown'
 
 const userDevices = [
-    '0C%3A69%3A40%3A30%3A73%3A67', '0A%3AE2%3AA3%3AC0%3AAD%3AF8' // logged in user's devices MACs from db (: encoded as %3A)
+    '02%3A5A%3A01%3A05%3A30%3A35', '00%3A10%3A20%3A30%3A40%3A50' // logged in user's devices MACs from db (: encoded as %3A)
   ]
 
 export default class DevicesComponent extends React.Component {
