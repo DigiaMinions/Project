@@ -84,6 +84,9 @@ def callback_foodfeed(client, userdata, message):
 	# Tell AWS IoT the feed button has been clicked
 	JsonCreator.createObject("FeedClick", getDateTime())
 
+#callback for load cell
+def callback_loadcell(count, mode, reading):
+	print(reading)
 
 
 #################################
@@ -253,18 +256,19 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 def lc_init():
 	print("Start Load Cell with CH_B_GAIN_32 without callback")
 	global cell
-	cell = HX711.sensor(pi, DATA=9, CLOCK=11, mode=CH_B_GAIN_32) # GPIO PORTS 9 AND 11
+	cell = HX711.sensor(pi, DATA=9, CLOCK=11, mode=CH_A_GAIN_128, callback=callback_loadcell) # GPIO PORTS 9 AND 11
 	time.sleep(1)
-	cell.start()
-	time.sleep(1)
+	#cell.start()
+	#time.sleep(1)
 
 # Get sensor data from load cell
 def getLoadCellValue():
 	# read data from Load Cell
-	count, mode, reading = cell.get_reading()
-	#print("Cell data " + str(reading)) # NULL BEFORE GETTING THE LOAD CELL
-	returnvalue = random.randint(0,1000) # MOCK DATA
-	return 500	# returnvalue
+#	count, mode, reading = cell.get_reading()
+	#print("Cell data " + str(reading) +" "+ str(count) +" "+ str(mode)) # NULL BEFORE GETTING THE LOAD CELL
+	#returnvalue = random.randint(0,1000) # MOCK DATA
+	#return 500	
+	return 500
 
 
 
@@ -279,7 +283,7 @@ def getMac():
 	except:
 		print("Error retrieving MAC address")
 	return mac
-
+	
 # Get current date and time
 def getDateTime():
 	dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
