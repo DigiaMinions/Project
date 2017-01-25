@@ -1,4 +1,3 @@
-
 CREATE TABLE User(
 id int(10) AUTO_INCREMENT,
 email NVARCHAR(50) UNIQUE NOT NULL,
@@ -10,25 +9,26 @@ PRIMARY KEY (id)
 CREATE TABLE Device(
 id int(10) AUTO_INCREMENT,
 mac NVARCHAR(50) UNIQUE NOT NULL,
-FK_user_id int(10),
+name NVARCHAR(50) NOT NULL,
+FK_user_id int(10) NOT NULL,
 FOREIGN KEY (FK_user_id) REFERENCES User(id),
 PRIMARY KEY (id)
 );
 
-CREATE TABLE Unit(
+CREATE TABLE Template(
 id int(10) AUTO_INCREMENT,
-val NVARCHAR(10),
+name NVARCHAR(50) NOT NULL,
+FK_user_id int(10) NOT NULL,
+FOREIGN KEY (FK_user_id) REFERENCES User(id),
+UNIQUE (FK_user_id, name),
 PRIMARY KEY (id)
 );
 
-CREATE TABLE Log(
+CREATE TABLE Schedule(
 id int(10) AUTO_INCREMENT,
-val decimal(10,2) NOT NULL,
-datetime datetime NOT NULL,
-FK_device_id int(10) NOT NULL,
-FK_unit_id int(10) NOT NULL,
-PRIMARY KEY (id),
-FOREIGN KEY (FK_device_id) REFERENCES Device(id),
-FOREIGN KEY (FK_unit_id) REFERENCES Unit(id)
+feedingtime time NOT NULL,
+days int(10) NOT NULL,
+FK_template_id int(10),
+FOREIGN KEY (FK_template_id) REFERENCES Template(id),
+PRIMARY KEY (id)
 );
-
