@@ -4,8 +4,7 @@ import DevicesComponent from './DevicesComponent.jsx'
 import HeaderComponent from './HeaderComponent.jsx'
 import CalendarComponent from './CalendarComponent.jsx'
 import { Grid, Row, Col, Button, Panel } from 'react-bootstrap'
-import AWSMqtt from 'aws-mqtt-client'
-import credentials from 'json-loader!../../credentials.json'
+import 'whatwg-fetch'
 
 export default class App extends React.Component {
 
@@ -16,12 +15,6 @@ export default class App extends React.Component {
 		this.onStartTimeChange = this.onStartTimeChange.bind(this)
 		this.onEndTimeChange = this.onEndTimeChange.bind(this)
 		this.onButtonPress = this.onButtonPress.bind(this)
-		this.mqttClient = new AWSMqtt({
-    	accessKeyId: credentials.accessKeyId,
-    	secretAccessKey: credentials.secretAccessKey,
-    	endpointAddress: credentials.endpointAddress,
-    	region: credentials.region
-		});
 	}
 
 	onDeviceChange (activeDevice) { 
@@ -37,8 +30,14 @@ export default class App extends React.Component {
   }
 
 	onButtonPress () { 
-	  var macParsed = String(this.state.activeDevice.value).replace(/%3A/g, ":");
-	  this.mqttClient.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
+	  // Kutsu APIin fetchillä
+		fetch('34.248.234.108/feed/' + this.state.activeDevice.value, {
+			method: 'POST'
+		}).then(function(response) {
+			// Vastaus...
+		}).catch(function(err) {
+			// Error...
+		});
   }
 
   render() {

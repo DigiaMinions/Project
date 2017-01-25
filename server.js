@@ -1,3 +1,14 @@
+require('dotenv').config(); // tarvitaanko?
+
+var awsIot = require('aws-iot-device-sdk');
+var device = awsIot.device({
+   keyPath: "certs/DogFeeder.private.key",
+  certPath: "certs/DogFeeder.cert.pem",
+    caPath: "certs/rootCA.pem",
+  clientId: "Asiakas" + Math.floor(Math.random() * 20),
+    region: "eu-west-1"
+});
+
 /* ExpressJS alkaa */
 /* luodaan serveri ja laitetaan se kuuntelemaan porttia 9000 */
 /* kun porttiin 9000 tulee pyyntö, serverille kerrotaan siitä ja riippuen pyynnöstä tehdään jokin toiminto */
@@ -14,10 +25,10 @@ app.use(express.static(__dirname + '/src/static')); //pyyntö static-kansioon ->
 /* client voi pyytää tiedostoja vain kahdesta yllä olevasta paikasta */
 /* eli jos pyydetään esim. /server/secureFile.js -> ei tee yhtikäs mitään */
 
-/* Kannasta käyttäjän laitteiden haku */
-app.get('/devices/:user', function(req, res){
-	var user = req.params.user;
-	res.json({"Käyttäjä: " : user, "Laite" : "xxx"});
+/* API endpointit */
+app.post('/feed/:mac', function(req, res){
+	var macParsed = String(req.params.mac).replace(/%3A/g, ":");
+    device.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
 });
 
 serv.listen(9000, err => {
@@ -27,3 +38,4 @@ serv.listen(9000, err => {
 	console.log("Serveri startattu: kuuntelee porttia 9000.");
 });
 /* ExpressJS loppuu */
+
