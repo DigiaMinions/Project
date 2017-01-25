@@ -11,7 +11,7 @@ function connectionCheck {
 			while [ ! $connection == "ok" ]; do
 				echo -n "."
 				sleep 1
-				flags=$(ping -q -w 1 -c 1 `ip r | grep default | cut -d ' ' -f 3` > /dev/null 2>&1 && echo ok || echo error)
+				connection=$(ping -q -w 1 -c 1 `ip r | grep default | cut -d ' ' -f 3` > /dev/null 2>&1 && echo ok || echo error)
 			done
 		fi
 }
