@@ -1,6 +1,6 @@
 import React from 'react'
 
-const graphanaUrl = "http://34.248.48.82:3000/dashboard-solo/db/newdashboard?panelId=1&var-mac=";
+const graphanaUrl = "http://34.248.130.241:3000/dashboard-solo/db/newdashboard?panelId=1&var-mac=";
 const theme = "&theme=light";
 
 export default class GraphComponent extends React.Component {
@@ -17,8 +17,8 @@ export default class GraphComponent extends React.Component {
 				 {console.log(this.props.endTime)}
 				<iframe src={graphanaUrl + String(this.props.activeDevice.value) + theme + "&from=" + this.props.startTime + "&to=" + this.props.endTime} width='845' height='400' frameBorder='0' />
 				<br />
-			</div>
-		);
+			</div
+>		);
 	}
 }
 
