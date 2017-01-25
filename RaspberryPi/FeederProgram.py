@@ -29,8 +29,10 @@ import pigpio # Control PI GPIO ports
 import HX711 # HX711 AD Converter
 from JSONMaker import JSONMaker # DIY library for handling JSONs
 import urllib # Download updates
-import json
-import thread
+import json # Parsing Json
+import thread # Threading
+import re
+import statistics # For calculating median
 
 #################################
 ### CLASS DECLARATIONS ##########
@@ -74,19 +76,26 @@ def callback_update(client, userdata, message):
 
 # Callback for foodfeed
 def callback_foodfeed(client, userdata, message):
-	validatedMessage, schedule = validateFeedMessage(message.payload)
-	if (validatedMessage == "instant"):
-		print("Instant foodfeed pressed")
-		servo_feedFood()
-	elif (validatedMessage == "onetimeschedule"):
-		print("Food feed scheduled to: " + schedule)
-		gVars.scheduledFeed = schedule
-	# Tell AWS IoT the feed button has been clicked
-	JsonCreator.createObject("FeedClick", getDateTime())
+	flags, schedule = validateFeedMessage(message.payload)
+
+    if flags is not 'invalid': # If validation ok
+	
+        if flags is 'instant':
+            print('Instant foodfeed pressed')
+            JsonCreator.createObject('instantFeedClick', getDateTime()) # Tell AWS IoT the feed button has been clicked
+			servo_feedFood()
+        elif flags is 'schedule':
+            scheduleFileWrite(schedule)
+            JsonCreator.createObject('newSchedule', getDateTime())
 
 #callback for load cell
 def callback_loadcell(count, mode, reading):
-	print(reading)
+	global loadList
+	global lc_offset
+	global lc_referenceUnit
+	load = (reading - lc_offset) / lc_referenceUnit
+	loadList.append(load)
+	print('Raw load: '+ reading +', Calculated load: '+ load)
 
 
 #################################
@@ -254,21 +263,46 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Initialize load cell. Do this before usage
 def lc_init():
-	print("Start Load Cell with CH_B_GAIN_32 without callback")
+	print("Start Load Cell with callback")
 	global cell
 	cell = HX711.sensor(pi, DATA=9, CLOCK=11, mode=CH_A_GAIN_128, callback=callback_loadcell) # GPIO PORTS 9 AND 11
-	time.sleep(1)
-	#cell.start()
 	#time.sleep(1)
+
+# HOW TO CALCULATE THE REFFERENCE UNIT
+# To set the reference unit to 1. Put 1kg on your sensor or anything you have and know exactly how much it weights.
+# In this case, 92 is 1 gram because, with 1 as a reference unit I got numbers near 0 without any weight
+# and I got numbers around 184000 when I added 2kg. So, according to the rule of thirds:
+# If 2000 grams is 184000 then 1000 grams is 184000 / 2000 = 92.	
+def lc_setReferenceUnit(value):
+	global lc_referenceUnit
+	lc_referenceUnit = value
+	
+def lc_setOffset(value):
+	global lc_offset
+	lc_offset = value
+	
+def lc_tare(): # Sets offset to load cell data
+	global lc_referenceUnit
+	global loadList
+	referenceUnitTemp = lc_referenceUnit
+	lc_setReferenceUnit(1)
+	loadAverage = 0
+	for i in range (0, 20): # run 20 times
+		loadAverage += loadList[len(loadList)-1]
+		time.sleep(0.1)
+	lc_setOffset( loadAverage / 20 )	
+	lc_setReferenceUnit(referenceUnitTemp)
 
 # Get sensor data from load cell
 def getLoadCellValue():
-	# read data from Load Cell
-#	count, mode, reading = cell.get_reading()
-	#print("Cell data " + str(reading) +" "+ str(count) +" "+ str(mode)) # NULL BEFORE GETTING THE LOAD CELL
-	#returnvalue = random.randint(0,1000) # MOCK DATA
-	#return 500	
-	return 500
+	global loadList
+	medianLoad = statistics.median(loadList)
+	del loadList[:]	 # loadList.clear() if < python 3.3
+	return medianLoad
+	
+	# Kellota huomenna clear!!!
+	#$ python -mtimeit "l=list(range(1000))" "b=l[:];del b[:]"
+	#$ python -mtimeit "l=list(range(1000))" "b=l[:];b[:] = []"
 
 
 
@@ -296,7 +330,7 @@ def fetchUpdate():
 	# Download the file using system command and save it locally
 	os.system("svn export " + url + " " + location + " --force")
 
-def checkFeedSchedule():
+def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa tiedostosta ja poistelemaan yms.
 	if (gVars.scheduledFeed is None):
 		return
 	elif (getDateTime() <= gVars.scheduledFeed):
@@ -312,30 +346,64 @@ def checkFeedSchedule():
 
 # Check if feedmessage from user is instant or scheduled feed
 def validateFeedMessage(data):
-	# Values to return at the end
-	messageValue = None
-	messageSchedule = None # TODO is this still needed?
-	# Save message payload to Json
-	message = json.loads(data)
+    # Values to return at the end
+    flags = None
+    messageSchedule = None
+    
+    # What regex to look for in a string
+    regex = "rep";
+    
+    # Different time formats to use
+    clockFormat = '%H:%M:%S'
+    dateFormat = '%Y-%m-%d'
+    dateTimeFormat = '%Y-%m-%d %H:%M:%S'
+        
+    # foodfeed can be found only if user presses instant feed button
+    if 'foodfeed' in data:
+        dataValue = data['foodfeed'] # TODO is this needed or is it enough to have 'foodfeed'? to be sure?
+        if dataValue is 'instant':
+            flags = dataValue # set return flags to instant feed
 
+    # schedule can be found is user sends a schedule
+    elif 'schedule' in data:
+        list = data['schedule']
+        messageSchedule = [] # Initialize schedulearray
+        flags = 'schedule' # set flags to scheduled feeding
+        for index in range(len(list)):
+            try:                
+                if bool(re.search(regex, list[index])) is True: # If string has regex..
+                    position = list[index].find(regex) # Find the position of regex
+                    savedRegex = list[index][position:] # Save regex and everything behind it
+                    list[index] = list[index][:position] # Remove regex from the string (temporarily)
+                    list[index] = str(datetime.strptime(list[index], clockFormat).time()) # Make sure the time format is correct
+                    list[index] = list[index] + savedRegex # Add regex back to string
+                    messageSchedule.append(list[index]) # Append to schedulelist
+                else: # If string doesn't have regex just check the datetime is valid
+                    messageSchedule.append(str(datetime.strptime(list[index], dateTimeFormat)))
+            except ValueError: # If the string has invalid date/time format
+                messageSchedule.append('invalid')        
+    else: # If Json doesn't have required objects or arrays
+        flags = 'invalid'
 
-	print(message)
-
-	message = message['foodfeed']
-	try:
-#		flags = message['onetime'] # Check if flagged as one time scheduled feed
-		messageSchedule = str(datetime.strptime(message, '%Y-%m-%d %H:%M:%S'))
-		messageValue = "onetimeschedule"
-	except ValueError:
-		messageValue = "instant"
-	return messageValue, messageSchedule
+    print('Flags ' + flags)
+    print('messageSchedule ' + messageSchedule)
+    return flags, messageSchedule
+	
+def scheduleFileWrite(schedule):
+    with open("schedule.dat", "w") as file:
+        for index in range(len(schedule)):
+            if schedule[index] is 'invalid':
+                JsonCreator.createObject('Error', 'invalid time detected')
+                print('Error')
+            else:
+                file.write(schedule[index] + '\n')
 
 # Create a message part to AWS IoT
 def createMessageSegment(load, index):
 	global JsonCreator
-	dateTime = getDateTime() #str(datetime.now().strftime("%d-%m-%Y %H:%M:%S"))
+	dateTime = getDateTime()
 	JsonCreator.createArray("load", str(dateTime) + '": "' + str(load))
-	print(index) # DEBUG ONLY
+	#print(index) # DEBUG ONLY
 	#message = "{\n" + "'ID': " + "'" + str(ID) + "'" + ",\n" + "'time': " + "'" + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "',\n" + "'load': " + "'" + str(load) + "'\n" + "}"
 
 # Add ID stamp to AWS IoT message
@@ -365,12 +433,6 @@ time.sleep(1.5)
 #################################
 ### THREADS #####################
 
-def thread1():
-	interval = 1
-	while True:
-		checkFeedSchedule()
-		time.sleep(interval)
-
 def thread0():
 	global JsonCreator
 	interval = 1
@@ -383,20 +445,21 @@ def thread0():
 			time.sleep(interval)
 		createMessageIDStamp()
 		myAWSIoTMQTTClient.publish("DogFeeder/Data", str(getFinalMessage()), 1) # Create final message from previously made pieces and send it to AWS IoT
-
-
+		
+def thread1():
+	interval = 1
+	while True:
+		checkFeedSchedule()
+		time.sleep(interval)
+		
 		
 
 #################################
 ### MAIN program ################
 
-cell = None # Load cell gets initialized here
-servoStatus = False # Is servos being currently used
+cell = None # Load cell variable gets initialized here
+servoStatus = False # Boolean telling if servos being currently used
 JsonCreator = None
-
-CH_A_GAIN_64 = 0 # Channel A gain 64
-CH_A_GAIN_128 = 1 # Channel A gain 128
-CH_B_GAIN_32 = 2 # Channel B gain 32
 
 gVars = globalVars() # Init globalVars -class
 gVars.ID = getMac() # Get MAC address for identification
@@ -405,14 +468,22 @@ pi = pigpio.pi() # Initialize pigpio library
 servoVars = servoControl() # Initialize custom servo data
 
 # Load cell data
-count = 0
-mode = 0
-reading = 0
+#count = 0
+#mode = 0
+#reading = 0
 
 # All scheduled feed times
 masterSchedule = []
 
 # Init load cell before main loop
+CH_A_GAIN_64 = 0 # Channel A gain 64. Preset for load cell
+CH_A_GAIN_128 = 1 # Channel A gain 128. Preset for load cell
+CH_B_GAIN_32 = 2 # Channel B gain 32. Preset for load cell
+
+loadList = [] # Global array for load cell data
+lc_offset = 0
+lc_setReferenceUnit = 92 # TODO tämä mitattava
+lc_tare() # TODO missä kohtaa tämä kannattaisi tehdä? Käyttäjän napinpainalluksella? Esiasennuksella?
 lc_init()
 
 # Initialize thread(s)
