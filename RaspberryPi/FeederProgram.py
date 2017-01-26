@@ -44,10 +44,10 @@ class servoControl:
 
 
 #################################
-### AWS IOT CALLBACKS ###########
+### CALLBACKS ###########
 
 # Custom MQTT message callback
-def customCallback(client, userdata, message): # Is this necessary?
+def callback_data(client, userdata, message): # Is this necessary?
 	print("Received a new message: ")
 	print(message.payload)
 	print("from topic: ")
@@ -264,30 +264,46 @@ def lc_init():
 def lc_setReferenceUnit(value):
 	global lc_referenceUnit
 	lc_referenceUnit = value
-	
-def lc_setOffset(value):
-	global lc_offset
-	lc_offset = value
-	
-def lc_tare(): # Sets offset to load cell data
-	global lc_referenceUnit
-	global loadList
-	global lc_offset
-	referenceUnitTemp = lc_referenceUnit
-	lc_referenceUnit = 1
-	loadAverage = 0
-	time.sleep(1)
-	for i in range (0, 10): # run 10 times
-		loadAverage += loadList[len(loadList)-1]
-		print("Tare: " + str(i) + " Load: " + str(loadAverage))
-		time.sleep(0.3)
-	lc_offset = loadAverage / 10	
-	print("Endload: " + str(lc_offset))
-	lc_referenceUnit = referenceUnitTemp
 
+def lc_tare(): # Calculates and sets load cell offset
+	global loadList
+	global lc_referenceUnit
+	global lc_offset
+	global tare
+	
+	tare = True
+	referenceUnitTemp = lc_referenceUnit # Save current referenceUnit
+	lc_referenceUnit = 1 # Temporarily set reference unit to 1
+	loadAverage = 0
+	
+	while len(loadList) is 0: # Wait until data available
+		time.sleep(0.1)
+		
+	for i in range (0, 15): # take 15 samples
+		loadAverage += loadList[len(loadList)-1]
+		time.sleep(0.25)
+	lc_offset = loadAverage / 15
+	print("Tare endload: " + str(lc_offset))
+	lc_referenceUnit = referenceUnitTemp
+	tare = False
+	
+	saveOffset(lc_offset) # Save offset to file
+
+def saveOffset(value):
+	with open('offset.dat', 'w') as file:
+		file.write(str(value))
+		print("Offset saved to file")
+
+	
+def readOffset() # Read offset from file and save it to lc_offset
+	with open("offset.dat", "r") as file:
+		lc_offset = file.read()
+		print("Offset loaded from file")
+	
 # Get sensor data from load cell
 def getLoadCellValue():
 	global loadList
+	
 	medianLoad = sum(loadList) / len(loadList)
 	del loadList[:]	 # loadList.clear() if < python 3.3
 	return medianLoad
@@ -414,7 +430,7 @@ def getFinalMessage():
 
 # Connect and subscribe to AWS IoT (partly AWS)
 myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe("DogFeeder/Data", 1, customCallback)
+myAWSIoTMQTTClient.subscribe("DogFeeder/Data", 1, callback_data)
 myAWSIoTMQTTClient.subscribe("DogFeeder/" + getMac(), 1, callback_foodfeed)
 myAWSIoTMQTTClient.subscribe("DogFeeder/Update", 1, callback_update)
 time.sleep(1.5)
@@ -471,6 +487,7 @@ CH_A_GAIN_64 = 0 # Channel A gain 64. Preset for load cell
 CH_A_GAIN_128 = 1 # Channel A gain 128. Preset for load cell
 CH_B_GAIN_32 = 2 # Channel B gain 32. Preset for load cell
 
+tare = False
 loadList = [] # Global array for load cell data
 lc_offset = 0
 lc_referenceUnit = 932
@@ -478,9 +495,9 @@ lc_referenceUnit = 932
 while len(loadList) == 0:
 	lc_init()
 	time.sleep(1)
-print("TARE START")
+
 lc_tare() # TODO missä kohtaa tämä kannattaisi tehdä? Käyttäjän napinpainalluksella? Esiasennuksella?
-print("TARE END")
+
 # Initialize thread(s)
 try:
 	thread.start_new_thread( thread0, ()) # MAIN get load cell data and send to AWS IoT
