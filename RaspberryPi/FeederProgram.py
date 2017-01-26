@@ -295,7 +295,7 @@ def saveOffset(value):
 		print("Offset saved to file")
 
 	
-def readOffset() # Read offset from file and save it to lc_offset
+def readOffset(): # Read offset from file and save it to lc_offset
 	with open("offset.dat", "r") as file:
 		lc_offset = file.read()
 		print("Offset loaded from file")
