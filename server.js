@@ -28,9 +28,8 @@ app.use(express.static(__dirname + '/src/static')); //pyyntö static-kansioon ->
 /* API endpointit */
 app.post('/feed/:mac', function(req, res){
 	var macParsed = String(req.params.mac).replace(/%3A/g, ":");
-	console.log(macParsed);
     device.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
-    return res.send("Sinne meni!");
+    return res.send("Sinne meni! " + macParsed);
 });
 
 serv.listen(9000, err => {
