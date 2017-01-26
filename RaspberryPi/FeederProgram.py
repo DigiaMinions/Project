@@ -1,19 +1,5 @@
-'''
-/*
- * Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
- '''
+#!/usr/bin/python
+# coding=utf-8
 
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import sys
@@ -32,7 +18,8 @@ import urllib # Download updates
 import json # Parsing Json
 import thread # Threading
 import re
-import statistics # For calculating median
+#import statistics # For calculating median
+#import numpy
 
 #################################
 ### CLASS DECLARATIONS ##########
@@ -78,15 +65,14 @@ def callback_update(client, userdata, message):
 def callback_foodfeed(client, userdata, message):
 	flags, schedule = validateFeedMessage(message.payload)
 
-    if flags is not 'invalid': # If validation ok
-	
-        if flags is 'instant':
-            print('Instant foodfeed pressed')
-            JsonCreator.createObject('instantFeedClick', getDateTime()) # Tell AWS IoT the feed button has been clicked
+	if flags is not 'invalid': # If validation ok
+		if flags is 'instant':
+			print('Instant foodfeed pressed')
+			JsonCreator.createObject('instantFeedClick', getDateTime()) # Tell AWS IoT the feed button has been clicked
 			servo_feedFood()
-        elif flags is 'schedule':
-            scheduleFileWrite(schedule)
-            JsonCreator.createObject('newSchedule', getDateTime())
+		elif flags is 'schedule':
+			scheduleFileWrite(schedule)
+			JsonCreator.createObject('newSchedule', getDateTime())
 
 #callback for load cell
 def callback_loadcell(count, mode, reading):
@@ -94,8 +80,10 @@ def callback_loadcell(count, mode, reading):
 	global lc_offset
 	global lc_referenceUnit
 	load = (reading - lc_offset) / lc_referenceUnit
+#	if load < 0:
+#		load = 0
 	loadList.append(load)
-	print('Raw load: '+ reading +', Calculated load: '+ load)
+	print('Raw load: '+ str(reading) +', Calculated load: '+ str(load))
 
 
 #################################
@@ -265,8 +253,8 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 def lc_init():
 	print("Start Load Cell with callback")
 	global cell
-	cell = HX711.sensor(pi, DATA=9, CLOCK=11, mode=CH_A_GAIN_128, callback=callback_loadcell) # GPIO PORTS 9 AND 11
-	#time.sleep(1)
+	cell = HX711.sensor(pi, DATA=9, CLOCK=11, mode=CH_A_GAIN_64, callback=callback_loadcell) # GPIO PORTS 9 AND 11
+	time.sleep(3)
 
 # HOW TO CALCULATE THE REFFERENCE UNIT
 # To set the reference unit to 1. Put 1kg on your sensor or anything you have and know exactly how much it weights.
@@ -284,19 +272,23 @@ def lc_setOffset(value):
 def lc_tare(): # Sets offset to load cell data
 	global lc_referenceUnit
 	global loadList
+	global lc_offset
 	referenceUnitTemp = lc_referenceUnit
-	lc_setReferenceUnit(1)
+	lc_referenceUnit = 1
 	loadAverage = 0
-	for i in range (0, 20): # run 20 times
+	time.sleep(1)
+	for i in range (0, 10): # run 10 times
 		loadAverage += loadList[len(loadList)-1]
-		time.sleep(0.1)
-	lc_setOffset( loadAverage / 20 )	
-	lc_setReferenceUnit(referenceUnitTemp)
+		print("Tare: " + str(i) + " Load: " + str(loadAverage))
+		time.sleep(0.3)
+	lc_offset = loadAverage / 10	
+	print("Endload: " + str(lc_offset))
+	lc_referenceUnit = referenceUnitTemp
 
 # Get sensor data from load cell
 def getLoadCellValue():
 	global loadList
-	medianLoad = statistics.median(loadList)
+	medianLoad = sum(loadList) / len(loadList)
 	del loadList[:]	 # loadList.clear() if < python 3.3
 	return medianLoad
 	
@@ -404,7 +396,6 @@ def createMessageSegment(load, index):
 	dateTime = getDateTime()
 	JsonCreator.createArray("load", str(dateTime) + '": "' + str(load))
 	#print(index) # DEBUG ONLY
-	#message = "{\n" + "'ID': " + "'" + str(ID) + "'" + ",\n" + "'time': " + "'" + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "',\n" + "'load': " + "'" + str(load) + "'\n" + "}"
 
 # Add ID stamp to AWS IoT message
 def createMessageIDStamp():
@@ -482,10 +473,14 @@ CH_B_GAIN_32 = 2 # Channel B gain 32. Preset for load cell
 
 loadList = [] # Global array for load cell data
 lc_offset = 0
-lc_setReferenceUnit = 92 # TODO tämä mitattava
+lc_referenceUnit = 932
+#lc_setReferenceUnit = 100 # TODO tämä mitattava
+while len(loadList) == 0:
+	lc_init()
+	time.sleep(1)
+print("TARE START")
 lc_tare() # TODO missä kohtaa tämä kannattaisi tehdä? Käyttäjän napinpainalluksella? Esiasennuksella?
-lc_init()
-
+print("TARE END")
 # Initialize thread(s)
 try:
 	thread.start_new_thread( thread0, ()) # MAIN get load cell data and send to AWS IoT
