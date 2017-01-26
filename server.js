@@ -1,15 +1,11 @@
-//require('dotenv').config(); // tarvitaanko?
-
-/* AWS IoT Device SDK */
 var awsIot = require('aws-iot-device-sdk');
 var device = awsIot.device({
-   keyPath: "certs/DogFeeder.private.key",
-  certPath: "certs/DogFeeder.cert.pem",
-    caPath: "certs/rootCA.pem",
-  clientId: "Asiakas" + Math.floor(Math.random() * 20),
-    region: "eu-west-1"
+   		keyPath: "certs/DogFeeder.private.key",
+  		certPath: "certs/DogFeeder.cert.pem",
+    	caPath: "certs/rootCA.pem",
+  		clientId: "Asiakas" + Math.floor(Math.random() * 120),
+    	region: "eu-west-1"
 });
-
 /* ExpressJS alkaa */
 /* luodaan serveri ja laitetaan se kuuntelemaan porttia 9000 */
 /* kun porttiin 9000 tulee pyyntö, serverille kerrotaan siitä ja riippuen pyynnöstä tehdään jokin toiminto */
@@ -30,9 +26,12 @@ app.use(express.static(__dirname + '/src/static')); //pyyntö static-kansioon ->
 
 /* API endpointit */
 app.post('/feed/', function(req, res){
+
+
+
 	var macParsed = String(req.body.mac).replace(/%3A/g, ":");
     device.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
-    
+
     res.setHeader('Content-Type', 'text/plain')
   	res.write('you posted:\n')
  	res.end(JSON.stringify(req.body, null, 2))
