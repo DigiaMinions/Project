@@ -34,9 +34,11 @@ export default class App extends React.Component {
 		fetch('/feed/', {
 			method: 'POST',
 			headers: {
-    		"Content-Type": "application/x-www-form-urlencoded"
+    		"Content-Type": "application/json"
   		},
-  		body: "mac=" + this.state.activeDevice.value
+  		body: JSON.stringify({
+  			mac: this.state.activeDevice.value,
+  		})
 		})
 		.then(function(res) {
 			console.log("Success: ", res);

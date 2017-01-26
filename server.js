@@ -17,9 +17,7 @@ var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 var bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({ // URL-enkoodattu body
-  extended: true
-})); 
+app.use(bodyParser.json()); // JSON body
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/src/static/index.html'); //tyhjä pyyntö -> lähetetään /static/index.html
@@ -34,7 +32,10 @@ app.use(express.static(__dirname + '/src/static')); //pyyntö static-kansioon ->
 app.post('/feed/', function(req, res){
 	var macParsed = String(req.body.mac).replace(/%3A/g, ":");
     device.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
-    return res.send("Sinne meni MAC: " + macParsed);
+    
+    res.setHeader('Content-Type', 'text/plain')
+  	res.write('you posted:\n')
+ 	res.end(JSON.stringify(req.body, null, 2))
 });
 
 serv.listen(9000, err => {
