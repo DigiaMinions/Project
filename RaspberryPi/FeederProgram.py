@@ -73,6 +73,8 @@ def callback_foodfeed(client, userdata, message):
 		elif flags is 'schedule':
 			scheduleFileWrite(schedule)
 			JsonCreator.createObject('newSchedule', getDateTime())
+		elif flags is 'tare':
+			tare()
 
 #callback for load cell
 def callback_loadcell(count, mode, reading):
@@ -80,8 +82,8 @@ def callback_loadcell(count, mode, reading):
 	global lc_offset
 	global lc_referenceUnit
 	load = (reading - lc_offset) / lc_referenceUnit
-#	if load < 0:
-#		load = 0
+	if load < 0 and tare is False :
+		load = 0
 	loadList.append(load)
 	print('Raw load: '+ str(reading) +', Calculated load: '+ str(load))
 
@@ -272,6 +274,7 @@ def lc_tare(): # Calculates and sets load cell offset
 	global tare
 	
 	tare = True
+	JsonCreator.createObject('Tare start', getDateTime())
 	referenceUnitTemp = lc_referenceUnit # Save current referenceUnit
 	lc_referenceUnit = 1 # Temporarily set reference unit to 1
 	loadAverage = 0
@@ -286,6 +289,7 @@ def lc_tare(): # Calculates and sets load cell offset
 	print("Tare endload: " + str(lc_offset))
 	lc_referenceUnit = referenceUnitTemp
 	tare = False
+	JsonCreator.createObject('Tare end', getDateTime())
 	
 	saveOffset(lc_offset) # Save offset to file
 
@@ -293,13 +297,13 @@ def saveOffset(value):
 	with open('offset.dat', 'w') as file:
 		file.write(str(value))
 		print("Offset saved to file")
-
 	
 def readOffset(): # Read offset from file and save it to lc_offset
 	with open("offset.dat", "r") as file:
-		lc_offset = file.read()
+		offset = file.read()
 		print("Offset loaded from file")
-	
+	return offset
+
 # Get sensor data from load cell
 def getLoadCellValue():
 	global loadList
@@ -353,7 +357,7 @@ def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa 
 ### MESSAGE FUNCTIONS ###########
 
 # Check if feedmessage from user is instant or scheduled feed
-def validateFeedMessage(data):
+def validateMessage(data):
     # Values to return at the end
     flags = None
     messageSchedule = None
@@ -389,7 +393,10 @@ def validateFeedMessage(data):
                 else: # If string doesn't have regex just check the datetime is valid
                     messageSchedule.append(str(datetime.strptime(list[index], dateTimeFormat)))
             except ValueError: # If the string has invalid date/time format
-                messageSchedule.append('invalid')        
+                messageSchedule.append('invalid')
+	# tare can be found if user wants to reset load cell offset
+	elif 'tare' in data:
+		flags = 'tare'
     else: # If Json doesn't have required objects or arrays
         flags = 'invalid'
 
@@ -489,14 +496,14 @@ CH_B_GAIN_32 = 2 # Channel B gain 32. Preset for load cell
 
 tare = False
 loadList = [] # Global array for load cell data
-lc_offset = 0
+lc_offset = readOffset()
 lc_referenceUnit = 932
 #lc_setReferenceUnit = 100 # TODO tämä mitattava
 while len(loadList) == 0:
 	lc_init()
 	time.sleep(1)
 
-lc_tare() # TODO missä kohtaa tämä kannattaisi tehdä? Käyttäjän napinpainalluksella? Esiasennuksella?
+#lc_tare() # TODO missä kohtaa tämä kannattaisi tehdä? Käyttäjän napinpainalluksella? Esiasennuksella?
 
 # Initialize thread(s)
 try:
