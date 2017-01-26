@@ -1,5 +1,6 @@
-require('dotenv').config(); // tarvitaanko?
+//require('dotenv').config(); // tarvitaanko?
 
+/* AWS IoT Device SDK */
 var awsIot = require('aws-iot-device-sdk');
 var device = awsIot.device({
    keyPath: "certs/DogFeeder.private.key",
@@ -15,6 +16,10 @@ var device = awsIot.device({
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
+var bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({ // URL-enkoodattu body
+  extended: true
+})); 
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/src/static/index.html'); //tyhjä pyyntö -> lähetetään /static/index.html
@@ -26,10 +31,10 @@ app.use(express.static(__dirname + '/src/static')); //pyyntö static-kansioon ->
 /* eli jos pyydetään esim. /server/secureFile.js -> ei tee yhtikäs mitään */
 
 /* API endpointit */
-app.post('/feed/:mac', function(req, res){
-	var macParsed = String(req.params.mac).replace(/%3A/g, ":");
+app.post('/feed/', function(req, res){
+	var macParsed = String(req.body.mac).replace(/%3A/g, ":");
     device.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
-    return res.send("Sinne meni! " + macParsed);
+    return res.send("Sinne meni MAC: " + macParsed);
 });
 
 serv.listen(9000, err => {

@@ -31,12 +31,18 @@ export default class App extends React.Component {
 
 	onButtonPress () { 
 	  // Kutsu APIin fetchillä
-		fetch('/feed/' + this.state.activeDevice.value, {
-			method: 'POST'
-		}).then(function(response) {
-			console.log("Sinne män!");
-		}).catch(function(err) {
-			// Error...
+		fetch('/feed/', {
+			method: 'POST',
+			headers: {
+    		"Content-Type": "application/x-www-form-urlencoded"
+  		},
+  		body: "mac=" + this.state.activeDevice.value
+		})
+		.then(function(res) {
+			console.log("Success: ", res);
+		})
+		.catch(function(err) {
+			console.log("Error: ", err);
 		});
   }
 
