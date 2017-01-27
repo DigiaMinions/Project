@@ -61,12 +61,19 @@ def callback_update(client, userdata, message):
 	print("New version: " + message.payload)
 	fetchUpdate()
 
-# Callback for foodfeed
-def callback_foodfeed(client, userdata, message):
-	flags, schedule = validateFeedMessage(message.payload)
+# Callback for user data
+'''
+flags info:
+feed = instant foodfeed
+schedule = schedule received, save to file
+tare = recalculate load cell offset
+'''
+def callback_userdata(client, userdata, message):
+	print("Callback_foodfeed")
+	flags, schedule = validateMessage(message.payload)
 
 	if flags is not 'invalid': # If validation ok
-		if flags is 'instant':
+		if flags is 'feed':
 			print('Instant foodfeed pressed')
 			JsonCreator.createObject('instantFeedClick', getDateTime()) # Tell AWS IoT the feed button has been clicked
 			servo_feedFood()
@@ -74,7 +81,7 @@ def callback_foodfeed(client, userdata, message):
 			scheduleFileWrite(schedule)
 			JsonCreator.createObject('newSchedule', getDateTime())
 		elif flags is 'tare':
-			tare()
+			lc_tare()
 
 #callback for load cell
 def callback_loadcell(count, mode, reading):
@@ -85,7 +92,7 @@ def callback_loadcell(count, mode, reading):
 	if load < 0 and tare is False :
 		load = 0
 	loadList.append(load)
-	print('Raw load: '+ str(reading) +', Calculated load: '+ str(load))
+#	print('Raw load: '+ str(reading) +', Calculated load: '+ str(load))
 
 
 #################################
@@ -300,15 +307,16 @@ def saveOffset(value):
 	
 def readOffset(): # Read offset from file and save it to lc_offset
 	with open("offset.dat", "r") as file:
-		offset = file.read()
+		offset = int(file.read())
 		print("Offset loaded from file")
 	return offset
 
 # Get sensor data from load cell
 def getLoadCellValue():
 	global loadList
-	
-	medianLoad = sum(loadList) / len(loadList)
+	medianLoad = 0
+	if len(loadList) is not 0:
+		medianLoad = sum(loadList) / len(loadList)
 	del loadList[:]	 # loadList.clear() if < python 3.3
 	return medianLoad
 	
@@ -335,6 +343,20 @@ def getDateTime():
 	dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	return dateTime
 
+# Get current time
+def getTime():
+	time = str(datetime.now().time().strftime("%H:%M:%S"))
+	return time
+
+def getTodaysNumber():
+	number = int(datetime.now().weekday() + 1) # Monday defaults to 0. Make it 1
+	currentValue = 1
+	if number is not 1:
+		for i in range(number - 1):
+			currentValue = currentValue * 2
+#	print("Todays number is :" + str(currentValue))
+	return currentValue
+
 # Download available update
 def fetchUpdate():
 	url = 'https://github.com/DigiaMinions/Project/trunk/RaspberryPi' # INCOMPLETE. Should there be an update folder after testing?
@@ -342,72 +364,115 @@ def fetchUpdate():
 	# Download the file using system command and save it locally
 	os.system("svn export " + url + " " + location + " --force")
 
+def parseRep(repValue):
+	# 1 2 4 8 16 32 64
+	repList = []
+	currentValue = 64
+	while currentValue >= 1:
+		if repValue >= currentValue:
+			repList.append(currentValue)
+			repValue = repValue - currentValue
+			currentValue = currentValue / 2
+		else:
+			currentValue = currentValue / 2
+
+#	print("repList :" +str(repList))
+	return repList
+
+
+
 def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa tiedostosta ja poistelemaan yms.
+	regex = 'rep'
+	removalList = [] # What schedules to remove after the content loop finishes
+
 	with open('schedule.dat', 'r') as file:
-    content = file.read().splitlines()
+		content = file.read().splitlines()
+
 	for line in content:
-	print(line)
-	
-#	if (gVars.scheduledFeed is None):
-#		return
-#	elif (getDateTime() <= gVars.scheduledFeed):
-#		return
-#	else:
-#		gVars.scheduledFeed = None
-#		servo_feedFood()
+#		print(str(line))
+		if bool(re.search(regex, line)) is True: # If string has regex..
+			position = line.find(regex)
+			repValue = int(line[position +3:])
+			# If current day matches with a day referenced in 'rep'
+			if getTodaysNumber() in parseRep(repValue):
+				timeTemp = line[:position]
+				if getTime() >= timeTemp: # TODO tähän myös tarkistus ettei liian kaukana takana, jos ajastaa samalle päivälle aikaisempaan hetkeen jotain. Miten syöttää vain kerran kun aika ohitettu?
+								# Tehäänkö joku 'fedtoday.dat' mihin verrataan, jos sieltä löytyy sama string? Se pitäs nollata sit päivänvaihteessa.
+					servo_feedFood() # Feed food
+		elif bool(re.search(regex, line)) is False: # If regex couldn't be found (one-time scheduled feed) and the time has passed
+			if getDateTime() >= line:
+				removalList.append(line) # Flag the line to be removed
+				servo_feedFood()
+		else: # When something goes wrong..
+			print('Error reading schedule')
+
+	# Remove flagged lines
+	if len(removalList) is not 0:
+		for line in removalList:
+			while line in content:
+				content.remove(line)
+		with open('schedule.dat', 'w') as file:
+			for line in removalList:
+				while line in content:
+					content.remove(line)
+			for line in content:
+				file.write(str(line) + '\n')
+		print("REMOVED SOMETHING")
+#		del removalList[:]
 
 
-	
+
 #################################
 ### MESSAGE FUNCTIONS ###########
 
 # Check if feedmessage from user is instant or scheduled feed
 def validateMessage(data):
-    # Values to return at the end
-    flags = None
-    messageSchedule = None
+	# Values to return at the end
+	flags = None
+	messageSchedule = None
     
-    # What regex to look for in a string
-    regex = "rep";
+	# What regex to look for in a string
+	regex = "rep";
     
-    # Different time formats to use
-    clockFormat = '%H:%M:%S'
-    dateFormat = '%Y-%m-%d'
-    dateTimeFormat = '%Y-%m-%d %H:%M:%S'
-        
-    # foodfeed can be found only if user presses instant feed button
-    if 'foodfeed' in data:
-        dataValue = data['foodfeed'] # TODO is this needed or is it enough to have 'foodfeed'? to be sure?
-        if dataValue is 'instant':
-            flags = dataValue # set return flags to instant feed
+	# Different time formats to use
+	clockFormat = '%H:%M:%S'
+	dateFormat = '%Y-%m-%d'
+	dateTimeFormat = '%Y-%m-%d %H:%M:%S'
+	data = json.loads(data)    
 
-    # schedule can be found is user sends a schedule
-    elif 'schedule' in data:
-        list = data['schedule']
-        messageSchedule = [] # Initialize schedulearray
-        flags = 'schedule' # set flags to scheduled feeding
-        for index in range(len(list)):
-            try:                
-                if bool(re.search(regex, list[index])) is True: # If string has regex..
-                    position = list[index].find(regex) # Find the position of regex
-                    savedRegex = list[index][position:] # Save regex and everything behind it
-                    list[index] = list[index][:position] # Remove regex from the string (temporarily)
-                    list[index] = str(datetime.strptime(list[index], clockFormat).time()) # Make sure the time format is correct
-                    list[index] = list[index] + savedRegex # Add regex back to string
-                    messageSchedule.append(list[index]) # Append to schedulelist
-                else: # If string doesn't have regex just check the datetime is valid
-                    messageSchedule.append(str(datetime.strptime(list[index], dateTimeFormat)))
-            except ValueError: # If the string has invalid date/time format
-                messageSchedule.append('invalid')
-	# tare can be found if user wants to reset load cell offset
+	# foodfeed can be found only if user presses instant feed button
+	if 'feed' in data:
+#        dataValue = data['foodfeed'] # TODO is this needed or is it enough to have 'foodfeed'? to be sure?
+#        if dataValue is 'instant':
+		flags = 'feed' # set return flags to instant feed
+
+	# schedule can be found is user sends a schedule
+	elif 'schedule' in data:
+		list = data['schedule']
+		messageSchedule = [] # Initialize schedulearray
+		flags = 'schedule' # set flags to scheduled feeding
+		for index in range(len(list)):
+			try:                
+				if bool(re.search(regex, list[index])) is True: # If string has regex..
+					position = list[index].find(regex) # Find the position of regex
+					savedRegex = list[index][position:] # Save regex and everything behind it
+					list[index] = list[index][:position] # Remove regex from the string (temporarily)
+					list[index] = str(datetime.strptime(list[index], clockFormat).time()) # Make sure the time format is correct
+					list[index] = list[index] + savedRegex # Add regex back to string
+					messageSchedule.append(list[index]) # Append to schedulelist
+				else: # If string doesn't have regex just check the datetime is valid
+					messageSchedule.append(str(datetime.strptime(list[index], dateTimeFormat)))
+			except ValueError: # If the string has invalid date/time format
+				messageSchedule.append('invalid')
+				# tare can be found if user wants to reset load cell offset
 	elif 'tare' in data:
 		flags = 'tare'
-    else: # If Json doesn't have required objects or arrays
-        flags = 'invalid'
+	else: # If Json doesn't have required objects or arrays
+		flags = 'invalid'
 
-    print('Flags ' + flags)
-    print('messageSchedule ' + messageSchedule)
-    return flags, messageSchedule
+	print('Flags ' + str(flags))
+	print('messageSchedule ' + str(messageSchedule))
+	return flags, messageSchedule
 	
 def scheduleFileWrite(schedule):
     with open("schedule.dat", "w") as file:
@@ -442,10 +507,10 @@ def getFinalMessage():
 
 # Connect and subscribe to AWS IoT (partly AWS)
 myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe("DogFeeder/Data", 1, callback_data)
-myAWSIoTMQTTClient.subscribe("DogFeeder/" + getMac(), 1, callback_foodfeed)
-myAWSIoTMQTTClient.subscribe("DogFeeder/Update", 1, callback_update)
-time.sleep(1.5)
+myAWSIoTMQTTClient.subscribe("DogFeeder/Data", 1, callback_data) # TODO Is this needed in the end product? Repeats sent message in terminal
+myAWSIoTMQTTClient.subscribe("DogFeeder/" + getMac(), 1, callback_userdata)
+myAWSIoTMQTTClient.subscribe("DogFeeder/Update", 1, callback_update) # Updates available. Shared topic for all DogFeeders
+time.sleep(1)
 
 
 
@@ -459,6 +524,7 @@ def thread0():
 		JsonCreator = JSONMaker()
 		loop_count = 0
 		while loop_count < 12:
+			print(str(loop_count))
 			message = createMessageSegment(getLoadCellValue(), loop_count)
 			loop_count += 1
 			time.sleep(interval)
@@ -486,11 +552,6 @@ gVars.ID = getMac() # Get MAC address for identification
 pi = pigpio.pi() # Initialize pigpio library
 servoVars = servoControl() # Initialize custom servo data
 
-# Load cell data
-#count = 0
-#mode = 0
-#reading = 0
-
 # All scheduled feed times
 masterSchedule = []
 
@@ -503,7 +564,6 @@ tare = False
 loadList = [] # Global array for load cell data
 lc_offset = readOffset()
 lc_referenceUnit = 932
-#lc_setReferenceUnit = 100 # TODO tämä mitattava
 while len(loadList) == 0:
 	lc_init()
 	time.sleep(1)
