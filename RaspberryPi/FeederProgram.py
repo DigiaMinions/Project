@@ -343,13 +343,18 @@ def fetchUpdate():
 	os.system("svn export " + url + " " + location + " --force")
 
 def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa tiedostosta ja poistelemaan yms.
-	if (gVars.scheduledFeed is None):
-		return
-	elif (getDateTime() <= gVars.scheduledFeed):
-		return
-	else:
-		gVars.scheduledFeed = None
-		servo_feedFood()
+	with open('schedule.dat', 'r') as file:
+    content = file.read().splitlines()
+	for line in content:
+	print(line)
+	
+#	if (gVars.scheduledFeed is None):
+#		return
+#	elif (getDateTime() <= gVars.scheduledFeed):
+#		return
+#	else:
+#		gVars.scheduledFeed = None
+#		servo_feedFood()
 
 
 	
