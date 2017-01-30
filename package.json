@@ -28,6 +28,7 @@
     "express": "^4.14.0",
     "forever": "latest",
     "json-loader": "^0.5.4",
+    "lodash": "^4.17.4",
     "react": "^15.4.2",
     "react-bootstrap": "^0.30.7",
     "react-bootstrap-date-picker": "^4.0.0",
