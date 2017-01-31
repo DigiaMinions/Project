@@ -13,7 +13,7 @@ export default class GraphComponent extends React.Component {
 		return (
 			<div>
 				<br />
-				<iframe src={graphanaUrl + String(this.props.activeDevice.value) + theme + "&from=" + this.props.startTime + "&to=" + this.props.endTime} width='845' height='400' frameBorder='0' />
+				<iframe src={graphanaUrl + String(this.props.activeDevice) + theme + "&from=" + this.props.startTime + "&to=" + this.props.endTime} width='845' height='400' frameBorder='0' />
 				<br />
 			</div>
 		);

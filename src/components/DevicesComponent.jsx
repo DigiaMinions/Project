@@ -19,11 +19,11 @@ export default class DevicesComponent extends React.Component {
 	}
 
 	render() {
-		const defaultValue = this.state.selected		
+		const selectedValue = this.state.selected;
 		return (
 			<div>
 				Valitse laite:
-				<Dropdown options={userDevices} onChange={this.onSelect} value={defaultValue} placeholder="Valitse laite" />
+				<Dropdown options={userDevices} onChange={this.onSelect} value={selectedValue} placeholder="Valitse laite" />
 			</div>
 		);
 	}

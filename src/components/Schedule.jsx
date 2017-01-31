@@ -1,42 +1,27 @@
 import React from 'react'
-import { Col, Button, Panel } from 'react-bootstrap'
+import { Button, Panel } from 'react-bootstrap'
 import CreateScheduleComponent from './CreateScheduleComponent.jsx'
 import ScheduleListComponent from './ScheduleListComponent.jsx'
 import 'whatwg-fetch'
 
-const schedules = [
-{
-	id: 0,
-	time: '10:00',
-	rep: 0,
-	isActive: false
-},
-{
-	id: 1,
-	time: '12:30',
-	rep: 0,
-	isActive: true
-}
-];
+const schedules = [];
 
 export default class Schedule extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { schedules };
+		this.state = { activeDevice: this.props.activeDevice, schedules };
 	}
 
 	render() {
 		return (
 			<div>
-				<Col xs={12}>	
-					<div className="well">
+				<div className="well">
 					<h2>Ruokinta aikataulu</h2>
 					<CreateScheduleComponent schedules={this.state.schedules} createSchedule={this.createSchedule.bind(this)} /><br />
 					<ScheduleListComponent schedules={this.state.schedules} toggleSchedule={this.toggleSchedule.bind(this)} deleteSchedule={this.deleteSchedule.bind(this)} /><br />
 					<button type="button" className="btn btn-primary btn-lg" onClick={this.sendScheduleToDevice.bind(this)}>Lähetä aikataulu laitteelle</button>
-					</div>
-				</Col>
+				</div>
 			</div>
 		);
 	}
@@ -88,7 +73,7 @@ export default class Schedule extends React.Component {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
-			mac: "test",
+			mac: this.props.activeDevice,
 			schedule: self.scheduleToSend
 		})
 		})
