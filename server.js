@@ -37,7 +37,8 @@ app.post('/feed/', function(req, res){
 /* TODO: Schedule feed */
 app.post('/schedule/', function(req, res){
 	var macParsed = String(req.body.mac).replace(/%3A/g, ":");
-	device.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
+	var schedule = req.body.schedule;
+	device.publish('DogFeeder/' + macParsed, JSON.stringify({ schedule }));
 
 	res.setHeader('Content-Type', 'text/plain')
 	res.write('you posted:\n')
