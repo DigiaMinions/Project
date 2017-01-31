@@ -5,11 +5,13 @@ import ScheduleListComponent from './ScheduleListComponent.jsx'
 
 const schedules = [
 {
+	id: 0,
 	time: '10:00',
 	rep: 0,
 	isActive: false
 },
 {
+	id: 1,
 	time: '12:30',
 	rep: 0,
 	isActive: true
@@ -26,19 +28,31 @@ export default class Schedule extends React.Component {
 	render() {
 		return (
 			<div>
-				<Col xs={12}>
+				<Col xs={12}>	
+					<div className="well">
 					<h2>Ruokinta aikataulu</h2>
 					<CreateScheduleComponent schedules={this.state.schedules} createSchedule={this.createSchedule.bind(this)} />
-					<ScheduleListComponent
-						schedules={this.state.schedules}
-					/>
+					<br />
+					<ScheduleListComponent schedules={this.state.schedules} toggleSchedule={this.toggleSchedule.bind(this)} deleteSchedule={this.deleteSchedule.bind(this)} />
+					</div>
 				</Col>
 			</div>
 		);
 	}
 
+	generateId() {
+		var id = Math.floor(Math.random() * 9999);
+		var foundId = _.find(this.state.schedules, schedule => schedule.id === id);
+		if (foundId)
+			return this.generateId();
+		else
+			return id;
+	}
+
 	createSchedule(time, rep) {
+		var id = this.generateId();
 		this.state.schedules.push({
+			id,
 			time,
 			rep,
 			isActive: false
@@ -46,16 +60,15 @@ export default class Schedule extends React.Component {
 		this.setState({ schedules: this.state.schedules });
 	}
 
-	toggleSchedule(schedule) {
-		// TODO
+	toggleSchedule(scheduleId) {
+		var foundSchedule = _.find(this.state.schedules, schedule => schedule.id === scheduleId);
+		foundSchedule.isActive = !foundSchedule.isActive;
+		this.setState({ schedules: this.state.schedules });
 	}
 
-	saveSchedule(oldSchedule, newSchedule) {
-		// TODO
-	}
-
-	deleteSchedule(scheduleToDelete) {
-		// TODO
+	deleteSchedule(scheduleId) {
+		_.remove(this.state.schedules, schedule => schedule.id === scheduleId);
+		this.setState({ schedules: this.state.schedules });
 	}
 
 }

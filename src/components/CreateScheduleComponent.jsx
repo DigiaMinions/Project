@@ -33,9 +33,8 @@ export default class CreateScheduleComponent extends React.Component {
 
 		const repInput = this.refs.repInput;
 		const rep = $(repInput).val();
-		console.log(rep);
+		
 		var sum = rep.reduce(function(a, b) { return parseInt(a) + parseInt(b); });
-		console.log(sum);
 		
 		this.props.createSchedule(time, rep);
 		this.refs.timeInput.value = '';

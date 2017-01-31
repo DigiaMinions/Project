@@ -11,11 +11,9 @@ export default class ScheduleListComponent extends React.Component {
 
 	render() {
 		return (
-			<table>
-				<tbody>
-					{this.renderItems()}
-				</tbody>
-			</table>
+			<ul className="list-group">
+				{this.renderItems()}
+			</ul>
 		);
 	}
 }

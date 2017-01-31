@@ -4,7 +4,7 @@ var device = awsIot.device({
 	keyPath: "certs/DogFeeder.private.key",
 	certPath: "certs/DogFeeder.cert.pem",
 	caPath: "certs/rootCA.pem",
-	clientId: "Asiakas" + Math.floor(Math.random() * 120),
+	clientId: "Asiakas" + Math.floor(Math.random() * 9999),
 	region: "eu-west-1"
 });
 
