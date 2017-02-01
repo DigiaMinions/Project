@@ -1,63 +1,57 @@
 import React from 'react'
 import GraphComponent from './GraphComponent.jsx'
-import DevicesComponent from './DevicesComponent.jsx'
-import HeaderComponent from './HeaderComponent.jsx';
-import { Grid, Row, Col, Button, Alert } from 'react-bootstrap';
-import { awsIot } from 'aws-iot-device-sdk';
+import CalendarComponent from './CalendarComponent.jsx'
+import { Button, Panel } from 'react-bootstrap'
+import 'whatwg-fetch'
 
 export default class App extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { activeDevice: '' }
-		this.onUpdate = this.onUpdate.bind(this)
+		this.state = { activeDevice: this.props.activeDevice, startTime: new Date().getTime()-86400000, endTime: new Date().getTime() } // Oletuksena näyttää viim. 24h
+		this.onStartTimeChange = this.onStartTimeChange.bind(this)
+		this.onEndTimeChange = this.onEndTimeChange.bind(this)
 		this.onButtonPress = this.onButtonPress.bind(this)
 	}
 
-	onUpdate (activeDevice) { 
-  	this.setState({ activeDevice }) 
-  }
+	onStartTimeChange (time) {
+		this.setState({ startTime: time})
+	}
 
-	onButtonPress () { 
-  	console.log("Ruokaa kuppiin!");
-  	var device = awsIot.device({
-   		keyPath: '/home/ec2-user/DogFeeder.private.key',
-  		certPath: '/home/ec2-user/DogFeeder.cert.pem',
-    	caPath: '/home/ec2-user/root-CA.crt',
-    	host: 'axqdhi517toju.iot.eu-west-1.amazonaws.com'
+	onEndTimeChange (time) {
+		this.setState({ endTime: time})
+	}
+
+	onButtonPress () {
+		// API kutsu Fetchillä
+		fetch('/feed/', {
+			method: 'POST',
+			headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			mac: this.state.activeDevice
+		})
+		})
+		.then(function(res) {
+			console.log("Success: ", res);
+		})
+		.catch(function(err) {
+			console.log("Error: ", err);
 		});
+	}
 
-		device
-	  	.on('connect', function() {
-	    	console.log('connect');
-	    	device.subscribe('topic_1');
-	    	device.publish('topic_2', JSON.stringify({ MAC: this.state.activeDevice }));
-	    });
-
-		device
-	  	.on('message', function(topic, payload) {
-	    console.log('message', topic, payload.toString());
-	  });
-  }
-
-  render() {
-    return (
-	  	<div>
-	  		<HeaderComponent />
-	  		<Grid>
-	  			<Row>
-	  				<Col xs={12} md={3}>
-	  					<DevicesComponent onUpdate={this.onUpdate} />
-		  			</Col>
-		  			<Col xs={12} md={9}>
-		  				<br />
-		  				<Button onClick={this.onButtonPress} bsStyle="primary">Pötyä pöytään!</Button>
-		  				<GraphComponent activeDevice={this.state.activeDevice} />
-		  			</Col>
-		  		</Row>
-		  	</Grid>
-  		</div>
+	render() {
+		return (
+			<div>		
+				<br /><Button onClick={this.onButtonPress} bsStyle="primary">Pötyä pöytään!</Button>
+				<GraphComponent activeDevice={this.props.activeDevice} startTime={this.state.startTime} endTime={this.state.endTime} />
+				<Panel header="Näytä ruokailu ajalta">
+					<CalendarComponent onUpdate={this.onStartTimeChange} labelText="Mistä:" />
+					<CalendarComponent onUpdate={this.onEndTimeChange} labelText="Mihin:" />
+				</Panel>
+			</div>
 		);
-  }
+	}
 
 }

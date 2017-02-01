@@ -1,39 +1,41 @@
-import React from 'react';
-import { Nav, Navbar, NavItem, Header, Brand } from 'react-bootstrap';
+import React from 'react'
+import { Link } from 'react-router'
+import { Nav, Navbar, NavItem, Header, Brand } from 'react-bootstrap'
 
 export default class HeaderComponent extends React.Component {
 
-  constructor() {
-    super();
-    this.state = {
-      authenticated: false
-    }
-    this.login = this.login.bind(this);
-    this.logout = this.logout.bind(this);
-  }
+	constructor() {
+		super();
+		this.state = {
+			authenticated: false
+		}
+		this.login = this.login.bind(this);
+		this.logout = this.logout.bind(this);
+	}
 
-  login() {
-    // TODO: Authentication here...
-      this.setState({authenticated: true});
-  }
+	login() {
+		// TODO: Autentikointi...
+		this.setState({authenticated: true});
+	}
 
-  logout() {
-    this.setState({authenticated: false});
-  }
+	logout() {
+		this.setState({authenticated: false});
+	}
 
-  render() {
-    return (
-      <Navbar>
-        <Navbar.Header>
-          <Navbar.Brand>
-            <a href="#">Feeder</a>
-          </Navbar.Brand>
-        </Navbar.Header>
-        <Nav>
-          <NavItem onClick={this.login}>Login</NavItem>
-          <NavItem onClick={this.logout}>Logout</NavItem>
-        </Nav>
-      </Navbar>
-    );
-  }
+	render() {
+		return (
+			<Navbar>
+				<Navbar.Header>
+				<Navbar.Brand>
+					<Link to='/'>Feeder</Link>
+				</Navbar.Brand>
+				</Navbar.Header>
+				<Nav>
+					<NavItem><Link to='/'>Koti</Link></NavItem>
+					<NavItem><Link to='aikataulu'>Aikataulu</Link></NavItem>
+				</Nav>
+			</Navbar>
+		);
+	}
+
 }
