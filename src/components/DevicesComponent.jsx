@@ -27,5 +27,4 @@ export default class DevicesComponent extends React.Component {
 			</div>
 		);
 	}
-
 }
