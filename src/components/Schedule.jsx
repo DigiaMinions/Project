@@ -17,7 +17,7 @@ export default class Schedule extends React.Component {
 		return (
 			<div>
 				<div className="well">
-					<h2>Ruokinta aikataulu</h2>
+					<h2>Ruokinta aikataulu</h2><br />
 					<CreateScheduleComponent schedules={this.state.schedules} createSchedule={this.createSchedule.bind(this)} /><br />
 					<ScheduleListComponent schedules={this.state.schedules} toggleSchedule={this.toggleSchedule.bind(this)} deleteSchedule={this.deleteSchedule.bind(this)} /><br />
 					<button type="button" className="btn btn-primary btn-lg" onClick={this.sendScheduleToDevice.bind(this)}>Lähetä aikataulu laitteelle</button>
@@ -41,7 +41,7 @@ export default class Schedule extends React.Component {
 			id,
 			time,
 			rep,
-			isActive: false
+			isActive: true
 		});
 		this.setState({ schedules: this.state.schedules });
 	}
