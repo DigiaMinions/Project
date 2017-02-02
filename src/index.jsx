@@ -8,7 +8,8 @@ import NotFound from './components/NotFound.jsx'
 
 render(
 	<Router history={browserHistory}>
-		<Route path='/' component={Container}>
+		
+		<Route path='/' component={Container} >
 			<IndexRoute component={App} />
 			<Route path='aikataulu' component={Schedule} />
 			<Route path='*' component={NotFound} />
