@@ -92,7 +92,7 @@ def callback_loadcell(count, mode, reading):
 	if load < 0 and tare is False :
 		load = 0
 	loadList.append(load)
-#	print('Raw load: '+ str(reading) +', Calculated load: '+ str(load))
+	print('Raw load: '+ str(reading) +', Calculated load: '+ str(load))
 
 
 #################################
@@ -290,8 +290,12 @@ def lc_tare(): # Calculates and sets load cell offset
 		time.sleep(0.1)
 		
 	for i in range (0, 15): # take 15 samples
-		loadAverage += loadList[len(loadList)-1]
-		time.sleep(0.25)
+		if len(loadList) is not 0:
+			loadAverage += loadList[len(loadList)-1]
+			time.sleep(0.25)
+		else:
+			i = i - 1
+			time.sleep(0.25)
 	lc_offset = loadAverage / 15
 	print("Tare endload: " + str(lc_offset))
 	lc_referenceUnit = referenceUnitTemp
@@ -337,25 +341,6 @@ def getMac():
 	except:
 		print("Error retrieving MAC address")
 	return mac
-	
-# Get current date and time
-def getDateTime():
-	dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-	return dateTime
-
-# Get current time
-def getTime():
-	time = str(datetime.now().time().strftime("%H:%M:%S"))
-	return time
-
-def getTodaysNumber():
-	number = int(datetime.now().weekday() + 1) # Monday defaults to 0. Make it 1
-	currentValue = 1
-	if number is not 1:
-		for i in range(number - 1):
-			currentValue = currentValue * 2
-#	print("Todays number is :" + str(currentValue))
-	return currentValue
 
 # Download available update
 def fetchUpdate():
@@ -364,6 +349,31 @@ def fetchUpdate():
 	# Download the file using system command and save it locally
 	os.system("svn export " + url + " " + location + " --force")
 
+
+
+###############################
+### TIME FUNCTIONS ############
+	
+# Get current date and time
+def getDateTime():
+	dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M"))
+	return dateTime
+
+# Get current time
+def getTime():
+	time = str(datetime.now().time().strftime("%H:%M"))
+	return time
+
+# Get the number of a current weekday as binary (1 2 4 8 16 32 64)
+def getTodaysNumber():
+	number = int(datetime.now().weekday() + 1) # Monday defaults to 0. Make it 1
+	currentValue = 1
+	if number is not 1:
+		for i in range(number - 1):
+			currentValue = currentValue * 2
+	return currentValue
+
+# Convert number from user schedule message to day numbers and return as a list
 def parseRep(repValue):
 	# 1 2 4 8 16 32 64
 	repList = []
@@ -375,30 +385,29 @@ def parseRep(repValue):
 			currentValue = currentValue / 2
 		else:
 			currentValue = currentValue / 2
-
-#	print("repList :" +str(repList))
 	return repList
-
-
 
 def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa tiedostosta ja poistelemaan yms.
 	regex = 'rep'
 	removalList = [] # What schedules to remove after the content loop finishes
 
-	with open('schedule.dat', 'r') as file:
-		content = file.read().splitlines()
+	with open('schedule.dat', 'r') as file: # Open the schedule-file for reading
+		content = file.read().splitlines() # Split schedule line by line
 
-	for line in content:
-#		print(str(line))
-		if bool(re.search(regex, line)) is True: # If string has regex..
-			position = line.find(regex)
-			repValue = int(line[position +3:])
-			# If current day matches with a day referenced in 'rep'
-			if getTodaysNumber() in parseRep(repValue):
+	for line in content: # Go through each line
+		if bool(re.search(regex, line)) is True: # If line has the repeating regex
+			position = line.find(regex) # Find the position of regex
+			repValue = int(line[position +3:]) # Get the number following the regex and save it as integer
+			
+			# Check if current day matches with a day referenced behind the regex
+			if getTodaysNumber() in parseRep(repValue): # If the day is a match
 				timeTemp = line[:position]
-				if getTime() >= timeTemp: # TODO tähän myös tarkistus ettei liian kaukana takana, jos ajastaa samalle päivälle aikaisempaan hetkeen jotain. Miten syöttää vain kerran kun aika ohitettu?
-								# Tehäänkö joku 'fedtoday.dat' mihin verrataan, jos sieltä löytyy sama string? Se pitäs nollata sit päivänvaihteessa.
-					servo_feedFood() # Feed food
+				if getTime() >= timeTemp:
+					if line in feedSchedule_getList():
+						pass
+					else:
+						servo_feedFood()
+						feedSchedule_markAsFed(line)
 		elif bool(re.search(regex, line)) is False: # If regex couldn't be found (one-time scheduled feed) and the time has passed
 			if getDateTime() >= line:
 				removalList.append(line) # Flag the line to be removed
@@ -418,8 +427,36 @@ def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa 
 			for line in content:
 				file.write(str(line) + '\n')
 		print("REMOVED SOMETHING")
-#		del removalList[:]
 
+def feedSchedule_markAsFed(string):
+	with open('schedule_fedtoday.dat', 'a') as file:
+		file.write(string)
+
+def feedSchedule_getList():
+	fedList = []
+	if os.stat('schedule_fedtoday.dat').st_size == 0:
+		fedList.append("null")
+	else:
+		with open('schedule_fedtoday.dat', 'r') as file:
+			content = file.read().splitlines()
+		for line in content:
+			fedList.append(str(line))
+	return fedList
+
+def feedSchedule_clearTodaysFed():
+	print("Todays fedlist cleared")
+	with open('schedule_fedtoday.dat', 'w') as file:
+		pass
+
+def check_dayChange():
+	global today
+	number = getTodaysNumber()
+	if number is not today:
+		today = number
+		feedSchedule_clearTodaysFed()
+	else:
+		pass
+	
 
 
 #################################
@@ -435,15 +472,13 @@ def validateMessage(data):
 	regex = "rep";
     
 	# Different time formats to use
-	clockFormat = '%H:%M:%S'
+	clockFormat = '%H:%M'
 	dateFormat = '%Y-%m-%d'
-	dateTimeFormat = '%Y-%m-%d %H:%M:%S'
+	dateTimeFormat = '%Y-%m-%d %H:%M'
 	data = json.loads(data)    
 
 	# foodfeed can be found only if user presses instant feed button
 	if 'feed' in data:
-#        dataValue = data['foodfeed'] # TODO is this needed or is it enough to have 'foodfeed'? to be sure?
-#        if dataValue is 'instant':
 		flags = 'feed' # set return flags to instant feed
 
 	# schedule can be found is user sends a schedule
@@ -488,7 +523,6 @@ def createMessageSegment(load, index):
 	global JsonCreator
 	dateTime = getDateTime()
 	JsonCreator.createArray("load", str(dateTime) + '": "' + str(load))
-	#print(index) # DEBUG ONLY
 
 # Add ID stamp to AWS IoT message
 def createMessageIDStamp():
@@ -542,6 +576,8 @@ def thread1():
 #################################
 ### MAIN program ################
 
+today = getTodaysNumber()
+
 cell = None # Load cell variable gets initialized here
 servoStatus = False # Boolean telling if servos being currently used
 JsonCreator = None
@@ -549,8 +585,8 @@ JsonCreator = None
 gVars = globalVars() # Init globalVars -class
 gVars.ID = getMac() # Get MAC address for identification
 
-pi = pigpio.pi() # Initialize pigpio library
 servoVars = servoControl() # Initialize custom servo data
+pi = pigpio.pi() # Initialize pigpio library
 
 # All scheduled feed times
 masterSchedule = []
@@ -564,9 +600,13 @@ tare = False
 loadList = [] # Global array for load cell data
 lc_offset = readOffset()
 lc_referenceUnit = 932
+
+lc_init()
+
 while len(loadList) == 0:
-	lc_init()
+	cell.cancel()
 	time.sleep(1)
+	lc_init()
 
 #lc_tare() # TODO missä kohtaa tämä kannattaisi tehdä? Käyttäjän napinpainalluksella? Esiasennuksella?
 
@@ -576,6 +616,8 @@ try:
 	thread.start_new_thread( thread1, ()) # Food feed scheduling
 except (KeyboardInterrupt, SystemExit):
 	cleanup_stop_thread();
+	cell.stop()
+	pi.stop()
 	sys.exit()
 
 # Infinite loop
