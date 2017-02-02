@@ -18,8 +18,7 @@ import urllib # Download updates
 import json # Parsing Json
 import thread # Threading
 import re
-#import statistics # For calculating median
-#import numpy
+
 
 #################################
 ### CLASS DECLARATIONS ##########
@@ -60,6 +59,7 @@ def callback_update(client, userdata, message):
 	print("Current version: " + versionInfo)
 	print("New version: " + message.payload)
 	fetchUpdate()
+
 
 # Callback for user data
 '''
@@ -591,6 +591,9 @@ pi = pigpio.pi() # Initialize pigpio library
 # All scheduled feed times
 masterSchedule = []
 
+# All scheduled feed times
+masterSchedule = []
+
 # Init load cell before main loop
 CH_A_GAIN_64 = 0 # Channel A gain 64. Preset for load cell
 CH_A_GAIN_128 = 1 # Channel A gain 128. Preset for load cell
@@ -618,6 +621,14 @@ except (KeyboardInterrupt, SystemExit):
 	cleanup_stop_thread();
 	cell.stop()
 	pi.stop()
+	sys.exit()
+
+# Initialize thread(s)
+try:
+	thread.start_new_thread( thread0, ()) # MAIN get load cell data and send to AWS IoT
+	thread.start_new_thread( thread1, ()) # Food feed scheduling
+except (KeyboardInterrupt, SystemExit):
+	cleanup_stop_thread();
 	sys.exit()
 
 # Infinite loop
