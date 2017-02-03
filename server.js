@@ -1,4 +1,5 @@
 /* AWS IoT Device SDK */
+const validator = require('validator');
 var awsIot = require('aws-iot-device-sdk');
 var device = awsIot.device({
 	keyPath: "certs/DogFeeder.private.key",
@@ -12,8 +13,12 @@ var device = awsIot.device({
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
+var session = require('express-session')
 var bodyParser = require('body-parser')
 app.use(bodyParser.json()); // JSON body
+
+var flash = require('connect-flash');
+app.use(flash());
 
 /* Router */
 // tarpeellinen?
@@ -25,42 +30,46 @@ passport.initialize();
 var LocalStrategy = require('passport-local').Strategy;
 
 
-app.get('/', loggedIn, function (req, res){	
-  res.sendFile(__dirname + '/src/static/index.html'); // tyhjä pyyntö -> lähetetään /static/index.html
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
 });
 
-app.get('/aikataulu', loggedIn, function (req, res){	
-  res.sendFile(__dirname + '/src/static/index.html'); // lähetetään /static/index.html
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
 });
 
-app.get('/login', function (req, res){
-	res.sendFile(__dirname + '/src/static/login.html');
+var users = [];
+
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    users.push(username);
+    return done(null, user);
+  }
+));
+
+
+
+// HUOM! Älä vaihtele app.get / app.use järjestystä!
+
+app.get('/', loggedIn, function (req,res){
+  res.sendFile(__dirname + '/src/static/index.html');
 });
 
-app.get('/js/login.js', function (req, res) {
-  res.sendFile(__dirname + '/src/static/js/login.js');
+app.get('/aikataulu', loggedIn, function (req,res){
+  res.sendFile(__dirname + '/src/static/index.html');
 });
 
-app.get('/css/login.css', function (req, res) {
-  res.sendFile(__dirname + '/src/static/css/login.css');
-});
+app.use(express.static(__dirname + '/src/static'));
 
-app.get('/css/style.css', function (req, res) {
-  res.sendFile(__dirname + '/src/static/css/style.css');
-});
-
-app.get('/js/bundle.js', function (req, res) {
-  res.sendFile(__dirname + '/src/static/js/bundle.js');
+app.get('/login', function (req,res){
+  res.sendFile(__dirname + '/src/static/index.html');
 });
 
 app.get('*', function (req,res){
-	res.sendFile(__dirname + '/src/static/index.html');
+  res.sendFile(__dirname + '/src/static/index.html');
 });
-
-// HUOM! julkisten filujen antaminen tultava api.gettien jälkeen, jotta ohjaus toimii oikein.
-//app.use(express.static(__dirname + '/src/static')); // pyyntö julkiseen static-kansioon -> lähetetään pyydetty tiedosto kansiosta
-
-var users = [ 'test' ];
 
 // EI server side renderöintiä käyttöön, koska
 // http://stackoverflow.com/questions/27290354/reactjs-server-side-rendering-vs-client-side-rendering
@@ -71,7 +80,7 @@ var users = [ 'test' ];
 
 function loggedIn(req, res, next) {
     //if (req.user) {
-    if(users.length == 2) {
+    if(true) {
     	console.log("User ok.");
         next();
     } else {
@@ -79,6 +88,71 @@ function loggedIn(req, res, next) {
         res.redirect('/login');
     }
 };
+
+
+function validateSignupForm(payload) {
+  const errors = {};
+  var isFormValid = true;
+  var message = '';
+
+  if (!payload || typeof payload.email !== 'string' || !validator.isEmail(payload.email)) {
+    isFormValid = false;
+    errors.email = 'Please provide a correct email address.';
+  }
+
+  if (!payload || typeof payload.password !== 'string' || payload.password.trim().length < 8) {
+    isFormValid = false;
+    errors.password = 'Password must have at least 8 characters.';
+  }
+
+  if (!payload || typeof payload.name !== 'string' || payload.name.trim().length === 0) {
+    isFormValid = false;
+    errors.name = 'Please provide your name.';
+  }
+
+  if (!isFormValid) {
+    message = 'Check the form for errors.';
+  }
+
+  return {
+    success: isFormValid,
+    message,
+    errors
+  };
+}
+
+/**
+ * Validate the login form
+ *
+ * @param {object} payload - the HTTP body message
+ * @returns {object} The result of validation. Object contains a boolean validation result,
+ *                   errors tips, and a global message for the whole form.
+ */
+function validateLoginForm(payload) {
+  const errors = {};
+  var isFormValid = true;
+  var message = '';
+
+  if (!payload || typeof payload.email !== 'string' || payload.email.trim().length === 0) {
+    isFormValid = false;
+    errors.email = 'Please provide your email address.';
+  }
+
+  if (!payload || typeof payload.password !== 'string' || payload.password.trim().length === 0) {
+    isFormValid = false;
+    errors.password = 'Please provide your password.';
+  }
+
+  if (!isFormValid) {
+    message = 'Check the form for errors.';
+  }
+
+  return {
+    success: isFormValid,
+    message,
+    errors
+  };
+}
 
 /* API endpointit */
 /* Insta feed */
@@ -101,6 +175,11 @@ app.post('/schedule/', function(req, res){
 	res.write('you posted:\n')
 	res.end(JSON.stringify(req.body, null, 2))
 });
+
+app.post('/login',
+  passport.authenticate('local', { successRedirect: '/',
+                                   failureRedirect: '/login' })
+);
 
 // Serveri kuuntelee porttia 9000
 serv.listen(9000, err => {

@@ -26,7 +26,7 @@ export default class Login extends React.Component {
 	{
 		return (
 			<div>
-				User: <input type="text" name="username"/>
+				User: <input type="text" name="username"/><br/>
 				Pass: <input type="text" name="password"/>				
 				<button onClick={() => this.onLogin()}>Log in</button>
 			</div>
