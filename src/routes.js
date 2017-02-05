@@ -3,10 +3,19 @@
 module.exports = function(app, express, upload, passport) {
 
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
+	
+	app.get('/logout', function(req, res, next) {
+		console.log("Logging out.");
+		req.logOut();
+		res.redirect('/login');
+	});
 
-	app.get('/logout', function(req, res) {
-	req.logout();
-	res.redirect('/login');
+	app.get('/login', function (req,res){
+	  res.sendFile(__dirname + '/static/index.html');
+	});
+
+	app.get('/signup', function (req,res){
+	  res.sendFile(__dirname + '/static/index.html');
 	});
 
 	app.get('/', isLoggedIn, function (req,res){
@@ -16,20 +25,12 @@ module.exports = function(app, express, upload, passport) {
 	app.get('/aikataulu', isLoggedIn, function (req,res){
 	  res.sendFile(__dirname + '/static/index.html');
 	});
-	
+
 	app.use(express.static(__dirname + '/static'));
 
-	app.get('/login', function (req,res){
-	  res.sendFile(__dirname + '/static/index.html');
-	});
-	app.get('/signup', function (req,res){
-	  res.sendFile(__dirname + '/static/index.html');
-	});
-	
 	app.get('*', function (req,res){
 	  res.sendFile(__dirname + '/static/index.html');
 	});
-	
 
 
 	/* API endpointit */

@@ -22,6 +22,15 @@ export default class HeaderComponent extends React.Component {
 		this.setState({authenticated: false});
 	}
 
+	function requireAuth(nextState, replace) {
+	  if (!auth.loggedIn()) {
+	    replace({
+	      pathname: '/login',
+	      state: { nextPathname: nextState.location.pathname }
+	    })
+	  }
+	}
+
 	render() {
 		return (
 			<Navbar>
@@ -33,7 +42,7 @@ export default class HeaderComponent extends React.Component {
 				<Nav>
 					<NavItem><Link to='/'>Koti</Link></NavItem>
 					<NavItem><Link to='aikataulu'>Aikataulu</Link></NavItem>
-					<NavItem><Link to='/logout'>Kirjaudu ulos</Link></NavItem>
+					<NavItem><Link onClick={logOut}>Kirjaudu ulos</Link></NavItem>
 				</Nav>
 			</Navbar>
 		);

@@ -4,7 +4,7 @@ import 'whatwg-fetch'
 export default class LoginForm extends React.Component {
 
   onLogin() 
-    {
+    {      
       var form = document.querySelector('form');
     // API kutsu Fetchillä
     fetch('/login', {

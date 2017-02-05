@@ -11,16 +11,16 @@ import LoginForm from './components/LoginForm.jsx'
 import SignUpForm from './components/SignUpForm.jsx'
 
 render((
-	<Router history={browserHistory}>	
+	<Router history={browserHistory}>			
 		<Route path='/' component={Container} >
 			<IndexRoute component={App} />
 			<Route path='aikataulu' component={Schedule} /> 
 	    </Route>
-		<Route path='/' component={AuthPage}>
+	    <Route path='/' component={AuthPage}>
+			<Route path='logout' component={LoginForm}/> 
 			<Route path='login' component={LoginForm} /> 
       		<Route path='signup' component={SignUpForm} /> 
-      		<Route path='logout' /> 
-      	</Route>	
+      	</Route>			
 		<Route path='*' component={NotFound} />	
 	</Router>
 	),	document.getElementById('app')

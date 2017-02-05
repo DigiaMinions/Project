@@ -5,7 +5,7 @@ export default class SignUpForm extends React.Component {
 
   onSignUp() 
   {
-      var form = document.querySelector('form');
+       var form = document.querySelector('form');
        console.log("Lähetetään request");
       // API kutsu Fetchillä
       fetch('/signup', {

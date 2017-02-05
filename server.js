@@ -4,6 +4,11 @@
 // For multi-page apps you can add multiple entry points (one per page) to your webpack config:
 // https://webpack.github.io/docs/multiple-entry-points.html
 
+/*MySQL*/
+// https://gist.github.com/manjeshpv/84446e6aa5b3689e8b84
+// https://github.com/manjeshpv/node-express-passport-mysql
+
+
 
 /* AWS IoT Device SDK */
 var awsIot = require('aws-iot-device-sdk');
@@ -32,7 +37,10 @@ var upload = multer();
 var flash = require('connect-flash');
 app.use(flash());
 
-app.use(session({ cookie: { secure : false, maxAge : 60000 }, 
+// sessionin ymmärtämiseen
+// http://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
+
+app.use(session({ //cookie: { secure : false, maxAge : 60000 }, 
                   secret: 'woot',
                   resave: true, 
                   saveUninitialized: true}));
