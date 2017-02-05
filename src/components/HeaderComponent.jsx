@@ -33,6 +33,7 @@ export default class HeaderComponent extends React.Component {
 				<Nav>
 					<NavItem><Link to='/'>Koti</Link></NavItem>
 					<NavItem><Link to='aikataulu'>Aikataulu</Link></NavItem>
+					<NavItem><Link to='/logout'>Kirjaudu ulos</Link></NavItem>
 				</Nav>
 			</Navbar>
 		);

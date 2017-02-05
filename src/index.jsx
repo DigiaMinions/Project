@@ -10,7 +10,6 @@ import AuthPage from './components/AuthPage.jsx'
 import LoginForm from './components/LoginForm.jsx'
 import SignUpForm from './components/SignUpForm.jsx'
 
-
 render((
 	<Router history={browserHistory}>	
 		<Route path='/' component={Container} >
@@ -20,6 +19,7 @@ render((
 		<Route path='/' component={AuthPage}>
 			<Route path='login' component={LoginForm} /> 
       		<Route path='signup' component={SignUpForm} /> 
+      		<Route path='logout' /> 
       	</Route>	
 		<Route path='*' component={NotFound} />	
 	</Router>
