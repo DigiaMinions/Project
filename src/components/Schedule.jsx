@@ -13,7 +13,7 @@ export default class Schedule extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { activeDevice: this.props.activeDevice, schedules };
+		this.state = { activeDeviceVal: this.props.activeDeviceVal, schedules };
 	}
 
 	render() {
@@ -76,7 +76,7 @@ export default class Schedule extends React.Component {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
-			mac: this.props.activeDevice,
+			mac: this.props.activeDeviceVal,
 			schedule: self.scheduleToSend
 		})
 		})
