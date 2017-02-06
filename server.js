@@ -38,18 +38,40 @@ app.use(flash());
 
 // sessionin ymmärtämiseen
 // http://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
-
 app.use(session({ //cookie: { secure : false, maxAge : 60000 }, 
-                  secret: 'woot',
-                  resave: true, 
-                  saveUninitialized: true}));
+	secret: 'woot',
+	resave: true, 
+	saveUninitialized: true
+}));
 
-/*Passport*/
+/* Passport */
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 require('./src/passport.js')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
+
+/* API endpointit */
+/* Insta feed */
+app.post('/feed/', function(req, res){
+	var macParsed = String(req.body.mac).replace(/%3A/g, ":");
+	device.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
+
+	res.setHeader('Content-Type', 'text/plain')
+	res.write('you posted:\n')
+	res.end(JSON.stringify(req.body, null, 2))
+});
+
+/* Schedule feed */
+app.post('/schedule/', function(req, res){
+	var macParsed = String(req.body.mac).replace(/%3A/g, ":");
+	var schedule = req.body.schedule;
+	device.publish('DogFeeder/' + macParsed, JSON.stringify({ schedule }));
+
+	res.setHeader('Content-Type', 'text/plain')
+	res.write('you posted:\n')
+	res.end(JSON.stringify(req.body, null, 2))
+});
 
 
 
@@ -57,8 +79,8 @@ require('./src/routes.js')(app, express, passport);
 
 // Serveri kuuntelee porttia 9000
 serv.listen(9000, err => {
-  if (err) {
-    return console.error(err);
-  }
-  console.log("Serveri startattu: kuuntelee porttia 9000.");
+	if (err) {
+		return console.error(err);
+	}
+	console.log("Serveri startattu: kuuntelee porttia 9000.");
 });

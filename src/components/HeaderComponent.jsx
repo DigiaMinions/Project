@@ -22,15 +22,6 @@ export default class HeaderComponent extends React.Component {
 		this.setState({authenticated: false});
 	}
 
-	/*function requireAuth(nextState, replace) {
-	  if (!auth.loggedIn()) {
-	    replace({
-	      pathname: '/login',
-	      state: { nextPathname: nextState.location.pathname }
-	    })
-	  }
-	}*/
-
 	render() {
 		return (
 			<Navbar>

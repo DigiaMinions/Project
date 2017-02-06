@@ -12,9 +12,9 @@ export default class AuthPage extends React.Component {
 			<div className="form">
 				<div>			
 					<ul role="nav" className="tab-group">
-				      <li className="tab"><Link to="/signup">Sign up</Link></li>
-				      <li className="tab"><Link to="/login">Log In</Link></li>
-				    </ul>
+					  <li className="tab"><Link to="/signup">Sign up</Link></li>
+					  <li className="tab"><Link to="/login">Log In</Link></li>
+					</ul>
 				</div>			
 
 				{this.props.children}
