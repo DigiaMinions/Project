@@ -4,7 +4,10 @@ import CreateScheduleComponent from './CreateScheduleComponent.jsx'
 import ScheduleListComponent from './ScheduleListComponent.jsx'
 import 'whatwg-fetch'
 
+// Mock aikataulut, haetaan kannasta myöhemmin
 const schedules = [];
+const schedule1 = [ {id: 1, time: "10:00", rep: 1, isActive: true}, {id: 2, time: "11:00", rep: 1, isActive: true} ];
+const schedule2 = [ {id: 3, time: "12:00", rep: 1, isActive: false}, {id: 4, time: "13:00", rep: 1, isActive: true}, {id: 5, time: "14:00", rep: 1, isActive: true} ];
 
 export default class Schedule extends React.Component {
 
@@ -83,5 +86,15 @@ export default class Schedule extends React.Component {
 		.catch(function(err) {
 			console.log("Error: ", err);
 		});
+	}
+
+	// Aktiivinen laite vaihtuu -> haetaan uusi aikataulu
+	componentWillReceiveProps() {
+
+	}
+
+	// Haetaan kannasta aktiivisen laitteen aikataulu
+	getScheduleForDevice(device) {
+
 	}
 }

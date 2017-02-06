@@ -1,5 +1,3 @@
-
-
 module.exports = function(app, express, passport) {
 
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
@@ -70,8 +68,8 @@ function logout(req,res)
 	else
 	{
 		console.log("Already logged out.");
-	}	
-	res.redirect('login');
+	}
+	res.redirect('/login');
 }
 
 // route middleware to make sure
