@@ -18,7 +18,8 @@ import urllib # Download updates
 import json # Parsing Json
 import thread # Threading
 import re
-
+#import statistics # For calculating median
+#import numpy
 
 #################################
 ### CLASS DECLARATIONS ##########
@@ -60,7 +61,6 @@ def callback_update(client, userdata, message):
 	print("New version: " + message.payload)
 	fetchUpdate()
 
-
 # Callback for user data
 '''
 flags info:
@@ -88,11 +88,15 @@ def callback_loadcell(count, mode, reading):
 	global loadList
 	global lc_offset
 	global lc_referenceUnit
-	load = (reading - lc_offset) / lc_referenceUnit
-	if load < 0 and tare is False :
-		load = 0
+	if tare is False:
+		load = (reading - lc_offset) / lc_referenceUnit
+	else:
+		load = reading / lc_referenceUnit
+
+#	if load < 0 and tare is False :
+#		load = 0
 	loadList.append(load)
-	print('Raw load: '+ str(reading) +', Calculated load: '+ str(load))
+#	print('Raw load: '+ str(reading) +', Calculated load: '+ str(load))
 
 
 #################################
@@ -289,14 +293,14 @@ def lc_tare(): # Calculates and sets load cell offset
 	while len(loadList) is 0: # Wait until data available
 		time.sleep(0.1)
 		
-	for i in range (0, 15): # take 15 samples
+	for i in range (0, 20): # take 20 samples
 		if len(loadList) is not 0:
 			loadAverage += loadList[len(loadList)-1]
 			time.sleep(0.25)
 		else:
 			i = i - 1
 			time.sleep(0.25)
-	lc_offset = loadAverage / 15
+	lc_offset = loadAverage / 20
 	print("Tare endload: " + str(lc_offset))
 	lc_referenceUnit = referenceUnitTemp
 	tare = False
@@ -591,9 +595,6 @@ pi = pigpio.pi() # Initialize pigpio library
 # All scheduled feed times
 masterSchedule = []
 
-# All scheduled feed times
-masterSchedule = []
-
 # Init load cell before main loop
 CH_A_GAIN_64 = 0 # Channel A gain 64. Preset for load cell
 CH_A_GAIN_128 = 1 # Channel A gain 128. Preset for load cell
@@ -602,7 +603,7 @@ CH_B_GAIN_32 = 2 # Channel B gain 32. Preset for load cell
 tare = False
 loadList = [] # Global array for load cell data
 lc_offset = readOffset()
-lc_referenceUnit = 932
+lc_referenceUnit = 1000 #932
 
 lc_init()
 
@@ -621,14 +622,6 @@ except (KeyboardInterrupt, SystemExit):
 	cleanup_stop_thread();
 	cell.stop()
 	pi.stop()
-	sys.exit()
-
-# Initialize thread(s)
-try:
-	thread.start_new_thread( thread0, ()) # MAIN get load cell data and send to AWS IoT
-	thread.start_new_thread( thread1, ()) # Food feed scheduling
-except (KeyboardInterrupt, SystemExit):
-	cleanup_stop_thread();
 	sys.exit()
 
 # Infinite loop
