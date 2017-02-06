@@ -32,8 +32,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: true });
 var jsonParser = bodyParser.json(); // JSON body
 
 app.use(jsonParser);
-var multer  = require('multer');
-var upload = multer();
+app.use(urlencodedParser);
 var flash = require('connect-flash');
 app.use(flash());
 
@@ -54,7 +53,7 @@ app.use(passport.session());
 
 
 
-require('./src/routes.js')(app, express, upload, passport); 
+require('./src/routes.js')(app, express, passport); 
 
 // Serveri kuuntelee porttia 9000
 serv.listen(9000, err => {

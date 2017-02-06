@@ -1,13 +1,13 @@
 
 
-module.exports = function(app, express, upload, passport) {
+module.exports = function(app, express, passport) {
 
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
 	
-	app.get('/logout', function(req, res, next) {
+	app.get('/logout', function(req, res) {
 		console.log("Logging out.");
-		req.logOut();
-		res.redirect('/login');
+		req.logout();
+		res.redirect('/auth');
 	});
 
 	app.get('/login', function (req,res){
@@ -55,15 +55,15 @@ module.exports = function(app, express, upload, passport) {
 		res.end(JSON.stringify(req.body, null, 2))
 	});
 
-	app.post('/login', upload.array(),
+	app.post('/login',
 	  	passport.authenticate('local-login', { 
-		  	successRedirect: '/',
+	  		successRedirect: '/',
 		  	failureRedirect: '/login',
 		    failureFlash: true 
-		})	    
+		})
 	);
 
-	app.post('/signup', upload.array(),
+	app.post('/signup',
 	    passport.authenticate('local-signup', { 
 		  	successRedirect: '/',
 	 		failureRedirect: '/login',
@@ -86,3 +86,26 @@ function isLoggedIn(req, res, next) {
 	console.log("Käyttäjällä ei oikeuksia, uudelleenohjataan loginiin.");
 	res.redirect('/login');
 }
+
+/* passport.authenticate('local-login', function(err, user, info) 
+	  {
+	    if (err) 
+    	{ 
+    		console.log('Virhe.')
+    		return next(err);
+    	}
+	    // Redirect if it fails
+	    if (!user) 
+    	{ 
+    		res.send({redirect: '/login'});
+    	}
+	    req.logIn(user, function(err) 
+	    {
+	    	if (err) 
+    		{ 
+    			return next(err); 
+    		}
+	        // Redirect if it succeeds
+	    	res.send({redirect: '/'});
+	    });
+	  })(req, res, next);*/

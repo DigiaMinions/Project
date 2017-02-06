@@ -16,10 +16,10 @@ render((
 			<IndexRoute component={App} />
 			<Route path='aikataulu' component={Schedule} /> 
 	    </Route>
-	    <Route path='/' component={AuthPage}>
-			<Route path='logout' component={LoginForm}/> 
-			<Route path='login' component={LoginForm} /> 
-      		<Route path='signup' component={SignUpForm} /> 
+	    <Route path='/auth' component={AuthPage}>
+			<Route path='/logout' component={LoginForm}/> 
+			<Route path='/login' component={LoginForm} /> 
+      		<Route path='/signup' component={SignUpForm} /> 
       	</Route>			
 		<Route path='*' component={NotFound} />	
 	</Router>

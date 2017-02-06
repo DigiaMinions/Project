@@ -26,7 +26,7 @@ module.exports = function(passport) {
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
         connection.query("SELECT * FROM User WHERE id = ? ",[id], function(err, rows){
-            console.log("Deserializing. Row: " + rows[0]);
+            console.log("Deserializing. User email: " + rows[0].email);
             done(err, rows[0]);
         });
     });
@@ -52,6 +52,8 @@ module.exports = function(passport) {
                     return done(err);
                 }                    
                 if (rows.length) {
+                    console.log("Email already taken.");
+
                     return done(null, false, req.flash('signupMessage', 'That username is already taken.'));
                 } else {
                     // if there is no user with that email
@@ -95,13 +97,18 @@ module.exports = function(passport) {
                     console.log("Error occurred! " + err);
                     return done(err);
                 }
-                if (!rows.length) {
+                if (!rows.length) 
+                {
+                    console.log("Invalid email!");
                     return done(null, false, req.flash('loginMessage', 'No user with entered email found.')); // req.flash is the way to set flashdata using connect-flash
                 }
 
                 // if the user is found but the password is wrong
-                if (!bcrypt.compareSync(password, rows[0].password))
-                    return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+                if (!bcrypt.compareSync(password, rows[0].password)){
+                    console.log("Invalid password!");
+                     return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+                }
+                   
 
                 // all is well, return successful user
                 console.log("Login ok.");    
