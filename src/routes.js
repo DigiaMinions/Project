@@ -1,33 +1,23 @@
+
+
 module.exports = function(app, express, passport) {
 
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
-
-	app.get('/logout', function(req, res) {
-		console.log("Logging out.");
-		req.logout();
-		res.redirect('/auth');
-	});
-
-	app.get('/login', function (req,res){
-		res.sendFile(__dirname + '/static/index.html');
-	});
-
-	app.get('/signup', function (req,res){
-		res.sendFile(__dirname + '/static/index.html');
-	});
+	
+	app.get('/logout', logout);
 
 	app.get('/', isLoggedIn, function (req,res){
-		res.sendFile(__dirname + '/static/index.html');
+	  res.sendFile(__dirname + '/static/index.html');
 	});
 	
 	app.get('/aikataulu', isLoggedIn, function (req,res){
-		res.sendFile(__dirname + '/static/index.html');
+	  res.sendFile(__dirname + '/static/index.html');
 	});
 
 	app.use(express.static(__dirname + '/static'));
 
 	app.get('*', function (req,res){
-		res.sendFile(__dirname + '/static/index.html');
+	  res.sendFile(__dirname + '/static/index.html');
 	});
 
 
@@ -54,21 +44,35 @@ module.exports = function(app, express, passport) {
 	});
 
 	app.post('/login',
-		passport.authenticate('local-login', { 
-			successRedirect: '/',
-			failureRedirect: '/login',
-			failureFlash: true 
+	  	passport.authenticate('local-login', { 
+	  		successRedirect: '/',
+		  	failureRedirect: '/login',
+		    failureFlash: true 
 		})
 	);
 
 	app.post('/signup',
-		passport.authenticate('local-signup', { 
-			successRedirect: '/',
-			failureRedirect: '/login',
-			failureFlash: true 
+	    passport.authenticate('local-signup', { 
+		  	successRedirect: '/',
+	 		failureRedirect: '/login',
+		    failureFlash: true 
 		})
 	);
 };
+
+function logout(req,res)
+{
+	if (req.isAuthenticated())
+	{
+		console.log("Logging out user: " + req.user.email);
+		req.logout();
+	}
+	else
+	{
+		console.log("Already logged out.");
+	}	
+	res.redirect('login');
+}
 
 // route middleware to make sure
 function isLoggedIn(req, res, next) {
@@ -76,11 +80,11 @@ function isLoggedIn(req, res, next) {
 	// if user is authenticated in the session, carry on
 	if (req.isAuthenticated())
 	{
-		console.log("Käytäjä ok.");
+		console.log("User ok.");
 		return next();
 	}
 
 	// if they aren't redirect them
-	console.log("Käyttäjällä ei oikeuksia, uudelleenohjataan loginiin.");
+	console.log("User has no privileges, redirecting to login.");
 	res.redirect('/login');
 }

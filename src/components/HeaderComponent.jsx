@@ -4,22 +4,23 @@ import { Nav, Navbar, NavItem, Header, Brand } from 'react-bootstrap'
 
 export default class HeaderComponent extends React.Component {
 
-	constructor() {
-		super();
-		this.state = {
-			authenticated: false
-		}
-		this.login = this.login.bind(this);
-		this.logout = this.logout.bind(this);
-	}
-
-	login() {
-		// TODO: Autentikointi...
-		this.setState({authenticated: true});
-	}
+	constructor(props) {
+	    super(props);
+	    this.logout = this.logout.bind(this);
+    }
 
 	logout() {
-		this.setState({authenticated: false});
+		console.log("POING!")
+		fetch('/logout', {			
+      		credentials: 'same-origin',
+		    method: 'GET'
+	    })
+	    .then(function(res) {
+	    	console.log("Successia puskee: ", res);
+	    })
+	    .catch(function(err) {
+	    	console.log("Erroria puskee: ", err);
+	    });
 	}
 
 	render() {
@@ -33,7 +34,7 @@ export default class HeaderComponent extends React.Component {
 				<Nav>
 					<NavItem><Link to='/'>Koti</Link></NavItem>
 					<NavItem><Link to='aikataulu'>Aikataulu</Link></NavItem>
-					<NavItem><Link to='logout'>Kirjaudu ulos</Link></NavItem>
+					<NavItem><Link onClick={() => this.logout()}>Kirjaudu ulos</Link></NavItem>
 				</Nav>
 			</Navbar>
 		);
