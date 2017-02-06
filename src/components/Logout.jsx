@@ -5,14 +5,15 @@ import { withRouter } from 'react-router'
 class LogoutPage extends Component {
 
   componentWillMount() {
-    this.props.dispatch(authActionCreators.logout())
-    this.props.router.replace('/auth')
+	this.props.dispatch(authActionCreators.logout())
+	this.props.router.replace('/auth')
   }
 
   render() {
-    return null
+	return null
   }
 }
+
 LogoutPage.propTypes = {
   dispatch: PropTypes.func.isRequired,
   router: PropTypes.object.isRequired

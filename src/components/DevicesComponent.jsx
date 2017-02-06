@@ -2,7 +2,7 @@ import React from 'react'
 import Dropdown from 'react-dropdown'
 
 const userDevices = [
-	'123', '00%3A10%3A20%3A30%3A40%3A50' // TODO: Kirjautuneen käyttäjän MACit kannasta... (: enkoodataan %3A)
+	'123', '456' // TODO: Kirjautuneen käyttäjän MACit kannasta... (: enkoodataan %3A)
 ]
 
 export default class DevicesComponent extends React.Component {
