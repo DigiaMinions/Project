@@ -26,26 +26,25 @@ export default class SignUpForm extends React.Component {
 	{
 		return(
 				<div className="signup">
-					<h1>Sign up for free</h1>
 					<form action='/signup' method='post'>
 							<div className="top-row">
 								<div className="field-wrap">
-									<input name="firstname" type="text" required placeholder="First name" autoComplete="off" />
+									<input name="firstname" type="text" required placeholder="Etunimi" autoComplete="off" />
 								</div>      
 								<div className="field-wrap">
-									<input name="lastname" type="text" required placeholder="Last name" autoComplete="off"/>
+									<input name="lastname" type="text" required placeholder="Sukunimi" autoComplete="off"/>
 								</div>
 							</div>
 
 							<div className="field-wrap">
-								<input name="email" type="email" required placeholder="Email address" autoComplete="off"/>
+								<input name="email" type="email" required placeholder="Sähköposti" autoComplete="off"/>
 							</div>
 							
 							<div className="field-wrap">
-								<input name="password" type="password" required placeholder="Password" autoComplete="off"/>
+								<input name="password" type="password" required placeholder="Salasana" autoComplete="off"/>
 							</div>
 							
-							<button onClick={() => this.onSignUp()} className="button button-block">Get Started</button> 
+							<button onClick={() => this.onSignUp()} className="button button-lg button-block">Rekisteröidy</button> 
 					</form>
 				</div>
 		)

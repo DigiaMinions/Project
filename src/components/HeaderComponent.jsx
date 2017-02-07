@@ -4,23 +4,19 @@ import { Nav, Navbar, NavItem, Header, Brand } from 'react-bootstrap'
 
 export default class HeaderComponent extends React.Component {
 
-	constructor(props) {
-	    super(props);
-	    this.logout = this.logout.bind(this);
-    }
-
 	logout() {
-		console.log("POING!")
-		fetch('/logout', {			
-      		credentials: 'same-origin',
-		    method: 'GET'
-	    })
-	    .then(function(res) {
-	    	console.log("Successia puskee: ", res);
-	    })
-	    .catch(function(err) {
-	    	console.log("Erroria puskee: ", err);
-	    });
+		fetch('/logout', {
+			credentials: 'same-origin',
+			method: 'GET'
+		})
+		.then(function(res) {
+			console.log("Successia puskee: ", res);
+			window.location.href = '/login';
+		})
+		.catch(function(err) {
+			console.log("Erroria puskee: ", err);
+		});
+
 	}
 
 	render() {

@@ -12,8 +12,8 @@ export default class AuthPage extends React.Component {
 			<div className="form">
 				<div>			
 					<ul role="nav" className="tab-group">
-					  <li className="tab"><Link to="/signup">Sign up</Link></li>
-					  <li className="tab"><Link to="/login">Log In</Link></li>
+					  <li><Link to="/signup" activeStyle={{ background: '#1ab188', color: '#ffffff' }}>Rekisteröidy</Link></li>
+					  <li><Link to="/login" activeStyle={{ background: '#1ab188', color: '#ffffff' }}>Kirjaudu</Link></li>
 					</ul>
 				</div>			
 

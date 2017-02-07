@@ -1,5 +1,3 @@
-
-
 module.exports = function(app, express, passport) {
 
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
@@ -32,7 +30,7 @@ module.exports = function(app, express, passport) {
 		res.end(JSON.stringify(req.body, null, 2))
 	});
 
-	/* TODO: Schedule feed */
+	/* Schedule feed */
 	app.post('/schedule/', function(req, res){
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		var schedule = req.body.schedule;
@@ -70,8 +68,8 @@ function logout(req,res)
 	else
 	{
 		console.log("Already logged out.");
-	}	
-	res.redirect('login');
+	}
+	res.redirect('/login');
 }
 
 // route middleware to make sure

@@ -4,13 +4,17 @@ import CreateScheduleComponent from './CreateScheduleComponent.jsx'
 import ScheduleListComponent from './ScheduleListComponent.jsx'
 import 'whatwg-fetch'
 
-const schedules = [];
+// Mock aikataulut, haetaan kannasta myöhemmin
+const schedulesFor123 = [ {id: 1, time: "10:00", rep: 1, isActive: true}, {id: 2, time: "11:00", rep: 1, isActive: true} ];
+const schedulesFor456 = [ {id: 3, time: "12:00", rep: 1, isActive: false}, {id: 4, time: "13:00", rep: 1, isActive: true}, {id: 5, time: "14:00", rep: 1, isActive: true} ];
 
 export default class Schedule extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { activeDevice: this.props.activeDevice, schedules };
+		this.getSchedulesForDevice = this.getSchedulesForDevice.bind(this);
+		var activeDeviceSchedules = this.getSchedulesForDevice(this.props.activeDeviceVal);
+		this.state = { schedules: activeDeviceSchedules };
 	}
 
 	render() {
@@ -18,9 +22,9 @@ export default class Schedule extends React.Component {
 			<div>
 				<div className="well">
 					<h2>Ruokinta aikataulu</h2><br />
-					<CreateScheduleComponent schedules={this.state.schedules} createSchedule={this.createSchedule.bind(this)} /><br />
+					<CreateScheduleComponent createSchedule={this.createSchedule.bind(this)} /><br />
 					<ScheduleListComponent schedules={this.state.schedules} toggleSchedule={this.toggleSchedule.bind(this)} deleteSchedule={this.deleteSchedule.bind(this)} /><br />
-					<button type="button" className="btn btn-primary btn-lg" onClick={this.sendScheduleToDevice.bind(this)}>Lähetä aikataulu laitteelle</button>
+					<button type="button" className="button button-block" onClick={this.sendSchedulesToDevice.bind(this)}>Tallenna</button>
 				</div>
 			</div>
 		);
@@ -57,7 +61,7 @@ export default class Schedule extends React.Component {
 		this.setState({ schedules: this.state.schedules });
 	}
 
-	sendScheduleToDevice() {
+	sendSchedulesToDevice() {
 		var self = this;
 		self.scheduleToSend = [];
 		// Lisätään aktiiviset aikataulut laitteelle lähtevään taulukkoon
@@ -73,7 +77,7 @@ export default class Schedule extends React.Component {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
-			mac: this.props.activeDevice,
+			mac: this.props.activeDeviceVal,
 			schedule: self.scheduleToSend
 		})
 		})
@@ -84,4 +88,22 @@ export default class Schedule extends React.Component {
 			console.log("Error: ", err);
 		});
 	}
+
+	// Aktiivinen laite vaihtuu -> haetaan uusi aikataulu
+	componentWillReceiveProps(nextProps) {
+		var activeDeviceSchedules = this.getSchedulesForDevice(nextProps.activeDeviceVal);
+		this.setState({ schedules: activeDeviceSchedules });
+	}
+
+	// Haetaan kannasta aktiivisen laitteen aikataulu
+	getSchedulesForDevice(device) {
+		// Mock data, myöhemmin haetaan kannasta (SELECT s FROM Schedule WHERE device_id={device}) ...jotenkin näin, kantaa muutettava???
+		if (device == 123) {
+			return schedulesFor123;
+		}
+		else if (device == 456) {
+			return schedulesFor456;
+		}
+	}
+
 }

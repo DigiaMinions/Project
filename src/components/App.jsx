@@ -1,55 +1,45 @@
 import React from 'react'
-import GraphComponent from './GraphComponent.jsx'
-import CalendarComponent from './CalendarComponent.jsx'
-import { Button, Panel } from 'react-bootstrap'
-import 'whatwg-fetch'
+import Dropdown from 'react-dropdown'
+import HeaderComponent from './HeaderComponent.jsx'
+import { Col, Grid, Row } from 'react-bootstrap'
+
+const userDevices = [
+	{ value: '123', label: 'Monnin masiina' },
+	{ value: '456', label: 'Raksu kone' } // TODO: Kirjautuneen käyttäjän MACit kannasta... (: enkoodataan %3A)
+]
 
 export default class App extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { activeDevice: this.props.activeDevice, startTime: new Date().getTime()-86400000, endTime: new Date().getTime() } // Oletuksena näyttää viim. 24h
-		this.onStartTimeChange = this.onStartTimeChange.bind(this)
-		this.onEndTimeChange = this.onEndTimeChange.bind(this)
-		this.onButtonPress = this.onButtonPress.bind(this)
+		this.state = { activeDevice: userDevices[0] }
+		this.onSelect = this.onSelect.bind(this)
 	}
 
-	onStartTimeChange (time) {
-		this.setState({ startTime: time})
-	}
-
-	onEndTimeChange (time) {
-		this.setState({ endTime: time})
-	}
-
-	onButtonPress () {
-		// API kutsu Fetchillä
-		fetch('/feed/', {
-			method: 'POST',
-			headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			mac: this.state.activeDevice
-		})
-		})
-		.then(function(res) {
-			console.log("Success: ", res);
-		})
-		.catch(function(err) {
-			console.log("Error: ", err);
-		});
+	onSelect (option) {
+		this.setState({activeDevice: option})
 	}
 
 	render() {
+		const activeDevice = this.state.activeDevice;
+		const activeDeviceVal = activeDevice.value;
+
 		return (
-			<div>		
-				<br /><Button onClick={this.onButtonPress} bsStyle="primary">Pötyä pöytään!</Button>
-				<GraphComponent activeDevice={this.props.activeDevice} startTime={this.state.startTime} endTime={this.state.endTime} />
-				<Panel header="Näytä ruokailu ajalta">
-					<CalendarComponent onUpdate={this.onStartTimeChange} labelText="Mistä:" />
-					<CalendarComponent onUpdate={this.onEndTimeChange} labelText="Mihin:" />
-				</Panel>
+			<div>
+				<HeaderComponent />
+				<Grid>
+					<Row>
+						<Col xs={12} md={3}>
+							<div>
+								Valitse laite:
+								<Dropdown options={userDevices} onChange={this.onSelect} value={activeDevice} placeholder="Valitse laite" />
+							</div>
+						</Col>
+						<Col xs={12} md={9}>
+							{React.cloneElement(this.props.children, { activeDeviceVal })}
+						</Col>
+					</Row>
+				</Grid>
 			</div>
 		);
 	}
