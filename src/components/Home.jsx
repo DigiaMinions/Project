@@ -44,7 +44,7 @@ export default class Home extends React.Component {
 	render() {
 		return (
 			<div>		
-				<br /><Button onClick={this.onButtonPress} bsStyle="primary">Pötyä pöytään!</Button>
+				<br /><button type="button" onClick={this.onButtonPress} className="button button-block">Pötyä pöytään!</button>
 				<GraphComponent activeDeviceVal={this.props.activeDeviceVal} startTime={this.state.startTime} endTime={this.state.endTime} />
 				<Panel header="Näytä ruokailu ajalta">
 					<CalendarComponent onUpdate={this.onStartTimeChange} labelText="Mistä:" />

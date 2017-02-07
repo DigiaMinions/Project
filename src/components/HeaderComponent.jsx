@@ -5,7 +5,6 @@ import { Nav, Navbar, NavItem, Header, Brand } from 'react-bootstrap'
 export default class HeaderComponent extends React.Component {
 
 	logout() {
-		console.log("POING!")
 		fetch('/logout', {
 			credentials: 'same-origin',
 			method: 'GET'
