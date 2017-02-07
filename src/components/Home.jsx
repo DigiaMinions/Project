@@ -30,7 +30,7 @@ export default class Home extends React.Component {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
-			mac: this.state.activeDeviceVal
+			mac: this.props.activeDeviceVal
 		})
 		})
 		.then(function(res) {

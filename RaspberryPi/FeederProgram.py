@@ -35,8 +35,8 @@ class globalVars:
 class servoControl:
 	def __init__(self):
 		# Minimum and maximum pulsewidths
-		self.pw_max = 1000
-		self.pw_min = 1999
+		self.pw_max = 2500
+		self.pw_min = 500
 		# GPIO ports
 		self.servo_upper = 19	# GPIO 19
 		self.servo_lower = 26	# GPIO 26
@@ -127,7 +127,8 @@ def servo_feedFood():
 	pi.set_servo_pulsewidth(servoVars.servo_lower, servoVars.pw_max)
 	time.sleep(2)
 	pi.set_servo_pulsewidth(servoVars.servo_lower, servoVars.pw_min)
-	time.sleep(1)
+	time.sleep(1.5)
+	pi.set_PWM_dutycycle(servoVars.servo_lower, 0) # Shut PWM
 	servo_fillFeeder() # Fill the feedtube after feeding
 
 # Fill feedtube with new food
@@ -136,7 +137,8 @@ def servo_fillFeeder():
 	pi.set_servo_pulsewidth(servoVars.servo_upper, servoVars.pw_max)
 	time.sleep(3)
 	pi.set_servo_pulsewidth(servoVars.servo_upper, servoVars.pw_min)
-	time.sleep(1)
+	time.sleep(1.5)
+	pi.set_PWM_dutycycle(servoVars.servo_upper, 0) # Shut PWM
 	servo_setStatus(False)
 
 # Is something using servos?
@@ -151,6 +153,7 @@ def servo_setStatus(bool):
 def servo_getStatus():
 	global servoStatus
 	return servoStatus
+
 
 
 ####################################
@@ -434,7 +437,7 @@ def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa 
 
 def feedSchedule_markAsFed(string):
 	with open('schedule_fedtoday.dat', 'a') as file:
-		file.write(string)
+		file.write(string + "\n")
 
 def feedSchedule_getList():
 	fedList = []
@@ -453,11 +456,14 @@ def feedSchedule_clearTodaysFed():
 		pass
 
 def check_dayChange():
-	global today
-	number = getTodaysNumber()
-	if number is not today:
-		today = number
-		feedSchedule_clearTodaysFed()
+	with open('todaysnumber.dat', 'r') as file:
+		content = int(file.read())
+	today = getTodaysNumber()
+	if content is not today:
+		with open('todaysnumber.dat', 'w') as file:
+			print("clearing already fed")
+			file.write(str(today))
+			feedSchedule_clearTodaysFed()
 	else:
 		pass
 	
@@ -572,6 +578,7 @@ def thread0():
 def thread1():
 	interval = 1
 	while True:
+		check_dayChange()
 		checkFeedSchedule()
 		time.sleep(interval)
 		
@@ -579,8 +586,6 @@ def thread1():
 
 #################################
 ### MAIN program ################
-
-today = getTodaysNumber()
 
 cell = None # Load cell variable gets initialized here
 servoStatus = False # Boolean telling if servos being currently used
@@ -591,6 +596,9 @@ gVars.ID = getMac() # Get MAC address for identification
 
 servoVars = servoControl() # Initialize custom servo data
 pi = pigpio.pi() # Initialize pigpio library
+pi.set_PWM_dutycycle(servoVars.servo_upper, 0) # Shut PWM
+pi.set_PWM_dutycycle(servoVars.servo_lower, 0) # Shut PWM
+
 
 # All scheduled feed times
 masterSchedule = []
@@ -612,7 +620,6 @@ while len(loadList) == 0:
 	time.sleep(1)
 	lc_init()
 
-#lc_tare() # TODO missä kohtaa tämä kannattaisi tehdä? Käyttäjän napinpainalluksella? Esiasennuksella?
 
 # Initialize thread(s)
 try:
