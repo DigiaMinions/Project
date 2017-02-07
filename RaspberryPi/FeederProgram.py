@@ -437,7 +437,7 @@ def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa 
 
 def feedSchedule_markAsFed(string):
 	with open('schedule_fedtoday.dat', 'a') as file:
-		file.write(string)
+		file.write(string + "\n")
 
 def feedSchedule_getList():
 	fedList = []
@@ -456,11 +456,14 @@ def feedSchedule_clearTodaysFed():
 		pass
 
 def check_dayChange():
-	global today
-	number = getTodaysNumber()
-	if number is not today:
-		today = number
-		feedSchedule_clearTodaysFed()
+	with open('todaysnumber.dat', 'r') as file:
+		content = int(file.read())
+	today = getTodaysNumber()
+	if content is not today:
+		with open('todaysnumber.dat', 'w') as file:
+			print("clearing already fed")
+			file.write(str(today))
+			feedSchedule_clearTodaysFed()
 	else:
 		pass
 	
@@ -575,6 +578,7 @@ def thread0():
 def thread1():
 	interval = 1
 	while True:
+		check_dayChange()
 		checkFeedSchedule()
 		time.sleep(interval)
 		
@@ -582,8 +586,6 @@ def thread1():
 
 #################################
 ### MAIN program ################
-
-today = getTodaysNumber()
 
 cell = None # Load cell variable gets initialized here
 servoStatus = False # Boolean telling if servos being currently used
@@ -618,7 +620,6 @@ while len(loadList) == 0:
 	time.sleep(1)
 	lc_init()
 
-#lc_tare() # TODO missä kohtaa tämä kannattaisi tehdä? Käyttäjän napinpainalluksella? Esiasennuksella?
 
 # Initialize thread(s)
 try:
