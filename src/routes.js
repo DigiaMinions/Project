@@ -10,6 +10,17 @@ module.exports = function(app, express, passport) {
 		region: "eu-west-1"
 	});
 
+	// MOCK DATAA, haetaan kannasta kirjautuneen käyttäjän laitteiden MACit ja loopissa subscribetään kaikkien niiden DeviceToApp-topiceihin
+	device.subscribe('DogFeeder/DeviceToApp/' + "123");
+	device.subscribe('DogFeeder/DeviceToApp/' + "456");
+
+	// Kuunnellaan topicin viestejä
+	var msg = ''; // viesti palautetaan responsessa, raspin pitää keretä lähettää uusin ennen kuin palautetaan response, joku delay responsen lähetykseen tai callback?
+	device
+		.on('message', function(topic, payload) {
+				msg = payload.toString();
+	});
+
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
 	
 	app.get('/logout', logout);
@@ -33,7 +44,7 @@ module.exports = function(app, express, passport) {
 	/* Insta feed: lähetetään laitteelle viesti ruokinnasta heti */
 	app.post('/feed/', function(req, res){
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
-		device.publish('DogFeeder/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
+		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
 
 		/* postin debuggausta varten */
 		/*
@@ -47,12 +58,15 @@ module.exports = function(app, express, passport) {
 	app.post('/schedule/', function(req, res){
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		var schedule = req.body.schedule;
-		device.publish('DogFeeder/' + macParsed, JSON.stringify({ schedule }));
-
-		res.setHeader('Content-Type', 'text/plain')
-		res.write('you posted:\n')
-		res.end(JSON.stringify(req.body, null, 2))
+		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ schedule }));
 	});
+
+	/* Pyydetään laitteelta aikataulu -> raspi lähettää DeviceToApp topicciin aikataulun -> se lähetetään responsessa frontille */
+	app.post('/device/', function(req, res){
+		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
+		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ get: 'schedule' }));
+		res.send(msg);
+	})
 
 	/* Login */
 	app.post('/login',

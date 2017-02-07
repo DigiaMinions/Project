@@ -4,7 +4,7 @@ import CreateScheduleComponent from './CreateScheduleComponent.jsx'
 import ScheduleListComponent from './ScheduleListComponent.jsx'
 import 'whatwg-fetch'
 
-// Mock aikataulut, haetaan kannasta myöhemmin
+// Mock aikataulut, haetaan laitteelta...
 const schedulesFor123 = [ {id: 1, time: "10:00", rep: 1, isActive: true}, {id: 2, time: "11:00", rep: 1, isActive: true} ];
 const schedulesFor456 = [ {id: 3, time: "12:00", rep: 1, isActive: false}, {id: 4, time: "13:00", rep: 1, isActive: true}, {id: 5, time: "14:00", rep: 1, isActive: true} ];
 
@@ -12,8 +12,8 @@ export default class Schedule extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.getSchedulesForDevice = this.getSchedulesForDevice.bind(this);
 		this.sendSchedulesToDevice = this.sendSchedulesToDevice.bind(this)
+		this.getSchedulesForDevice = this.getSchedulesForDevice.bind(this);
 		var activeDeviceSchedules = this.getSchedulesForDevice(this.props.activeDeviceVal);
 		this.state = { schedules: activeDeviceSchedules };
 	}
@@ -96,9 +96,27 @@ export default class Schedule extends React.Component {
 		this.setState({ schedules: activeDeviceSchedules });
 	}
 
-	// Haetaan kannasta aktiivisen laitteen aikataulu
+	// Haetaan laitteelta aikataulut
 	getSchedulesForDevice(device) {
-		// Mock data, myöhemmin haetaan kannasta (SELECT s FROM Schedule WHERE device_id={device}) ...jotenkin näin, kantaa muutettava???
+		fetch('/device/', {
+			method: 'POST',
+			headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			mac: device
+		})
+		})
+		.then(function(res) {
+			// TODO: parsitaan responsesta aikataulu oikeaan muotoon ja palautetaan...
+			console.log("Success: ", res);
+		})
+		.catch(function(err) {
+			console.log("Error: ", err);
+		});
+
+
+		// MOCK DATA
 		if (device == 123) {
 			return schedulesFor123;
 		}
