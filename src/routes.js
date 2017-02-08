@@ -14,11 +14,11 @@ module.exports = function(app, express, passport) {
 	device.subscribe('DogFeeder/DeviceToApp/' + "123");
 	device.subscribe('DogFeeder/DeviceToApp/' + "456");
 
-	// Kuunnellaan topicin viestejä
-	var msg = ''; // viesti palautetaan responsessa, raspin pitää keretä lähettää uusin ennen kuin palautetaan response, joku delay responsen lähetykseen tai callback?
+	// Kuunnellaan topicin viestejä, viimeisin muuttujassa
+	var deviceSchedule = '';
 	device
 		.on('message', function(topic, payload) {
-				msg = payload.toString();
+				deviceSchedule = payload.toString();
 	});
 
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
@@ -63,10 +63,20 @@ module.exports = function(app, express, passport) {
 
 	/* Pyydetään laitteelta aikataulu -> raspi lähettää DeviceToApp topicciin aikataulun -> se lähetetään responsessa frontille */
 	app.post('/device/', function(req, res){
+		deviceSchedule = ''; // tyhjätään muuttujasta entinen aikataulu
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
-		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ get: 'schedule' }));
-		res.send(msg);
+		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ get: 'schedule' })); // lähetetään raspille pyyntö aikataulusta
+		sendScheduleToApp(res); // odotellaan että raspi lähettää aikataulun
 	})
+
+	function sendScheduleToApp(res) {
+		if (deviceSchedule) {
+			res.json(deviceSchedule); // palautetaan aikataulu frontille responsessa
+		}
+		else {
+			setTimeout(sendScheduleToApp, 500, res) // odotellaan raspia...
+		}
+	}
 
 	/* Login */
 	app.post('/login',

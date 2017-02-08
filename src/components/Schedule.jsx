@@ -79,7 +79,7 @@ export default class Schedule extends React.Component {
 		},
 		body: JSON.stringify({
 			mac: this.props.activeDeviceVal,
-			schedule: self.scheduleToSend
+			schedule: this.state.schedules
 		})
 		})
 		.then(function(res) {
@@ -108,8 +108,9 @@ export default class Schedule extends React.Component {
 		})
 		})
 		.then(function(res) {
-			// TODO: parsitaan responsesta aikataulu oikeaan muotoon ja palautetaan...
-			console.log("Success: ", res);
+			return res.json().then(function(json) {
+				console.log(JSON.stringify(json));
+			})
 		})
 		.catch(function(err) {
 			console.log("Error: ", err);
