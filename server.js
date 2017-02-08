@@ -25,14 +25,15 @@ var flash = require('connect-flash');
 app.use(flash());
 
 // sessionin ymmärtämiseen
-// http://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
-app.use(session({ //cookie: { secure : false, maxAge : 60000 }, 
+// https://github.com/expressjs/session
+app.use(session({ cookie: { secure : false, maxAge : 60000 }, 
 	secret: 'woot',
-	resave: true, 
-	saveUninitialized: true
+	resave: false, 
+	saveUninitialized: false
 }));
 
 /* Passport */
+// HUOM JÄRJESTYS OLEELLINEN!
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 require('./src/passport.js')(passport);
