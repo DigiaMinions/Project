@@ -27,7 +27,7 @@ app.use(flash());
 // sessionin ymmärtämiseen
 // https://github.com/expressjs/session
 app.use(session({ cookie: { secure : false, maxAge : 60000 }, 
-	secret: 'woot',
+	secret: process.env.COOKIE_SECRET,
 	resave: false, 
 	saveUninitialized: false
 }));
