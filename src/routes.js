@@ -1,3 +1,14 @@
+// load up the user model
+var mysql = require('mysql');
+var bcrypt = require('bcrypt-nodejs');
+var connection = mysql.createConnection({
+    host    : process.env.DB_HOST,
+    user    : process.env.DB_USER,
+    password : process.env.DB_PASSWORD
+});
+
+connection.query('USE ' + process.env.DB);
+
 module.exports = function(app, express, passport) {
 
 	/* AWS IoT Device SDK */
@@ -22,7 +33,19 @@ module.exports = function(app, express, passport) {
 	});
 
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
-	
+
+	app.get('/devices/', isLoggedIn, function (req, res){
+		connection.query("SELECT name, mac FROM Device WHERE FK_user_id = ?",[req.user.id], function(err, rows){
+            if(err)
+            {
+                console.log("Virhe SQL-kyselyssä.");
+                res.send(err);
+            }
+            console.log("Palautetaan devicet");
+            res.send(rows);
+        });
+	})
+
 	app.get('/logout', logout);
 
 	app.get('/', isLoggedIn, function (req,res){
@@ -94,7 +117,7 @@ module.exports = function(app, express, passport) {
 	 		failureRedirect: '/login',
 		    failureFlash: true 
 		})
-	);
+	);	
 };
 
 function logout(req,res)

@@ -3,21 +3,53 @@ import Dropdown from 'react-dropdown'
 import HeaderComponent from './HeaderComponent.jsx'
 import { Col, Grid, Row } from 'react-bootstrap'
 
-const userDevices = [
-	{ value: '123', label: 'Monnin masiina' },
-	{ value: '456', label: 'Raksu kone' } // TODO: Kirjautuneen käyttäjän MACit kannasta... (: enkoodataan %3A)
-]
 
 export default class App extends React.Component {
 
-	constructor(props) {
+	constructor(props) {		
 		super(props);
-		this.state = { activeDevice: userDevices[0] }
-		this.onSelect = this.onSelect.bind(this)
+		var placeholder = [{value: '0', label: 'Valitse laite'}];
+		this.state = { userDevices: [], activeDevice: placeholder[0] };
+		this.onSelect = this.onSelect.bind(this);
 	}
 
 	onSelect (option) {
 		this.setState({activeDevice: option})
+	}
+
+	componentDidMount(){
+		
+		var that = this;
+		fetch('/devices', {
+				credentials: 'same-origin',
+				method: 'GET'
+			})
+			.then(function(response) {
+				// jostain syystä pitää palauttaa response.json() ennen kuin tietoon pääsee käsiksi
+			  return response.json();
+			})
+			.then(function(jsonData) {
+				console.log('Successia puskee: ' + jsonData);
+				var data = '[';
+				// PARSITAAN JSON UUTEEN MUOTOON. mac -> value | name -> label				
+				for (var i = 0;i<jsonData.length;i++)
+				{
+					data += '{ "value": "' + jsonData[i].mac + '", "label": "' + jsonData[i].name + '"}';
+					if (i<jsonData.length-1) {data += ","};
+				}
+				data += "]";
+
+				console.log(data);
+				var devices = JSON.parse(data);
+				console.log(devices);
+				that.setState({userDevices: devices});
+			})
+			.catch(function(err) {
+				console.log("Erroria puskee: ", err);
+			});
+
+		
+		
 	}
 
 	render() {
@@ -32,7 +64,7 @@ export default class App extends React.Component {
 						<Col xs={12} md={3}>
 							<div>
 								Valitse laite:
-								<Dropdown options={userDevices} onChange={this.onSelect} value={activeDevice} placeholder="Valitse laite" />
+								<Dropdown options={this.state.userDevices} onChange={this.onSelect} value={activeDevice} placeholder="Valitse laite" />
 							</div>
 						</Col>
 						<Col xs={12} md={9}>

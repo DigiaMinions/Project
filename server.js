@@ -35,7 +35,6 @@ app.use(session({ cookie: { secure : false, maxAge : 60000 },
 /* Passport */
 // HUOM JÄRJESTYS OLEELLINEN!
 var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
 require('./src/passport.js')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
@@ -48,10 +47,5 @@ serv.listen(9000, err => {
 		return console.error(err);
 	}
 	console.log("Serveri startattu: kuuntelee porttia 9000.");
-	console.log("DB_HOST: " + process.env.DB_HOST);
-	console.log("DB_USER: " + process.env.DB_USER);
-	console.log("DB_PASSWORD: " + process.env.DB_PASSWORD);
-	console.log("DB: " + process.env.DB);
-	console.log("COOKIE_SECRET: " + process.env.COOKIE_SECRET);
 });
 
