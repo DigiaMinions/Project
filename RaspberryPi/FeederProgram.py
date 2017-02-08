@@ -64,24 +64,42 @@ def callback_update(client, userdata, message):
 # Callback for user data
 '''
 flags info:
-feed = instant foodfeed
-schedule = schedule received, save to file
-tare = recalculate load cell offset
+set_feed = instant foodfeed
+set_schedule = schedule received, save to file
+set_tare = recalculate load cell offset
+get_schedule = client end asks current schedule, return it from file
 '''
 def callback_userdata(client, userdata, message):
-	print("Callback_foodfeed")
+	print("Callback_userdata")
 	flags, schedule = validateMessage(message.payload)
 
 	if flags is not 'invalid': # If validation ok
-		if flags is 'feed':
+		if flags is 'set_feed':
 			print('Instant foodfeed pressed')
 			JsonCreator.createObject('instantFeedClick', getDateTime()) # Tell AWS IoT the feed button has been clicked
 			servo_feedFood()
-		elif flags is 'schedule':
+		elif flags is 'set_schedule':
 			scheduleFileWrite(schedule)
+			###########
+			# PROTO
+			schedule_writeToFile(message.payload)
+			#///////////
 			JsonCreator.createObject('newSchedule', getDateTime())
-		elif flags is 'tare':
+		elif flags is 'set_tare':
 			lc_tare()
+		elif flags is 'get_schedule':
+			getScheduleToApp()
+
+####################
+# PROTO
+def schedule_writeToFile(content):
+	with open('test_schedule.dat', 'w') as file:
+		file.write(content)
+
+
+
+
+#///////////////////
 
 #callback for load cell
 def callback_loadcell(count, mode, reading):
@@ -92,7 +110,6 @@ def callback_loadcell(count, mode, reading):
 		load = (reading - lc_offset) / lc_referenceUnit
 	else:
 		load = reading / lc_referenceUnit
-
 #	if load < 0 and tare is False :
 #		load = 0
 	loadList.append(load)
@@ -330,10 +347,6 @@ def getLoadCellValue():
 		medianLoad = sum(loadList) / len(loadList)
 	del loadList[:]	 # loadList.clear() if < python 3.3
 	return medianLoad
-	
-	# Kellota huomenna clear!!!
-	#$ python -mtimeit "l=list(range(1000))" "b=l[:];del b[:]"
-	#$ python -mtimeit "l=list(range(1000))" "b=l[:];b[:] = []"
 
 
 
@@ -347,7 +360,7 @@ def getMac():
 		mac = ':'.join(mac_addr[i : i + 2] for i in range(0, 11, 2))
 	except:
 		print("Error retrieving MAC address")
-	return mac
+	return "123" # mac
 
 # Download available update
 def fetchUpdate():
@@ -489,13 +502,13 @@ def validateMessage(data):
 
 	# foodfeed can be found only if user presses instant feed button
 	if 'feed' in data:
-		flags = 'feed' # set return flags to instant feed
+		flags = 'set_feed' # set return flags to instant feed
 
 	# schedule can be found is user sends a schedule
 	elif 'schedule' in data:
 		list = data['schedule']
 		messageSchedule = [] # Initialize schedulearray
-		flags = 'schedule' # set flags to scheduled feeding
+		flags = 'set_schedule' # set flags to scheduled feeding
 		for index in range(len(list)):
 			try:                
 				if bool(re.search(regex, list[index])) is True: # If string has regex..
@@ -511,7 +524,15 @@ def validateMessage(data):
 				messageSchedule.append('invalid')
 				# tare can be found if user wants to reset load cell offset
 	elif 'tare' in data:
-		flags = 'tare'
+		flags = 'set_tare'
+
+	elif 'get' in data:
+		content = data['get']
+		if 'schedule' in content:
+			flags = 'get_schedule'
+		else:
+			pass
+
 	else: # If Json doesn't have required objects or arrays
 		flags = 'invalid'
 
@@ -545,14 +566,19 @@ def getFinalMessage():
 	return JsonCreator.getJson()
 
 
+def getScheduleToApp():
+	with open('schedule.dat', 'r') as file:
+		content = file.read()
+	myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + getMac(), str(content), 1)	 
+
 
 #################################
 ### AWS IoT Connection ##########
 
 # Connect and subscribe to AWS IoT (partly AWS)
 myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe("DogFeeder/Data", 1, callback_data) # TODO Is this needed in the end product? Repeats sent message in terminal
-myAWSIoTMQTTClient.subscribe("DogFeeder/" + getMac(), 1, callback_userdata)
+myAWSIoTMQTTClient.subscribe("DogFeeder/Data/" + getMac(), 1, callback_data) # TODO Is this needed in the end product? Repeats sent message in terminal
+myAWSIoTMQTTClient.subscribe("DogFeeder/AppToDevice/" + getMac(), 1, callback_userdata)
 myAWSIoTMQTTClient.subscribe("DogFeeder/Update", 1, callback_update) # Updates available. Shared topic for all DogFeeders
 time.sleep(1)
 
@@ -573,7 +599,7 @@ def thread0():
 			loop_count += 1
 			time.sleep(interval)
 		createMessageIDStamp()
-		myAWSIoTMQTTClient.publish("DogFeeder/Data", str(getFinalMessage()), 1) # Create final message from previously made pieces and send it to AWS IoT
+		myAWSIoTMQTTClient.publish("DogFeeder/Data/" + getMac(), str(getFinalMessage()), 1) # Create final message from previously made pieces and send it to AWS IoT
 		
 def thread1():
 	interval = 1
@@ -620,6 +646,7 @@ while len(loadList) == 0:
 	time.sleep(1)
 	lc_init()
 
+servo_fillFeeder() # Make sure the feeding tube is filled after boot
 
 # Initialize thread(s)
 try:
