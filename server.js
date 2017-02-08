@@ -7,7 +7,7 @@
 /*MySQL*/
 // https://gist.github.com/manjeshpv/84446e6aa5b3689e8b84
 // https://github.com/manjeshpv/node-express-passport-mysql
-
+require('dotenv').config();
 /* ExpressJS */
 var express = require('express');
 var app = express();
@@ -48,4 +48,10 @@ serv.listen(9000, err => {
 		return console.error(err);
 	}
 	console.log("Serveri startattu: kuuntelee porttia 9000.");
+	console.log("DB_HOST: " + process.env.DB_HOST);
+	console.log("DB_USER: " + process.env.DB_USER);
+	console.log("DB_PASSWORD: " + process.env.DB_PASSWORD);
+	console.log("DB: " + process.env.DB);
+	console.log("COOKIE_SECRET: " + process.env.COOKIE_SECRET);
 });
+
