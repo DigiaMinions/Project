@@ -58,13 +58,14 @@ module.exports = function(passport) {
                 } else {
                     // if there is no user with that email
                     // create the user
+                    var salt = bcrypt.genSaltSync(10);
                     var firstname = req.body.firstname;
                     var lastname = req.body.lastname;
                     var newUserMysql = {
                         firstname: firstname,
                         lastname: lastname,
                         email: email,                        
-                        password: bcrypt.hashSync(password, null, null)  // use the generateHash function in our user model
+                        password: bcrypt.hashSync(password, salt)  // use the generateHash function in our user model
                     };
 
                     var insertQuery = "INSERT INTO User ( firstname, lastname, email, password ) values (?,?,?,?)";
