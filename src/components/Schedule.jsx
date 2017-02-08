@@ -5,17 +5,16 @@ import ScheduleListComponent from './ScheduleListComponent.jsx'
 import 'whatwg-fetch'
 
 // Mock aikataulut, haetaan laitteelta...
-const schedulesFor123 = [ {id: 1, time: "10:00", rep: 1, isActive: true}, {id: 2, time: "11:00", rep: 1, isActive: true} ];
-const schedulesFor456 = [ {id: 3, time: "12:00", rep: 1, isActive: false}, {id: 4, time: "13:00", rep: 1, isActive: true}, {id: 5, time: "14:00", rep: 1, isActive: true} ];
+// const schedulesFor123 = [ {id: 1, time: "10:00", rep: 1, isActive: true}, {id: 2, time: "11:00", rep: 1, isActive: true} ];
+// const schedulesFor456 = [ {id: 3, time: "12:00", rep: 1, isActive: false}, {id: 4, time: "13:00", rep: 1, isActive: true}, {id: 5, time: "14:00", rep: 1, isActive: true} ];
 
 export default class Schedule extends React.Component {
 
 	constructor(props) {
 		super(props);
+		this.state = { schedules: '' };
 		this.sendSchedulesToDevice = this.sendSchedulesToDevice.bind(this)
 		this.getSchedulesForDevice = this.getSchedulesForDevice.bind(this);
-		var activeDeviceSchedules = this.getSchedulesForDevice(this.props.activeDeviceVal);
-		this.state = { schedules: activeDeviceSchedules };
 	}
 
 	render() {
@@ -63,13 +62,13 @@ export default class Schedule extends React.Component {
 	}
 
 	sendSchedulesToDevice() {
-		var self = this;
-		self.scheduleToSend = [];
-		// Lisätään aktiiviset aikataulut laitteelle lähtevään taulukkoon
-		_.forEach(this.state.schedules, function(schedule) {
-			if (schedule.isActive === true)
-				self.scheduleToSend.push(schedule.time + "rep" + schedule.rep);
-		});
+		// var self = this;
+		// self.scheduleToSend = [];
+		// // Lisätään aktiiviset aikataulut laitteelle lähtevään taulukkoon
+		// _.forEach(this.state.schedules, function(schedule) {
+		// 	if (schedule.isActive === true)
+		// 		self.scheduleToSend.push(schedule.time + "rep" + schedule.rep);
+		// });
 
 		// API kutsu Fetchillä
 		fetch('/schedule/', {
@@ -90,14 +89,24 @@ export default class Schedule extends React.Component {
 		});
 	}
 
-	// Aktiivinen laite vaihtuu -> haetaan uusi aikataulu
-	componentWillReceiveProps(nextProps) {
-		var activeDeviceSchedules = this.getSchedulesForDevice(nextProps.activeDeviceVal);
-		this.setState({ schedules: activeDeviceSchedules });
+	// Haetaan aikataulu ensimmäistä kertaa
+	componentDidMount() {
+		var self = this;
+		this.getSchedulesForDevice(this.props.activeDeviceVal, function(schedules) {
+			self.setState({ schedules: schedules });
+		});
 	}
 
-	// Haetaan laitteelta aikataulut
-	getSchedulesForDevice(device) {
+	// Aktiivinen laite vaihtuu -> haetaan uusi aikataulu
+	componentWillReceiveProps(nextProps) {
+		var self = this;
+		this.getSchedulesForDevice(nextProps.activeDeviceVal, function(schedules) {
+			self.setState({ schedules: schedules });
+		});	
+	}
+
+	// Haetaan laitteen aikataulut
+	getSchedulesForDevice(device, callback) {
 		fetch('/device/', {
 			method: 'POST',
 			headers: {
@@ -108,22 +117,24 @@ export default class Schedule extends React.Component {
 		})
 		})
 		.then(function(res) {
-			return res.json().then(function(json) {
-				console.log(JSON.stringify(json));
-			})
+			return res.json();
+		})
+		.then(function(schedulesJson) {
+			callback(JSON.parse(schedulesJson).schedules); // parsitaan taulukko schedule-objekteja JSON:ista
 		})
 		.catch(function(err) {
 			console.log("Error: ", err);
 		});
 
-
 		// MOCK DATA
+		/*
 		if (device == 123) {
 			return schedulesFor123;
 		}
 		else if (device == 456) {
 			return schedulesFor456;
 		}
+		*/
 	}
 
 }

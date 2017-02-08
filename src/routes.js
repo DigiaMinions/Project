@@ -10,15 +10,15 @@ module.exports = function(app, express, passport) {
 		region: "eu-west-1"
 	});
 
-	// MOCK DATAA, haetaan kannasta kirjautuneen käyttäjän laitteiden MACit ja loopissa subscribetään kaikkien niiden DeviceToApp-topiceihin
+	// MOCK DATAA, haetaan kannasta kirjautuneen käyttäjän laitteiden MACit ja subscribetään kaikkien niiden DeviceToApp-topiceihin (subscribelle voi antaa arrayn topicceja)
 	device.subscribe('DogFeeder/DeviceToApp/' + "123");
 	device.subscribe('DogFeeder/DeviceToApp/' + "456");
 
-	// Kuunnellaan topicin viestejä, viimeisin muuttujassa
+	// Kuunnellaan topicin viestejä, viimeisin viesti muuttujaan
 	var deviceSchedule = '';
 	device
-		.on('message', function(topic, payload) {
-				deviceSchedule = payload.toString();
+	.on('message', function(topic, payload) {
+		deviceSchedule = payload.toString();
 	});
 
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
