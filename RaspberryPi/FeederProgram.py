@@ -90,16 +90,126 @@ def callback_userdata(client, userdata, message):
 		elif flags is 'get_schedule':
 			getScheduleToApp()
 
+			
+			
+			
+			
+			
+			
+			
 ####################
 # PROTO
+
+
+
+#OK
+# Kirjoittaa käyttäjän pään payloadissa tulevan jsonin filuun
 def schedule_writeToFile(content):
 	with open('test_schedule.dat', 'w') as file:
 		file.write(content)
 
+		
+'''
+{
+"schedule":
+[
+{id: 1, time: "10:00", rep: 1, isActive: true},
+{id: 2, time: "11:00", rep: 1, isActive: true},
+{id: 3, time: "2017-02-08 12:00", isActive: true}
+]
+}
+'''
+#
+# Käyttäjän päädystä saapuvan payload-jsonin validointi
+def validateMessage(payload):
+	# Values to return at the end
+	flags = None
+	messageSchedule = None
+    
+	# What regex to look for in a string
+	# regex = "rep";
+    
+	# Different time formats to use
+	clockFormat = '%H:%M'
+	dateFormat = '%Y-%m-%d'
+	dateTimeFormat = '%Y-%m-%d %H:%M'
+	
+	try:
+		content = json.loads(payload) # Validates as valid JSON  
+	except Error:
+		flags = 'Payload is not valid JSON'
+		return flags, messageSchedule
+
+	# 'feed' can be found only if user wants instant foodfeed
+	if 'feed' in content:
+		flags = 'set_feed' # set return flags to instant feed
+
+	# schedule can be found is user sends a schedule
+	elif 'schedule' in content:
+		array = content['schedule']
+		messageSchedule = [] # Initialize schedulearray
+		
+		for object in array:
+			# now object is a dictionary
+			for 'id' in object.iteritems():
+				# JOS löytyy 'rep'-itemi niin:
+				if 'rep' in object:
+					#
+				# MUUTEN jos ei löydy 'rep'-itemiä niin:
+					#
+					
+			# flags = 'set_schedule'
+		
+		
+		flags = 'set_schedule' # set flags to scheduled feeding
+		for index in range(len(list)):
+			try:                
+				if bool(re.search(regex, list[index])) is True: # If string has regex..
+					position = list[index].find(regex) # Find the position of regex
+					savedRegex = list[index][position:] # Save regex and everything behind it
+					list[index] = list[index][:position] # Remove regex from the string (temporarily)
+					list[index] = str(datetime.strptime(list[index], clockFormat).time()) # Make sure the time format is correct
+					list[index] = list[index] + savedRegex # Add regex back to string
+					messageSchedule.append(list[index]) # Append to schedulelist
+				else: # If string doesn't have regex just check the datetime is valid
+					messageSchedule.append(str(datetime.strptime(list[index], dateTimeFormat)))
+			except ValueError: # If the string has invalid date/time format
+				messageSchedule.append('invalid')
+				# tare can be found if user wants to reset load cell offset
+	elif 'tare' in data:
+		flags = 'set_tare'
+
+	elif 'get' in data:
+		content = data['get']
+		if 'schedule' in content:
+			flags = 'get_schedule'
+		else:
+			pass
+
+	else: # If Json doesn't have required objects or arrays
+		flags = 'invalid'
+
+	print('Flags ' + str(flags))
+	print('messageSchedule ' + str(messageSchedule))
+	return flags, messageSchedule
 
 
 
-#///////////////////
+
+#/////////////////// PROTO END
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #callback for load cell
 def callback_loadcell(count, mode, reading):
