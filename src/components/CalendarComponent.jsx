@@ -2,7 +2,7 @@ import React from 'react'
 import DatePicker from 'react-bootstrap-date-picker'
 import { FormGroup, ControlLabel, Col } from 'react-bootstrap'
 
-export default class GraphComponent extends React.Component {
+export default class CalendarComponent extends React.Component {
 
 	constructor(props) {
 		super(props);

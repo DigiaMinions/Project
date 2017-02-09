@@ -14,13 +14,14 @@ export default class GraphComponent extends React.Component {
 		const endTime = this.props.endTime;
 		const epochStartTime = new Date(startTime).getTime();
 		const epochEndTime = new Date(endTime).getTime();
-		console.log(startTime);
-		console.log(epochStartTime);
+		console.log('Start time: ' + startTime);
+		console.log('Epoch start time: ' + epochStartTime);
+		console.log('Graafille annettu (props)mac: ' + this.props.activeDeviceVal);
 		
 		return (
 			<div>
 				<br />
-				<iframe src={graphanaUrl + String(this.props.activeDevice) + theme + "&from=" + epochStartTime + "&to=" + epochEndTime} width='845' height='400' frameBorder='0' />
+				<iframe src={graphanaUrl + String(this.props.activeDeviceVal) + theme + "&from=" + epochStartTime + "&to=" + epochEndTime} width='845' height='400' frameBorder='0' />
 				<br />
 			</div>
 		);

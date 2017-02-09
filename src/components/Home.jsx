@@ -41,7 +41,9 @@ export default class Home extends React.Component {
 		});
 	}
 
+
 	render() {
+		console.log('props.activeDeviceVal homessa: ' + this.props.activeDeviceVal);
 		return (
 			<div>		
 				<br /><button type="button" onClick={this.onButtonPress} className="button button-block">Pötyä pöytään!</button>

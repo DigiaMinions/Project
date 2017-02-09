@@ -15,6 +15,7 @@ export default class App extends React.Component {
 
 	onSelect (option) {
 		this.setState({activeDevice: option})
+		console.log(option);
 	}
 
 	componentDidMount(){
@@ -65,11 +66,11 @@ export default class App extends React.Component {
 						<Col xs={12} md={3}>
 							<div>
 								Valitse laite:
-								<Dropdown options={this.state.userDevices} onChange={this.onSelect} value={activeDevice} placeholder="Valitse laite" />
+								<Dropdown options={this.state.userDevices} onChange={this.onSelect} value={this.state.activeDevice} placeholder="Valitse laite" />
 							</div>
 						</Col>
 						<Col xs={12} md={9}>
-							{React.cloneElement(this.props.children, { activeDeviceVal })}
+							{React.cloneElement(this.props.children, { activeDeviceVal: activeDeviceVal })}
 						</Col>
 					</Row>
 				</Grid>
