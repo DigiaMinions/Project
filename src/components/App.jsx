@@ -43,6 +43,7 @@ export default class App extends React.Component {
 				var devices = JSON.parse(data);
 				console.log(devices);
 				that.setState({userDevices: devices});
+				that.setState({activeDevice: devices[0]});
 			})
 			.catch(function(err) {
 				console.log("Erroria puskee: ", err);

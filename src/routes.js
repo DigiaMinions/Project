@@ -1,6 +1,5 @@
 // load up the user model
 var mysql = require('mysql');
-var bcrypt = require('bcrypt-nodejs');
 var connection = mysql.createConnection({
     host    : process.env.DB_HOST,
     user    : process.env.DB_USER,
