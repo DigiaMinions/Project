@@ -20,10 +20,6 @@ module.exports = function(app, express, passport) {
 		region: "eu-west-1"
 	});
 
-	// MOCK DATAA, haetaan kannasta kirjautuneen käyttäjän laitteiden MACit ja subscribetään kaikkien niiden DeviceToApp-topiceihin (subscribelle voi antaa arrayn topicceja)
-	device.subscribe('DogFeeder/DeviceToApp/' + "123");
-	device.subscribe('DogFeeder/DeviceToApp/' + "456");
-
 	// Kuunnellaan topicin viestejä, viimeisin viesti muuttujaan
 	var deviceSchedule = '';
 	device
@@ -34,21 +30,16 @@ module.exports = function(app, express, passport) {
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
 
 	app.get('/devices/', isLoggedIn, function (req, res){
-		connection.query("SELECT name, mac FROM Device WHERE FK_user_id = ?",[req.user.id], function(err, rows){
-            if(err)
-            {
-                console.log("Virhe SQL-kyselyssä.");
-                res.send(err);
-            }
-            console.log("Palautetaan devicet");
-            res.send(rows);
-        });
-	})
+		var rows = getDevices(req, function(rows){
+			console.log(rows);
+			res.send(rows);
+		});		
+	})	
 
 	app.get('/logout', logout);
 
-	app.get('/', isLoggedIn, function (req,res){
-	  res.sendFile(__dirname + '/static/index.html');
+	app.get('/', isLoggedIn, function (req,res){		
+		res.sendFile(__dirname + '/static/index.html');
 	});
 	
 	app.get('/aikataulu', isLoggedIn, function (req,res){
@@ -60,7 +51,6 @@ module.exports = function(app, express, passport) {
 	app.get('*', function (req,res){
 	  res.sendFile(__dirname + '/static/index.html');
 	});
-
 
 	/* API endpointit */
 	/* Insta feed: lähetetään laitteelle viesti ruokinnasta heti */
@@ -91,23 +81,24 @@ module.exports = function(app, express, passport) {
 		sendScheduleToApp(res); // odotellaan että raspi lähettää aikataulun
 	})
 
-	function sendScheduleToApp(res) {
-		if (deviceSchedule) {
-			res.json(deviceSchedule); // palautetaan aikataulu frontille responsessa
-		}
-		else {
-			setTimeout(sendScheduleToApp, 500, res) // odotellaan raspia...
-		}
-	}
-
 	/* Login */
-	app.post('/login',
-	  	passport.authenticate('local-login', { 
-	  		successRedirect: '/',
-		  	failureRedirect: '/login',
-		    failureFlash: true 
-		})
-	);
+	app.post('/login', function(req, res, next) {
+		passport.authenticate('local-login', function(err, user, info) {
+	    	if (err) { return next(err); }
+	    	if (!user) { return res.redirect('/login'); }
+	    	
+	    	req.logIn(user, function(err) {
+	        	if (err) { return next(err); }
+	        	return res.redirect('/');
+	    	});
+	    	//getDevices(req);	  
+	    	var test = [{ value: '123', label: 'lbl'}, {value: '321', label: 'diidada'}]; 
+	    	req.user.devices = test;
+
+	    	console.log(req.user.devices);
+	    	subscribeDevices(req);
+	    })(req, res, next);
+	});
 
 	/* Signup */
 	app.post('/signup',
@@ -117,33 +108,79 @@ module.exports = function(app, express, passport) {
 		    failureFlash: true 
 		})
 	);	
+
+	function sendScheduleToApp(res) 
+	{
+		if (deviceSchedule) {
+			res.json(deviceSchedule); // palautetaan aikataulu frontille responsessa
+		}
+		else {
+			setTimeout(sendScheduleToApp, 500, res) // odotellaan raspia...
+		}
+	}
+
+	function subscribeDevices(req)
+	{
+		getDevices(req, function(rows){
+			for(var i = 0; i<rows.length;i++)
+			{			
+				console.log("Subscribing " + rows[i].mac);
+				device.subscribe('DogFeeder/DeviceToApp/' + rows[i].mac);			
+			}
+		});
+	}
+
+	function unsubscribeDevices(req)
+	{
+		getDevices(req, function(rows){
+			for(var i = 0; i<rows.length;i++)
+			{			
+				console.log("Unsubscribing " + rows[i].mac);
+				device.unsubscribe('DogFeeder/DeviceToApp/' + rows[i].mac);			
+			}
+		});
+	}
+
+	function logout(req,res)
+	{
+		if (req.isAuthenticated())
+		{
+			unsubscribeDevices(req);
+			console.log("Logging out user: " + req.user.email);
+			req.logout();
+		}
+		else
+		{
+			console.log("Already logged out.");
+		}
+		res.redirect('/login');
+	}
+
+	// route middleware to make sure
+	function isLoggedIn(req, res, next) {
+
+		// if user is authenticated in the session, carry on
+		if (req.isAuthenticated())
+		{
+			console.log("User ok.");
+			return next();
+		}
+
+		// if they aren't redirect them
+		console.log("User has no privileges, redirecting to login.");
+		res.redirect('/login');
+	}
+
+	function getDevices(req, cb){
+		connection.query("SELECT name, mac FROM Device WHERE FK_user_id = ?",[req.user.id], function(err, rows){
+	        if(err)
+	        {
+	            console.log("Virhe SQL-kyselyssä.");
+	            res.send(err);
+	        }
+	        //console.log("Palautetaan devicet");
+	        cb(rows);
+	    });
+	}
 };
 
-function logout(req,res)
-{
-	if (req.isAuthenticated())
-	{
-		console.log("Logging out user: " + req.user.email);
-		req.logout();
-	}
-	else
-	{
-		console.log("Already logged out.");
-	}
-	res.redirect('/login');
-}
-
-// route middleware to make sure
-function isLoggedIn(req, res, next) {
-
-	// if user is authenticated in the session, carry on
-	if (req.isAuthenticated())
-	{
-		console.log("User ok.");
-		return next();
-	}
-
-	// if they aren't redirect them
-	console.log("User has no privileges, redirecting to login.");
-	res.redirect('/login');
-}

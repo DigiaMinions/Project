@@ -14,8 +14,6 @@ var app = express();
 var serv = require('http').Server(app);
 var session = require('express-session');
 var bodyParser = require('body-parser');
-var rawParser = bodyParser.raw();
-var textParser = bodyParser.text();
 var urlencodedParser = bodyParser.urlencoded({ extended: true });
 var jsonParser = bodyParser.json(); // JSON body
 
