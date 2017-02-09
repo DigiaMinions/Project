@@ -1,12 +1,13 @@
 import React from 'react'
 import Select from 'react-select'
 import { Alert, Button } from 'react-bootstrap'
+import CalendarComponent from './CalendarComponent.jsx'
 
 export default class CreateScheduleComponent extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { date: '', showError: false }
+		this.state = { days: '', date: new Date().toISOString(), feedingType: 'recurring', showError: false }
 	}
 
 	render() {
@@ -25,9 +26,36 @@ export default class CreateScheduleComponent extends React.Component {
 			error = <Alert bsStyle="danger">Syötä kellonaika (HH:MM) ja päivämäärä!</Alert>;
 		}
 
+		let recurring = null;
+		let nonrecurring = null;
+		if (this.state.feedingType === 'recurring')
+		{
+			recurring = <Select value={this.state.days} options={options} onChange={this.handleSelectChange.bind(this)} multi={true} placeholder="Valitse viikonpäivät ruokinnan toistamiselle" />
+		}
+		else if (this.state.feedingType === 'nonrecurring')
+		{
+			nonrecurring = <CalendarComponent onUpdate={this.handleDateChange.bind(this)} />
+		}
+
 		return (
 			<div>
+			{console.log(this.state.feedingType)}
+			{console.log(this.state.date)}
 			{error}
+			<form>
+					<label style={{marginLeft: "0px", marginRight: "10px"}} className="radio-inline">
+						<input type="radio" value="recurring" 
+						checked={this.state.feedingType === 'recurring'} 
+						onChange={this.handleOptionChange.bind(this)} />
+						Toistuva ruokinta
+					</label>
+					<label style={{marginLeft: "0px", marginRight: "10px"}} className="radio-inline">
+						<input type="radio" value="nonrecurring" 
+						checked={this.state.feedingType === 'nonrecurring'} 
+						onChange={this.handleOptionChange.bind(this)} />
+						Kertaluontoinen ruokinta
+	  				</label>
+			</form><br/>
 			<form onSubmit={this.handleCreate.bind(this)} className="form-inline">			
 				<div className="input-group col-xs-3">
 					<input type="text" ref="timeInput" className="form-control" placeholder="Kellonaika (HH:MM)" />
@@ -36,7 +64,8 @@ export default class CreateScheduleComponent extends React.Component {
 					</span>
 				</div>
 				<div className="input-group col-xs-6">
-					<Select value={this.state.date} options={options} onChange={this.handleSelectChange.bind(this)} multi={true} placeholder="Valitse päivät" />
+					{recurring}
+					{nonrecurring}
 				</div>
 				<button type="submit" className="btn btn-default">Luo</button>
 			</form>
@@ -44,8 +73,16 @@ export default class CreateScheduleComponent extends React.Component {
 		);
 	}
 
-	handleSelectChange(val) {
-		this.setState({ date: val });
+	handleOptionChange(changeEvent) {
+		this.setState({ feedingType: changeEvent.target.value })
+	}
+
+	handleSelectChange(days) {
+		this.setState({ days: days });
+	}
+
+	handleDateChange(date) {
+		this.setState({ date: date });
 	}
 
 	handleCreate(event) {
@@ -54,18 +91,31 @@ export default class CreateScheduleComponent extends React.Component {
 		const timeInput = this.refs.timeInput;
 		const time = timeInput.value;
 		var re = new RegExp("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$"); // HH:MM
-		const rep = _.map(this.state.date, "value");
 
-		if (re.test(time) && rep.length > 0) {
-			var sum = rep.reduce(function(a, b) { return parseInt(a) + parseInt(b); })
-			this.props.createSchedule(time, sum);
-			this.refs.timeInput.value = '';
-			this.state.date = '';
-		}
-		else
+		if (this.state.feedingType === 'recurring')
 		{
-			this.setState({ showError: true });
+			const rep = _.map(this.state.days, "value");
+			if (re.test(time) && rep.length > 0) {
+				var sum = rep.reduce(function(a, b) { return parseInt(a) + parseInt(b); })
+				this.props.createSchedule(time, sum);
+				this.refs.timeInput.value = '';
+				this.state.days = '';
+			}
+			else {
+				this.setState({ showError: true });
+			}
 		}
 
+		else if (this.state.feedingType === 'nonrecurring') 
+		{
+			if (re.test(time) && this.state.date) {
+				this.props.createSchedule(time, this.state.date);
+				this.refs.timeInput.value = '';
+				this.state.days = '';
+			}
+			else {
+				this.setState({ showError: true });
+			}
+		}
 	}
 }

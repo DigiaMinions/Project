@@ -1,7 +1,7 @@
 import React from 'react'
 import GraphComponent from './GraphComponent.jsx'
 import CalendarComponent from './CalendarComponent.jsx'
-import { Button, Panel } from 'react-bootstrap'
+import { Button, Panel, Col } from 'react-bootstrap'
 import 'whatwg-fetch'
 
 export default class Home extends React.Component {
@@ -47,8 +47,12 @@ export default class Home extends React.Component {
 				<br /><button type="button" onClick={this.onButtonPress} className="button button-block">Pötyä pöytään!</button>
 				<GraphComponent activeDeviceVal={this.props.activeDeviceVal} startTime={this.state.startTime} endTime={this.state.endTime} />
 				<Panel header="Näytä ruokailu ajalta">
+				<Col xs={6} md={4}>
 					<CalendarComponent onUpdate={this.onStartTimeChange} labelText="Mistä:" />
+				</Col>
+				<Col xs={6} md={4}>
 					<CalendarComponent onUpdate={this.onEndTimeChange} labelText="Mihin:" />
+				</Col>
 				</Panel>
 			</div>
 		);

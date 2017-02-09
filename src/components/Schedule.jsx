@@ -12,7 +12,7 @@ export default class Schedule extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { schedules: '' };
+		this.state = { schedules: [] };
 		this.sendSchedulesToDevice = this.sendSchedulesToDevice.bind(this)
 		this.getSchedulesForDevice = this.getSchedulesForDevice.bind(this);
 	}
@@ -39,12 +39,12 @@ export default class Schedule extends React.Component {
 			return id;
 	}
 
-	createSchedule(time, rep) {
+	createSchedule(time, date) {
 		var id = this.generateId();
 		this.state.schedules.push({
 			id,
 			time,
-			rep,
+			date,
 			isActive: true
 		});
 		this.setState({ schedules: this.state.schedules });
@@ -62,13 +62,13 @@ export default class Schedule extends React.Component {
 	}
 
 	sendSchedulesToDevice() {
-		// var self = this;
-		// self.scheduleToSend = [];
-		// // Lisätään aktiiviset aikataulut laitteelle lähtevään taulukkoon
-		// _.forEach(this.state.schedules, function(schedule) {
-		// 	if (schedule.isActive === true)
-		// 		self.scheduleToSend.push(schedule.time + "rep" + schedule.rep);
-		// });
+/*		var self = this;
+		self.scheduleToSend = [];
+		// Lisätään aktiiviset aikataulut laitteelle lähtevään taulukkoon
+		_.forEach(this.state.schedules, function(schedule) {
+			if (schedule.isActive === true)
+				self.scheduleToSend.push(schedule.time + "rep" + schedule.rep);
+		});*/
 
 		// API kutsu Fetchillä
 		fetch('/schedule/', {

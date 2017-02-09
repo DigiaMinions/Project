@@ -25,7 +25,7 @@ export default class SignUpForm extends React.Component {
 	render()
 	{
 		return(
-				<div className="signup">
+				<div className="login">
 					<form action='/signup' method='post'>
 							<div className="top-row">
 								<div className="field-wrap">
