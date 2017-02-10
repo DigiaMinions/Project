@@ -82,16 +82,23 @@ def callback_userdata(client, userdata, message):
 #OK
 # Kirjoittaa käyttäjän pään payloadissa tulevan jsonin filuun
 def schedule_writeToFile(content):
-	with open('schedule.dat', 'w') as file:
-		file.write(content)
+	try:
+		with open('schedule.dat', 'w') as file:
+			file.write(content)
+	except:
+		print("FATAL ERROR WRITING SCHEDULE TO FILE")
 
 #OK
 # Lukee schedulen laitteesta ja palauttaa sen kutsujalle	
 def schedule_readFromFile():
-	with open('schedule.dat', 'r') as file:
-		content = str(file.read())
-	return content
-	
+	try:
+		with open('schedule.dat', 'r') as file:
+			content = str(file.read())
+			return content
+	except:
+		print("FATAL ERROR READING SCHEDULE FROM FILE")
+		return null
+
 #OK
 # Returns currently saved schedule to end user
 def getScheduleToApp():
