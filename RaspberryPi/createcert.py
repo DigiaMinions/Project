@@ -5,15 +5,11 @@ import time
 import getopt
 import json
 import os
-import idconf
 import sys
 import subprocess
-'''
-if os.path.exists('idconf'):
-	import idconf.py
-	curid = idconf.py.id	
-'''
-curid = idconf.id
+if os.path.exists('idconf.py'):
+	import idconf
+	curid = idconf.id	
 # Custom MQTT message callback
 def customCallback(client, userdata, message):
 	#print("Received a new message: ")
@@ -76,7 +72,7 @@ def customCallback(client, userdata, message):
 
 	print id[1]
 	#print cert[0]['certificatePem']
-	sys.exit()
+	idconf.flag = 1
 
 
 # Usage
@@ -188,5 +184,7 @@ time.sleep(2)
 if __name__ == "__main__":
 	msg = json.dumps({'ThingName':'CliId1', 'ThingType':'Feeder'})
 	myAWSIoTMQTTClient.publish("Generic/CliId1/req", msg, 1)
-	time.sleep(10)
-	os.system('sudo bash start.sh')
+	if idconfig.flag:
+		print "everything went well"
+	else:
+		print "something went horribly wrong"
