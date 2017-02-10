@@ -1,6 +1,6 @@
 import React from 'react'
 import Select from 'react-select'
-import { Alert, Button } from 'react-bootstrap'
+import { Alert, Button, Col, Row } from 'react-bootstrap'
 import CalendarComponent from './CalendarComponent.jsx'
 
 export default class CreateScheduleComponent extends React.Component {
@@ -30,7 +30,7 @@ export default class CreateScheduleComponent extends React.Component {
 		let nonrecurring = null;
 		if (this.state.feedingType === 'recurring')
 		{
-			recurring = <Select value={this.state.rep} options={options} onChange={this.handleSelectChange.bind(this)} multi={true} placeholder="Valitse viikonpäivät ruokinnan toistamiselle" />
+			recurring = <Select value={this.state.rep} options={options} onChange={this.handleSelectChange.bind(this)} multi={true} placeholder="Valitse päivät" />
 		}
 		else if (this.state.feedingType === 'nonrecurring')
 		{
@@ -54,14 +54,16 @@ export default class CreateScheduleComponent extends React.Component {
 						Kertaluontoinen ruokinta
 	  				</label>
 			</form><br/>
-			<form onSubmit={this.handleCreate.bind(this)} className="form-inline">			
-				<div className="input-group col-xs-3">
-					<input type="text" ref="timeInput" className="form-control" placeholder="Kellonaika (HH:MM)" />
-					<span className="input-group-addon">
-						<span className="glyphicon glyphicon-time"></span>
-					</span>
+			<form onSubmit={this.handleCreate.bind(this)} className="form-inline">
+				<div className="form-group col-xs-3">
+					<div className="input-group">
+						<input type="text" ref="timeInput" className="form-control" placeholder="Kellonaika (HH:MM)" />
+						<span className="input-group-addon">
+							<span className="glyphicon glyphicon-time"></span>
+						</span>
+					</div>
 				</div>
-				<div className="input-group col-xs-6">
+				<div className="form-group col-xs-6">
 					{recurring}
 					{nonrecurring}
 				</div>
