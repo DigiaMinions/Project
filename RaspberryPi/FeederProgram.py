@@ -70,8 +70,8 @@ set_tare = recalculate load cell offset
 get_schedule = client end asks current schedule, return it from file
 '''
 def callback_userdata(client, userdata, message):
-	print("Callback_userdata")
-	flags, schedule = validateMessage(message.payload)
+	print("callback_userdata")
+	flags = validateMessage(message.payload)
 
 	if flags is not 'invalid': # If validation ok
 		if flags is 'set_feed':
@@ -79,11 +79,7 @@ def callback_userdata(client, userdata, message):
 			JsonCreator.createObject('instantFeedClick', getDateTime()) # Tell AWS IoT the feed button has been clicked
 			servo_feedFood()
 		elif flags is 'set_schedule':
-			scheduleFileWrite(schedule)
-			###########
-			# PROTO
 			schedule_writeToFile(message.payload)
-			#///////////
 			JsonCreator.createObject('newSchedule', getDateTime())
 		elif flags is 'set_tare':
 			lc_tare()
@@ -92,14 +88,6 @@ def callback_userdata(client, userdata, message):
 
 			
 			
-			
-			
-			
-			
-			
-####################
-# PROTO
-
 
 
 #OK
@@ -108,107 +96,18 @@ def schedule_writeToFile(content):
 	with open('test_schedule.dat', 'w') as file:
 		file.write(content)
 
-		
-'''
-{
-"schedule":
-[
-{id: 1, time: "10:00", rep: 1, isActive: true},
-{id: 2, time: "11:00", rep: 1, isActive: true},
-{id: 3, time: "2017-02-08 12:00", isActive: true}
-]
-}
-'''
-#
-# Käyttäjän päädystä saapuvan payload-jsonin validointi
-def validateMessage(payload):
-	# Values to return at the end
-	flags = None
-	messageSchedule = None
-    
-	# What regex to look for in a string
-	# regex = "rep";
-    
-	# Different time formats to use
-	clockFormat = '%H:%M'
-	dateFormat = '%Y-%m-%d'
-	dateTimeFormat = '%Y-%m-%d %H:%M'
+#OK
+# Lukee schedulen laitteesta ja palauttaa sen kutsujalle	
+def schedule_readFromFile():
+	with open('test_schedule.dat', 'r') as file:
+		content = str(file.read())
+	return content
 	
-	try:
-		content = json.loads(payload) # Validates as valid JSON  
-	except Error:
-		flags = 'Payload is not valid JSON'
-		return flags, messageSchedule
-
-	# 'feed' can be found only if user wants instant foodfeed
-	if 'feed' in content:
-		flags = 'set_feed' # set return flags to instant feed
-
-	# schedule can be found is user sends a schedule
-	elif 'schedule' in content:
-		array = content['schedule']
-		messageSchedule = [] # Initialize schedulearray
-		
-		for object in array:
-			# now object is a dictionary
-			for 'id' in object.iteritems():
-				# JOS löytyy 'rep'-itemi niin:
-				if 'rep' in object:
-					#
-				# MUUTEN jos ei löydy 'rep'-itemiä niin:
-					#
-					
-			# flags = 'set_schedule'
-		
-		
-		flags = 'set_schedule' # set flags to scheduled feeding
-		for index in range(len(list)):
-			try:                
-				if bool(re.search(regex, list[index])) is True: # If string has regex..
-					position = list[index].find(regex) # Find the position of regex
-					savedRegex = list[index][position:] # Save regex and everything behind it
-					list[index] = list[index][:position] # Remove regex from the string (temporarily)
-					list[index] = str(datetime.strptime(list[index], clockFormat).time()) # Make sure the time format is correct
-					list[index] = list[index] + savedRegex # Add regex back to string
-					messageSchedule.append(list[index]) # Append to schedulelist
-				else: # If string doesn't have regex just check the datetime is valid
-					messageSchedule.append(str(datetime.strptime(list[index], dateTimeFormat)))
-			except ValueError: # If the string has invalid date/time format
-				messageSchedule.append('invalid')
-				# tare can be found if user wants to reset load cell offset
-	elif 'tare' in data:
-		flags = 'set_tare'
-
-	elif 'get' in data:
-		content = data['get']
-		if 'schedule' in content:
-			flags = 'get_schedule'
-		else:
-			pass
-
-	else: # If Json doesn't have required objects or arrays
-		flags = 'invalid'
-
-	print('Flags ' + str(flags))
-	print('messageSchedule ' + str(messageSchedule))
-	return flags, messageSchedule
-
-
-
-
-#/////////////////// PROTO END
-
-
-
-
-
-
-
-
-
-
-
-
+#OK
+# Returns currently saved schedule to end user
+def getScheduleToApp():
+	content = schedule_readFromFile()
+	myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + getMac(), str(content), 1)	
 
 
 #callback for load cell
@@ -486,7 +385,7 @@ def fetchUpdate():
 	
 # Get current date and time
 def getDateTime():
-	dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M"))
+	dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	return dateTime
 
 # Get current time
@@ -518,63 +417,83 @@ def parseRep(repValue):
 	return repList
 
 def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa tiedostosta ja poistelemaan yms.
-	regex = 'rep'
-	removalList = [] # What schedules to remove after the content loop finishes
+with open('schedule.dat', 'r') as file:
+    data = file.read()
 
-	with open('schedule.dat', 'r') as file: # Open the schedule-file for reading
-		content = file.read().splitlines() # Split schedule line by line
+schedule = json.loads(data)
 
-	for line in content: # Go through each line
-		if bool(re.search(regex, line)) is True: # If line has the repeating regex
-			position = line.find(regex) # Find the position of regex
-			repValue = int(line[position +3:]) # Get the number following the regex and save it as integer
-			
-			# Check if current day matches with a day referenced behind the regex
-			if getTodaysNumber() in parseRep(repValue): # If the day is a match
-				timeTemp = line[:position]
-				if getTime() >= timeTemp:
-					if line in feedSchedule_getList():
-						pass
-					else:
-						servo_feedFood()
-						feedSchedule_markAsFed(line)
-		elif bool(re.search(regex, line)) is False: # If regex couldn't be found (one-time scheduled feed) and the time has passed
-			if getDateTime() >= line:
-				removalList.append(line) # Flag the line to be removed
-				servo_feedFood()
-		else: # When something goes wrong..
-			print('Error reading schedule')
+# Go through each object in 'schedule'-array
+for content in schedule['schedule']:
+    if validateDate(content['rep']):
+        print("Schedule " + content['id'] + " is non-repeating")
+        if getDateTime() >= content['time'] and content['isActive'] == 'true':
+            schedule_markAsInactive(content['id'])
+            print("servo_feedFood()")
+    else:
+        print("Schedule " + content['id'] + " is repeating")
+        if getTodaysNumber() in parseRep(int(content['rep'])):
+            time = content['time']
+            if getDateTime() >= content['time'] and content['isActive'] == 'true':
+                if schedule_isFedToday(content['id']) == True:
+                    print("Already fed today!")
+                elif schedule_isFedToday(content['id']) == False:
+                    print("servo_foodFeed()")
+                    schedule_markAsFedToday(content['id'])
+                
+        else:
+            print("Not today")
 
-	# Remove flagged lines
-	if len(removalList) is not 0:
-		for line in removalList:
-			while line in content:
-				content.remove(line)
-		with open('schedule.dat', 'w') as file:
-			for line in removalList:
-				while line in content:
-					content.remove(line)
-			for line in content:
-				file.write(str(line) + '\n')
-		print("REMOVED SOMETHING")
 
-def feedSchedule_markAsFed(string):
-	with open('schedule_fedtoday.dat', 'a') as file:
-		file.write(string + "\n")
+# TÄMÄ FUNKTIO KOODIIN
+def validateDate(content):
+    dateFormat = '%Y-%m-%d'
+    try:
+        datetime.strptime(content, dateFormat)
+        return True
+    except ValueError:
+       # raise ValueError("Incorrect date format, should be YYYY-MM-DD")
+        return False
 
-def feedSchedule_getList():
-	fedList = []
-	if os.stat('schedule_fedtoday.dat').st_size == 0:
-		fedList.append("null")
-	else:
-		with open('schedule_fedtoday.dat', 'r') as file:
-			content = file.read().splitlines()
-		for line in content:
-			fedList.append(str(line))
-	return fedList
+# TÄMÄ FUNKTIO KOODIIN
+def schedule_markAsInactive(id):
+    print("ID " + id + " to be deleted..")
+    with open('schedule.dat', 'r+') as file:
+        data = json.load(file)
+        file.seek(0)
 
-def feedSchedule_clearTodaysFed():
-	print("Todays fedlist cleared")
+        for object in data['schedule']:
+            print(object['id'])
+            if id == object['id']:
+                object['isActive'] = 'false'
+                print("Deleted from file")
+                file.write(json.dumps(data))
+                file.truncate()
+                
+            else:
+                print("not found..")
+
+# TÄMÄ FUNKTIO KOODIIN KORVAAMAAN VANHA feedschedule_markAsFed
+def schedule_markAsFedToday(id):
+    with open('schedule_fedtoday.dat', 'w') as file:
+        file.write(str(id) + "\n")
+
+# TÄMÄ FUNKTIO KOODIIN KORVAAMAAN VANHA feedSchedule_getList
+def schedule_isFedToday(id):
+    isFound = False
+
+    with open('schedule_fedtoday.dat', 'r') as file:
+        if os.stat('schedule_fedtoday.dat').st_size == 0:
+            return False
+        else:
+                with open('schedule_fedtoday.dat', 'r') as file:
+                    content = file.read().splitlines()
+                for line in content:
+                    if line == id:
+                        isFound = True
+    return isFound
+
+def schedule_clearTodaysFed():
+	print("Clearing schedule_fedtoday.dat")
 	with open('schedule_fedtoday.dat', 'w') as file:
 		pass
 
@@ -586,7 +505,7 @@ def check_dayChange():
 		with open('todaysnumber.dat', 'w') as file:
 			print("clearing already fed")
 			file.write(str(today))
-			feedSchedule_clearTodaysFed()
+			schedule_clearTodaysFed()
 	else:
 		pass
 	
@@ -594,61 +513,67 @@ def check_dayChange():
 
 #################################
 ### MESSAGE FUNCTIONS ###########
-
-# Check if feedmessage from user is instant or scheduled feed
-def validateMessage(data):
-	# Values to return at the end
+		
+'''
+{
+	"schedule": [{
+		"id": "1",
+		"time": "10:00",
+		"rep": "1",
+		"isActive": "true"
+	}, {
+		"id": "2",
+		"time": "11:00",
+		"rep": "1",
+		"isActive": "true"
+	}, {
+		"id": "3",
+		"time": "2017-02-08 12:00",
+		"isActive": "true"
+	}]
+}
+'''
+#
+# Käyttäjän päädystä saapuvan payload-jsonin validointi
+def validateMessage(payload):
+	# Value to return at the end
 	flags = None
-	messageSchedule = None
-    
-	# What regex to look for in a string
-	regex = "rep";
-    
-	# Different time formats to use
-	clockFormat = '%H:%M'
-	dateFormat = '%Y-%m-%d'
-	dateTimeFormat = '%Y-%m-%d %H:%M'
-	data = json.loads(data)    
+	
+	try:
+		content = json.loads(payload) # Validates as valid JSON  
+	except Error:
+		flags = 'Payload is not valid JSON'
+		return flags
 
-	# foodfeed can be found only if user presses instant feed button
-	if 'feed' in data:
+	# 'feed' can be found only if user wants instant foodfeed
+	if 'feed' in content:
 		flags = 'set_feed' # set return flags to instant feed
 
 	# schedule can be found is user sends a schedule
-	elif 'schedule' in data:
-		list = data['schedule']
-		messageSchedule = [] # Initialize schedulearray
-		flags = 'set_schedule' # set flags to scheduled feeding
-		for index in range(len(list)):
-			try:                
-				if bool(re.search(regex, list[index])) is True: # If string has regex..
-					position = list[index].find(regex) # Find the position of regex
-					savedRegex = list[index][position:] # Save regex and everything behind it
-					list[index] = list[index][:position] # Remove regex from the string (temporarily)
-					list[index] = str(datetime.strptime(list[index], clockFormat).time()) # Make sure the time format is correct
-					list[index] = list[index] + savedRegex # Add regex back to string
-					messageSchedule.append(list[index]) # Append to schedulelist
-				else: # If string doesn't have regex just check the datetime is valid
-					messageSchedule.append(str(datetime.strptime(list[index], dateTimeFormat)))
-			except ValueError: # If the string has invalid date/time format
-				messageSchedule.append('invalid')
-				# tare can be found if user wants to reset load cell offset
+	elif 'schedule' in content:
+		flags = 'set_schedule'
+	
+	# 'tare' can be found if user wants to recalculate load cell offset
 	elif 'tare' in data:
 		flags = 'set_tare'
-
+	
+	# If user requests something from device
 	elif 'get' in data:
 		content = data['get']
+		# If user requests current schedule saved in device
 		if 'schedule' in content:
 			flags = 'get_schedule'
 		else:
 			pass
-
-	else: # If Json doesn't have required objects or arrays
+			
+	# If Json doesn't have required objects or arrays
+	else:
 		flags = 'invalid'
 
 	print('Flags ' + str(flags))
-	print('messageSchedule ' + str(messageSchedule))
-	return flags, messageSchedule
+	return flags
+
+
 	
 def scheduleFileWrite(schedule):
     with open("schedule.dat", "w") as file:
@@ -674,12 +599,7 @@ def createMessageIDStamp():
 def getFinalMessage():
 	global JsonCreator
 	return JsonCreator.getJson()
-
-
-def getScheduleToApp():
-	with open('schedule.dat', 'r') as file:
-		content = file.read()
-	myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + getMac(), str(content), 1)	 
+ 
 
 
 #################################
