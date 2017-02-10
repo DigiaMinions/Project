@@ -73,7 +73,7 @@ def callback_userdata(client, userdata, message):
 			servo_feedFood()
 		elif flags is 'set_schedule':
 			schedule_writeToFile(message.payload)
-			JsonCreator.createObject('newSchedule', getDateTime())
+			#JsonCreator.createObject('newSchedule', getDateTime())
 		elif flags is 'set_tare':
 			lc_tare()
 		elif flags is 'get_schedule':
@@ -365,7 +365,7 @@ def getMac():
 		mac = ':'.join(mac_addr[i : i + 2] for i in range(0, 11, 2))
 	except:
 		print("Error retrieving MAC address")
-	return "123" # mac
+	return "00:14:22:01:23:45" # mac
 
 # Download available update
 def fetchUpdate():
@@ -388,6 +388,10 @@ def getDateTime():
 def getTime():
 	time = str(datetime.now().time().strftime("%H:%M"))
 	return time
+
+def getDate():
+	date = str(datetime.now().strftime("%Y-%m-%d"))
+	return date
 
 # Get the number of a current weekday as binary (1 2 4 8 16 32 64)
 def getTodaysNumber():
@@ -417,22 +421,22 @@ def checkFeedSchedule(): # Superfunktio lukemaan tadaa tiedostosta ja poistelema
 
 	# Go through each object in 'schedule'-array
 	for content in schedule['schedule']:
-			if validateDate(content['rep']):
-			print("Schedule " + content['id'] + " is non-repeating")
-			if getDateTime() >= content['time'] and content['isActive'] == 'true':
+		# one time schedule with date	
+		if validateDate(str(content['rep'])):
+			if getDate() >= str(content['rep']) and getTime() >= str(content['time']) and content['isActive'] is True:
 				servo_feedFood()
-				schedule_markAsInactive(content['id'])
-		else:
-			print("Schedule " + content['id'] + " is repeating")
+				schedule_markAsInactive(str(content['id']))
+		
+		elif validateDate(str(content['rep'])) == False:
 			if getTodaysNumber() in parseRep(int(content['rep'])):
-				if getDateTime() >= content['time'] and content['isActive'] == 'true':
-					if schedule_isFedToday(content['id']) == True:
-						print("Already fed today!")
-					elif schedule_isFedToday(content['id']) == False:
+				if getTime() >= str(content['time']) and content['isActive'] is True:
+					if schedule_isFedToday(str(content['id'])) == True:
+						pass
+					elif schedule_isFedToday(str(content['id'])) == False:
 						servo_feedFood()
-						schedule_markAsFedToday(content['id'])
+						schedule_markAsFedToday(str(content['id']))
 			else:
-				print("Not today")
+				print("Scheduled to another day")
 
 
 # Validates given date and returns True/False of its validity
@@ -447,7 +451,7 @@ def validateDate(content):
 
 # Marks given id as inactive to schedule.dat
 def schedule_markAsInactive(id):
-	print("ID " + id + " to be deleted..")
+	print("Marking ID " + id + " as inactive..")
 	with open('schedule.dat', 'r+') as file:
 		data = json.load(file)
 		file.seek(0)
@@ -456,12 +460,9 @@ def schedule_markAsInactive(id):
 			print(object['id'])
 			if id == object['id']:
 				object['isActive'] = 'false'
-				print("Deleted from file")
+				print("OK")
 				file.write(json.dumps(data))
 				file.truncate()
-                
-			else:
-				print("not found..")
 
 # marks given id as already fed this day to schedule_fedtoday.dat
 def schedule_markAsFedToday(id):
@@ -548,14 +549,14 @@ def validateMessage(payload):
 		flags = 'set_schedule'
 	
 	# 'tare' can be found if user wants to recalculate load cell offset
-	elif 'tare' in data:
+	elif 'tare' in content:
 		flags = 'set_tare'
 	
 	# If user requests something from device
-	elif 'get' in data:
-		content = data['get']
+	elif 'get' in content:
+		request = content['get']
 		# If user requests current schedule saved in device
-		if 'schedule' in content:
+		if 'schedule' in request:
 			flags = 'get_schedule'
 		else:
 			pass
