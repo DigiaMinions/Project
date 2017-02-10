@@ -35,8 +35,10 @@ export default class Schedule extends React.Component {
 			return id;
 	}
 
-	createSchedule(time, rep) {
-		var id = this.generateId();
+	createSchedule(time, repVal) {
+		var id = this.generateId().toString();
+		var rep = repVal.toString();
+
 		this.state.schedules.push({
 			id,
 			time,

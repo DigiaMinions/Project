@@ -48,7 +48,6 @@ export default class App extends React.Component {
 	render() {
 		const activeDevice = this.state.activeDevice;
 		const activeDeviceVal = activeDevice.value;
-
 		return (
 			<div>
 				<HeaderComponent />
