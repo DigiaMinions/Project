@@ -15,12 +15,20 @@ export default class ScheduleListItem extends React.Component {
 			classes = classes + " list-group-item-success";
 			txtToggle = "On";	
 		}
-		var days = this.convertRepToDays(rep);
+
+		// rep voi olla numero (toistettavat viikonpäivät) tai yksittäinen päivämäärä
+		var dateToRender = null;
+		if (!isNaN(rep)) { 
+			dateToRender = this.convertRepToDays(rep).join(', ');
+		}
+		else {
+			dateToRender = rep;
+		}
 
 		return (
 			<li className={classes}>
 				<button type="button" className="btn btn-default" onClick={this.props.toggleSchedule.bind(this, id)} style={{ margin: "0 5px 0 0" }}>{txtToggle}</button>
-				{time} - {days.join(', ')}
+				{time} - {dateToRender}
 				<div className="pull-right" role="group">				
 					<button type="button" className="btn btn-danger" onClick={this.props.deleteSchedule.bind(this, id)}>&#xff38;</button>
 				</div>

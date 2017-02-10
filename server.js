@@ -7,15 +7,13 @@
 /*MySQL*/
 // https://gist.github.com/manjeshpv/84446e6aa5b3689e8b84
 // https://github.com/manjeshpv/node-express-passport-mysql
-
+require('dotenv').config();
 /* ExpressJS */
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 var session = require('express-session');
 var bodyParser = require('body-parser');
-var rawParser = bodyParser.raw();
-var textParser = bodyParser.text();
 var urlencodedParser = bodyParser.urlencoded({ extended: true });
 var jsonParser = bodyParser.json(); // JSON body
 
@@ -25,16 +23,16 @@ var flash = require('connect-flash');
 app.use(flash());
 
 // sessionin ymmärtämiseen
-// http://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
-app.use(session({ //cookie: { secure : false, maxAge : 60000 }, 
-	secret: 'woot',
-	resave: true, 
-	saveUninitialized: true
+// https://github.com/expressjs/session
+app.use(session({ cookie: { secure : false, maxAge : 60000 }, 
+	secret: process.env.COOKIE_SECRET,
+	resave: false, 
+	saveUninitialized: false
 }));
 
 /* Passport */
+// HUOM JÄRJESTYS OLEELLINEN!
 var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
 require('./src/passport.js')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
@@ -48,3 +46,4 @@ serv.listen(9000, err => {
 	}
 	console.log("Serveri startattu: kuuntelee porttia 9000.");
 });
+

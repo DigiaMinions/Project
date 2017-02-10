@@ -24,13 +24,6 @@ import re
 #################################
 ### CLASS DECLARATIONS ##########
 
-# Global variables
-class globalVars:
-	def __init__(self):
-		self.messagesList = [0] * 12
-		self.ID = 0
-		self.scheduledFeed = None
-
 # GPIO variables
 class servoControl:
 	def __init__(self):
@@ -64,24 +57,54 @@ def callback_update(client, userdata, message):
 # Callback for user data
 '''
 flags info:
-feed = instant foodfeed
-schedule = schedule received, save to file
-tare = recalculate load cell offset
+set_feed = instant foodfeed
+set_schedule = schedule received, save to file
+set_tare = recalculate load cell offset
+get_schedule = client end asks current schedule, return it from file
 '''
 def callback_userdata(client, userdata, message):
-	print("Callback_foodfeed")
-	flags, schedule = validateMessage(message.payload)
+	print("callback_userdata")
+	flags = validateMessage(message.payload)
 
 	if flags is not 'invalid': # If validation ok
-		if flags is 'feed':
+		if flags is 'set_feed':
 			print('Instant foodfeed pressed')
 			JsonCreator.createObject('instantFeedClick', getDateTime()) # Tell AWS IoT the feed button has been clicked
 			servo_feedFood()
-		elif flags is 'schedule':
-			scheduleFileWrite(schedule)
-			JsonCreator.createObject('newSchedule', getDateTime())
-		elif flags is 'tare':
+		elif flags is 'set_schedule':
+			schedule_writeToFile(message.payload)
+			#JsonCreator.createObject('newSchedule', getDateTime())
+		elif flags is 'set_tare':
 			lc_tare()
+		elif flags is 'get_schedule':
+			getScheduleToApp()
+
+#OK
+# Kirjoittaa käyttäjän pään payloadissa tulevan jsonin filuun
+def schedule_writeToFile(content):
+	try:
+		with open('schedule.dat', 'w') as file:
+			file.write(content)
+	except:
+		print("FATAL ERROR WRITING SCHEDULE TO FILE")
+
+#OK
+# Lukee schedulen laitteesta ja palauttaa sen kutsujalle	
+def schedule_readFromFile():
+	try:
+		with open('schedule.dat', 'r') as file:
+			content = str(file.read())
+			return content
+	except:
+		print("FATAL ERROR READING SCHEDULE FROM FILE")
+		return null
+
+#OK
+# Returns currently saved schedule to end user
+def getScheduleToApp():
+	content = schedule_readFromFile()
+	myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + getMac(), str(content), 1)	
+
 
 #callback for load cell
 def callback_loadcell(count, mode, reading):
@@ -92,7 +115,6 @@ def callback_loadcell(count, mode, reading):
 		load = (reading - lc_offset) / lc_referenceUnit
 	else:
 		load = reading / lc_referenceUnit
-
 #	if load < 0 and tare is False :
 #		load = 0
 	loadList.append(load)
@@ -330,10 +352,6 @@ def getLoadCellValue():
 		medianLoad = sum(loadList) / len(loadList)
 	del loadList[:]	 # loadList.clear() if < python 3.3
 	return medianLoad
-	
-	# Kellota huomenna clear!!!
-	#$ python -mtimeit "l=list(range(1000))" "b=l[:];del b[:]"
-	#$ python -mtimeit "l=list(range(1000))" "b=l[:];b[:] = []"
 
 
 
@@ -347,7 +365,7 @@ def getMac():
 		mac = ':'.join(mac_addr[i : i + 2] for i in range(0, 11, 2))
 	except:
 		print("Error retrieving MAC address")
-	return mac
+	return "00:14:22:01:23:45" # mac
 
 # Download available update
 def fetchUpdate():
@@ -363,13 +381,17 @@ def fetchUpdate():
 	
 # Get current date and time
 def getDateTime():
-	dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M"))
+	dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	return dateTime
 
 # Get current time
 def getTime():
 	time = str(datetime.now().time().strftime("%H:%M"))
 	return time
+
+def getDate():
+	date = str(datetime.now().strftime("%Y-%m-%d"))
+	return date
 
 # Get the number of a current weekday as binary (1 2 4 8 16 32 64)
 def getTodaysNumber():
@@ -394,67 +416,82 @@ def parseRep(repValue):
 			currentValue = currentValue / 2
 	return repList
 
-def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa tiedostosta ja poistelemaan yms.
-	regex = 'rep'
-	removalList = [] # What schedules to remove after the content loop finishes
+def checkFeedSchedule(): # Superfunktio lukemaan tadaa tiedostosta ja poistelemaan yms.
+	schedule = json.loads(schedule_readFromFile())
 
-	with open('schedule.dat', 'r') as file: # Open the schedule-file for reading
-		content = file.read().splitlines() # Split schedule line by line
-
-	for line in content: # Go through each line
-		if bool(re.search(regex, line)) is True: # If line has the repeating regex
-			position = line.find(regex) # Find the position of regex
-			repValue = int(line[position +3:]) # Get the number following the regex and save it as integer
-			
-			# Check if current day matches with a day referenced behind the regex
-			if getTodaysNumber() in parseRep(repValue): # If the day is a match
-				timeTemp = line[:position]
-				if getTime() >= timeTemp:
-					if line in feedSchedule_getList():
-						pass
-					else:
-						servo_feedFood()
-						feedSchedule_markAsFed(line)
-		elif bool(re.search(regex, line)) is False: # If regex couldn't be found (one-time scheduled feed) and the time has passed
-			if getDateTime() >= line:
-				removalList.append(line) # Flag the line to be removed
+	# Go through each object in 'schedule'-array
+	for content in schedule['schedule']:
+		# one time schedule with date	
+		if validateDate(str(content['rep'])):
+			if getDate() >= str(content['rep']) and getTime() >= str(content['time']) and content['isActive'] is True:
 				servo_feedFood()
-		else: # When something goes wrong..
-			print('Error reading schedule')
+				schedule_markAsInactive(str(content['id']))
+		
+		elif validateDate(str(content['rep'])) == False:
+			if getTodaysNumber() in parseRep(int(content['rep'])):
+				if getTime() >= str(content['time']) and content['isActive'] is True:
+					if schedule_isFedToday(str(content['id'])) == True:
+						pass
+					elif schedule_isFedToday(str(content['id'])) == False:
+						servo_feedFood()
+						schedule_markAsFedToday(str(content['id']))
+			else:
+				print("Scheduled to another day")
 
-	# Remove flagged lines
-	if len(removalList) is not 0:
-		for line in removalList:
-			while line in content:
-				content.remove(line)
-		with open('schedule.dat', 'w') as file:
-			for line in removalList:
-				while line in content:
-					content.remove(line)
-			for line in content:
-				file.write(str(line) + '\n')
-		print("REMOVED SOMETHING")
 
-def feedSchedule_markAsFed(string):
-	with open('schedule_fedtoday.dat', 'a') as file:
-		file.write(string + "\n")
+# Validates given date and returns True/False of its validity
+def validateDate(content):
+	dateFormat = '%Y-%m-%d'
+	try:
+		datetime.strptime(content, dateFormat)
+		return True
+	except ValueError:
+		# raise ValueError("Incorrect date format, should be YYYY-MM-DD")
+		return False
 
-def feedSchedule_getList():
-	fedList = []
-	if os.stat('schedule_fedtoday.dat').st_size == 0:
-		fedList.append("null")
-	else:
-		with open('schedule_fedtoday.dat', 'r') as file:
-			content = file.read().splitlines()
-		for line in content:
-			fedList.append(str(line))
-	return fedList
+# Marks given id as inactive to schedule.dat
+def schedule_markAsInactive(id):
+	print("Marking ID " + id + " as inactive..")
+	with open('schedule.dat', 'r+') as file:
+		data = json.load(file)
+		file.seek(0)
 
-def feedSchedule_clearTodaysFed():
-	print("Todays fedlist cleared")
+		for object in data['schedule']:
+			print(object['id'])
+			if id == object['id']:
+				object['isActive'] = 'false'
+				print("OK")
+				file.write(json.dumps(data))
+				file.truncate()
+
+# marks given id as already fed this day to schedule_fedtoday.dat
+def schedule_markAsFedToday(id):
+	with open('schedule_fedtoday.dat', 'w') as file:
+		file.write(str(id) + "\n")
+
+# Checks if already fed today with given id and returns True/False
+def schedule_isFedToday(id):
+	isFound = False
+
+	with open('schedule_fedtoday.dat', 'r') as file:
+		if os.stat('schedule_fedtoday.dat').st_size == 0:
+			return False
+		else:
+				with open('schedule_fedtoday.dat', 'r') as file:
+					content = file.read().splitlines()
+				for line in content:
+					if line == id:
+						isFound = True
+	return isFound
+
+# Clears schedule_fedtoday.dat file
+def schedule_clearFedToday():
+	print("Clearing schedule_fedtoday.dat")
 	with open('schedule_fedtoday.dat', 'w') as file:
 		pass
 
+# Checks if day has changed and clears schedule_fedtoday.dat if daychange noticed.
+# Compares todays number with todaysnumber.dat file.
 def check_dayChange():
 	with open('todaysnumber.dat', 'r') as file:
 		content = int(file.read())
@@ -463,70 +500,73 @@ def check_dayChange():
 		with open('todaysnumber.dat', 'w') as file:
 			print("clearing already fed")
 			file.write(str(today))
-			feedSchedule_clearTodaysFed()
+			schedule_clearFedToday()
 	else:
 		pass
-	
+
 
 
 #################################
 ### MESSAGE FUNCTIONS ###########
-
-# Check if feedmessage from user is instant or scheduled feed
-def validateMessage(data):
-	# Values to return at the end
+	
+'''
+{
+	"schedule": [{
+		"id": "1",
+		"time": "10:00",
+		"rep": "1",
+		"isActive": "true"
+	}, {
+		"id": "2",
+		"time": "11:00",
+		"rep": "1",
+		"isActive": "true"
+	}, {
+		"id": "3",
+		"time": "2017-02-08 12:00",
+		"isActive": "true"
+	}]
+}
+'''
+#
+# Käyttäjän päädystä saapuvan payload-jsonin validointi
+def validateMessage(payload):
+	# Value to return at the end
 	flags = None
-	messageSchedule = None
-    
-	# What regex to look for in a string
-	regex = "rep";
-    
-	# Different time formats to use
-	clockFormat = '%H:%M'
-	dateFormat = '%Y-%m-%d'
-	dateTimeFormat = '%Y-%m-%d %H:%M'
-	data = json.loads(data)    
+	
+	try:
+		content = json.loads(payload) # Validates as valid JSON  
+	except Error:
+		flags = 'Payload is not valid JSON'
+		return flags
 
-	# foodfeed can be found only if user presses instant feed button
-	if 'feed' in data:
-		flags = 'feed' # set return flags to instant feed
+	# 'feed' can be found only if user wants instant foodfeed
+	if 'feed' in content:
+		flags = 'set_feed' # set return flags to instant feed
 
 	# schedule can be found is user sends a schedule
-	elif 'schedule' in data:
-		list = data['schedule']
-		messageSchedule = [] # Initialize schedulearray
-		flags = 'schedule' # set flags to scheduled feeding
-		for index in range(len(list)):
-			try:                
-				if bool(re.search(regex, list[index])) is True: # If string has regex..
-					position = list[index].find(regex) # Find the position of regex
-					savedRegex = list[index][position:] # Save regex and everything behind it
-					list[index] = list[index][:position] # Remove regex from the string (temporarily)
-					list[index] = str(datetime.strptime(list[index], clockFormat).time()) # Make sure the time format is correct
-					list[index] = list[index] + savedRegex # Add regex back to string
-					messageSchedule.append(list[index]) # Append to schedulelist
-				else: # If string doesn't have regex just check the datetime is valid
-					messageSchedule.append(str(datetime.strptime(list[index], dateTimeFormat)))
-			except ValueError: # If the string has invalid date/time format
-				messageSchedule.append('invalid')
-				# tare can be found if user wants to reset load cell offset
-	elif 'tare' in data:
-		flags = 'tare'
-	else: # If Json doesn't have required objects or arrays
+	elif 'schedule' in content:
+		flags = 'set_schedule'
+	
+	# 'tare' can be found if user wants to recalculate load cell offset
+	elif 'tare' in content:
+		flags = 'set_tare'
+	
+	# If user requests something from device
+	elif 'get' in content:
+		request = content['get']
+		# If user requests current schedule saved in device
+		if 'schedule' in request:
+			flags = 'get_schedule'
+		else:
+			pass
+			
+	# If Json doesn't have required objects or arrays
+	else:
 		flags = 'invalid'
 
 	print('Flags ' + str(flags))
-	print('messageSchedule ' + str(messageSchedule))
-	return flags, messageSchedule
-	
-def scheduleFileWrite(schedule):
-    with open("schedule.dat", "w") as file:
-        for index in range(len(schedule)):
-            if schedule[index] is 'invalid':
-                JsonCreator.createObject('Error', 'invalid time detected')
-                print('Error')
-            else:
-                file.write(schedule[index] + '\n')
+	return flags
 
 # Create a message part to AWS IoT
 def createMessageSegment(load, index):
@@ -537,7 +577,7 @@ def createMessageSegment(load, index):
 # Add ID stamp to AWS IoT message
 def createMessageIDStamp():
 	global JsonCreator
-	JsonCreator.createObject("ID", gVars.ID)
+	JsonCreator.createObject("ID", ID)
 
 # Assemble the full message from parts created
 def getFinalMessage():
@@ -551,8 +591,8 @@ def getFinalMessage():
 
 # Connect and subscribe to AWS IoT (partly AWS)
 myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe("DogFeeder/Data", 1, callback_data) # TODO Is this needed in the end product? Repeats sent message in terminal
-myAWSIoTMQTTClient.subscribe("DogFeeder/" + getMac(), 1, callback_userdata)
+myAWSIoTMQTTClient.subscribe("DogFeeder/Data/" + getMac(), 1, callback_data) # TODO Is this needed in the end product? Repeats sent message in terminal
+myAWSIoTMQTTClient.subscribe("DogFeeder/AppToDevice/" + getMac(), 1, callback_userdata)
 myAWSIoTMQTTClient.subscribe("DogFeeder/Update", 1, callback_update) # Updates available. Shared topic for all DogFeeders
 time.sleep(1)
 
@@ -573,7 +613,7 @@ def thread0():
 			loop_count += 1
 			time.sleep(interval)
 		createMessageIDStamp()
-		myAWSIoTMQTTClient.publish("DogFeeder/Data", str(getFinalMessage()), 1) # Create final message from previously made pieces and send it to AWS IoT
+		myAWSIoTMQTTClient.publish("DogFeeder/Data/" + getMac(), str(getFinalMessage()), 1) # Create final message from previously made pieces and send it to AWS IoT
 		
 def thread1():
 	interval = 1
@@ -581,18 +621,19 @@ def thread1():
 		check_dayChange()
 		checkFeedSchedule()
 		time.sleep(interval)
-		
+
 		
 
 #################################
 ### MAIN program ################
+messagesList = [0] * 12
+ID = getMac()  # Get MAC address for identification
+
 
 cell = None # Load cell variable gets initialized here
 servoStatus = False # Boolean telling if servos being currently used
 JsonCreator = None
 
-gVars = globalVars() # Init globalVars -class
-gVars.ID = getMac() # Get MAC address for identification
 
 servoVars = servoControl() # Initialize custom servo data
 pi = pigpio.pi() # Initialize pigpio library
@@ -620,6 +661,7 @@ while len(loadList) == 0:
 	time.sleep(1)
 	lc_init()
 
+servo_fillFeeder() # Make sure the feeding tube is filled after boot
 
 # Initialize thread(s)
 try:

@@ -2,7 +2,7 @@ import React from 'react'
 import DatePicker from 'react-bootstrap-date-picker'
 import { FormGroup, ControlLabel, Col } from 'react-bootstrap'
 
-export default class GraphComponent extends React.Component {
+export default class CalendarComponent extends React.Component {
 
 	constructor(props) {
 		super(props);
@@ -15,17 +15,15 @@ export default class GraphComponent extends React.Component {
 			value: value,
 			formattedValue: formattedValue
 		})
-		this.props.onUpdate(new Date(value).getTime()) // Aika epochina Graphanalle
+		this.props.onUpdate(formattedValue);
 	}
 
 	render() {
 		return (
-			<Col xs={6} md={4}>
-				<FormGroup>
-					<ControlLabel>{this.props.labelText}</ControlLabel>
-					<DatePicker id="datepicker" value={this.state.value} onChange={this.handleChange} />
-				</FormGroup>
-			</Col>
+			<FormGroup>
+				<ControlLabel>{this.props.labelText}</ControlLabel>
+				<DatePicker id="datepicker" value={this.state.value} onChange={this.handleChange} dateFormat="YYYY-MM-DD" />
+			</FormGroup>
 		);
 	}
 

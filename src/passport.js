@@ -4,10 +4,13 @@ var LocalStrategy   = require('passport-local').Strategy;
 // load up the user model
 var mysql = require('mysql');
 var bcrypt = require('bcrypt-nodejs');
-var dbconfig = require('./database.js');
-var connection = mysql.createConnection(dbconfig.connection);
+var connection = mysql.createConnection({
+    host    : process.env.DB_HOST,
+    user    : process.env.DB_USER,
+    password : process.env.DB_PASSWORD
+});
 
-connection.query('USE ' + dbconfig.database);
+connection.query('USE ' + process.env.DB);
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 
@@ -16,6 +19,9 @@ module.exports = function(passport) {
     // =========================================================================
     // required for persistent login sessions
     // passport needs ability to serialize and unserialize users out of session
+
+    // serialisoinnin ymmärtämiseen
+    // http://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
 
     // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
@@ -58,13 +64,14 @@ module.exports = function(passport) {
                 } else {
                     // if there is no user with that email
                     // create the user
+                    var salt = bcrypt.genSaltSync(10);
                     var firstname = req.body.firstname;
                     var lastname = req.body.lastname;
                     var newUserMysql = {
                         firstname: firstname,
                         lastname: lastname,
                         email: email,                        
-                        password: bcrypt.hashSync(password, null, null)  // use the generateHash function in our user model
+                        password: bcrypt.hashSync(password, salt)  // use the generateHash function in our user model
                     };
 
                     var insertQuery = "INSERT INTO User ( firstname, lastname, email, password ) values (?,?,?,?)";
