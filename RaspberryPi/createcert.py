@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import subprocess
+import thread
 if os.path.exists('idconf.py'):
 	import idconf
 	curid = idconf.id	
@@ -186,5 +187,7 @@ if __name__ == "__main__":
 	myAWSIoTMQTTClient.publish("Generic/CliId1/req", msg, 1)
 	if idconfig.flag:
 		print "everything went well"
+		cleanup_stop_thread();
+		sys.exit()
 	else:
 		print "something went horribly wrong"
