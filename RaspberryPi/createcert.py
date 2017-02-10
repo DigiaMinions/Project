@@ -187,6 +187,7 @@ if __name__ == "__main__":
 	myAWSIoTMQTTClient.publish("Generic/CliId1/req", msg, 1)
 	if idconfig.flag:
 		print "everything went well"
+		idconfig.flag= 0
 		cleanup_stop_thread();
 		sys.exit()
 	else:
