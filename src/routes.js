@@ -25,6 +25,7 @@ module.exports = function(app, express, passport) {
 	device
 	.on('message', function(topic, payload) {
 		deviceSchedule = payload.toString();
+		console.log(payload.toString());
 	});
 
 	// HUOM! Älä vaihtele app.get / app.use järjestystä!
@@ -56,7 +57,7 @@ module.exports = function(app, express, passport) {
 	/* Insta feed: lähetetään laitteelle viesti ruokinnasta heti */
 	app.post('/feed/', function(req, res){
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
-		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ foodfeed: 'instant' }));
+		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ feed: 'JUST_DO_IT' }));
 
 		/* postin debuggausta varten */
 		/*
@@ -80,6 +81,12 @@ module.exports = function(app, express, passport) {
 		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ get: 'schedule' })); // lähetetään raspille pyyntö aikataulusta
 		sendScheduleToApp(res); // odotellaan että raspi lähettää aikataulun
 	})
+
+	/* Anturin kalibrointi */
+	app.post('/calibrate/', function(req, res){
+		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
+		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ tare: 'JUST_DO_IT' }));
+	});
 
 	/* Login */
 	app.post('/login', function(req, res, next) {
@@ -115,7 +122,7 @@ module.exports = function(app, express, passport) {
 			res.json(deviceSchedule); // palautetaan aikataulu frontille responsessa
 		}
 		else {
-			setTimeout(sendScheduleToApp, 500, res) // odotellaan raspia...
+			setTimeout(sendScheduleToApp, 500, res) // odotellaan raspia kunnes se lähettää aikataulunsa
 		}
 	}
 

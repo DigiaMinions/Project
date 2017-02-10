@@ -3,7 +3,6 @@ import Dropdown from 'react-dropdown'
 import HeaderComponent from './HeaderComponent.jsx'
 import { Col, Grid, Row } from 'react-bootstrap'
 
-
 export default class App extends React.Component {
 
 	constructor(props) {		
@@ -15,11 +14,9 @@ export default class App extends React.Component {
 
 	onSelect (option) {
 		this.setState({activeDevice: option})
-		console.log(option);
 	}
 
-	componentDidMount(){
-		
+	componentDidMount(){	
 		var that = this;
 		fetch('/devices', {
 				credentials: 'same-origin',
@@ -30,7 +27,6 @@ export default class App extends React.Component {
 			  return response.json();
 			})
 			.then(function(jsonData) {
-				console.log('Successia puskee: ' + jsonData);
 				var data = '[';
 				// PARSITAAN JSON UUTEEN MUOTOON. mac -> value | name -> label				
 				for (var i = 0;i<jsonData.length;i++)
@@ -40,18 +36,13 @@ export default class App extends React.Component {
 				}
 				data += "]";
 
-				console.log(data);
 				var devices = JSON.parse(data);
-				console.log(devices);
 				that.setState({userDevices: devices});
 				that.setState({activeDevice: devices[0]});
 			})
 			.catch(function(err) {
 				console.log("Erroria puskee: ", err);
-			});
-
-		
-		
+			});		
 	}
 
 	render() {

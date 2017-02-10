@@ -7,7 +7,7 @@ export default class CreateScheduleComponent extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { days: '', date: new Date().toISOString(), feedingType: 'recurring', showError: false }
+		this.state = { rep: '', date: new Date().toISOString().substring(0, 10), feedingType: 'recurring', showError: false }
 	}
 
 	render() {
@@ -30,7 +30,7 @@ export default class CreateScheduleComponent extends React.Component {
 		let nonrecurring = null;
 		if (this.state.feedingType === 'recurring')
 		{
-			recurring = <Select value={this.state.days} options={options} onChange={this.handleSelectChange.bind(this)} multi={true} placeholder="Valitse viikonpäivät ruokinnan toistamiselle" />
+			recurring = <Select value={this.state.rep} options={options} onChange={this.handleSelectChange.bind(this)} multi={true} placeholder="Valitse viikonpäivät ruokinnan toistamiselle" />
 		}
 		else if (this.state.feedingType === 'nonrecurring')
 		{
@@ -39,8 +39,6 @@ export default class CreateScheduleComponent extends React.Component {
 
 		return (
 			<div>
-			{console.log(this.state.feedingType)}
-			{console.log(this.state.date)}
 			{error}
 			<form>
 					<label style={{marginLeft: "0px", marginRight: "10px"}} className="radio-inline">
@@ -77,8 +75,8 @@ export default class CreateScheduleComponent extends React.Component {
 		this.setState({ feedingType: changeEvent.target.value })
 	}
 
-	handleSelectChange(days) {
-		this.setState({ days: days });
+	handleSelectChange(rep) {
+		this.setState({ rep: rep });
 	}
 
 	handleDateChange(date) {
@@ -94,12 +92,12 @@ export default class CreateScheduleComponent extends React.Component {
 
 		if (this.state.feedingType === 'recurring')
 		{
-			const rep = _.map(this.state.days, "value");
+			const rep = _.map(this.state.rep, 'value');
 			if (re.test(time) && rep.length > 0) {
 				var sum = rep.reduce(function(a, b) { return parseInt(a) + parseInt(b); })
 				this.props.createSchedule(time, sum);
 				this.refs.timeInput.value = '';
-				this.state.days = '';
+				this.state.rep = '';
 			}
 			else {
 				this.setState({ showError: true });
@@ -111,7 +109,7 @@ export default class CreateScheduleComponent extends React.Component {
 			if (re.test(time) && this.state.date) {
 				this.props.createSchedule(time, this.state.date);
 				this.refs.timeInput.value = '';
-				this.state.days = '';
+				this.state.rep = '';
 			}
 			else {
 				this.setState({ showError: true });

@@ -8,7 +8,7 @@ export default class ScheduleListItem extends React.Component {
 	}
 
 	render() {
-		const { id, time, date, isActive } = this.props;
+		const { id, time, rep, isActive } = this.props;
 		var classes = "list-group-item clearfix";
 		var txtToggle = "Off"
 		if (isActive === true) {
@@ -16,13 +16,13 @@ export default class ScheduleListItem extends React.Component {
 			txtToggle = "On";	
 		}
 
-		// date voi olla numero (toistettavat viikonpäivät) tai yksittäinen päivämäärä
+		// rep voi olla numero (toistettavat viikonpäivät) tai yksittäinen päivämäärä
 		var dateToRender = null;
-		if (!isNaN(date)) { 
-			dateToRender = this.convertRepToDays(date).join(', ');
+		if (!isNaN(rep)) { 
+			dateToRender = this.convertRepToDays(rep).join(', ');
 		}
 		else {
-			dateToRender = date;
+			dateToRender = rep;
 		}
 
 		return (

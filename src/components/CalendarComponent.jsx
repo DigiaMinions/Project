@@ -22,7 +22,7 @@ export default class CalendarComponent extends React.Component {
 		return (
 			<FormGroup>
 				<ControlLabel>{this.props.labelText}</ControlLabel>
-				<DatePicker id="datepicker" value={this.state.value} onChange={this.handleChange} />
+				<DatePicker id="datepicker" value={this.state.value} onChange={this.handleChange} dateFormat="YYYY-MM-DD" />
 			</FormGroup>
 		);
 	}

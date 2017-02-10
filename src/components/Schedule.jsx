@@ -4,10 +4,6 @@ import CreateScheduleComponent from './CreateScheduleComponent.jsx'
 import ScheduleListComponent from './ScheduleListComponent.jsx'
 import 'whatwg-fetch'
 
-// Mock aikataulut, haetaan laitteelta...
-// const schedulesFor123 = [ {id: 1, time: "10:00", rep: 1, isActive: true}, {id: 2, time: "11:00", rep: 1, isActive: true} ];
-// const schedulesFor456 = [ {id: 3, time: "12:00", rep: 1, isActive: false}, {id: 4, time: "13:00", rep: 1, isActive: true}, {id: 5, time: "14:00", rep: 1, isActive: true} ];
-
 export default class Schedule extends React.Component {
 
 	constructor(props) {
@@ -39,12 +35,12 @@ export default class Schedule extends React.Component {
 			return id;
 	}
 
-	createSchedule(time, date) {
+	createSchedule(time, rep) {
 		var id = this.generateId();
 		this.state.schedules.push({
 			id,
 			time,
-			date,
+			rep,
 			isActive: true
 		});
 		this.setState({ schedules: this.state.schedules });
@@ -62,14 +58,6 @@ export default class Schedule extends React.Component {
 	}
 
 	sendSchedulesToDevice() {
-/*		var self = this;
-		self.scheduleToSend = [];
-		// Lisätään aktiiviset aikataulut laitteelle lähtevään taulukkoon
-		_.forEach(this.state.schedules, function(schedule) {
-			if (schedule.isActive === true)
-				self.scheduleToSend.push(schedule.time + "rep" + schedule.rep);
-		});*/
-
 		// API kutsu Fetchillä
 		fetch('/schedule/', {
 			method: 'POST',
@@ -101,6 +89,7 @@ export default class Schedule extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		var self = this;
 		this.getSchedulesForDevice(nextProps.activeDeviceVal, function(schedules) {
+			console.log(schedules);
 			self.setState({ schedules: schedules });
 		});	
 	}
@@ -119,22 +108,13 @@ export default class Schedule extends React.Component {
 		.then(function(res) {
 			return res.json();
 		})
-		.then(function(schedulesJson) {
-			callback(JSON.parse(schedulesJson).schedules); // parsitaan taulukko schedule-objekteja JSON:ista
+		.then(function(scheduleJson) {
+			console.log(scheduleJson);
+			callback(JSON.parse(scheduleJson).schedule); // parsitaan taulukko schedule-objekteja JSON:ista
 		})
 		.catch(function(err) {
 			console.log("Error: ", err);
 		});
-
-		// MOCK DATA
-		/*
-		if (device == 123) {
-			return schedulesFor123;
-		}
-		else if (device == 456) {
-			return schedulesFor456;
-		}
-		*/
 	}
 
 }
