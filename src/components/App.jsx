@@ -1,6 +1,5 @@
 import React from 'react'
 import Dropdown from 'react-dropdown'
-import HeaderComponent from './HeaderComponent.jsx'
 import { Col, Grid, Row } from 'react-bootstrap'
 
 export default class App extends React.Component {
@@ -49,8 +48,7 @@ export default class App extends React.Component {
 		const activeDevice = this.state.activeDevice;
 		const activeDeviceVal = activeDevice.value;
 		return (
-			<div>
-				<HeaderComponent />
+			<div>				
 				<Grid>
 					<Row>
 						<Col xs={12} md={3}>

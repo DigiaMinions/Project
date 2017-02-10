@@ -44,13 +44,17 @@ module.exports = function(app, express, passport) {
 	});
 	
 	app.get('/aikataulu', isLoggedIn, function (req,res){
-	  res.sendFile(__dirname + '/static/index.html');
+		res.sendFile(__dirname + '/static/index.html');
+	});
+
+	app.get('/tilaus', isLoggedIn, function (req,res){
+	  	res.sendFile(__dirname + '/static/index.html');
 	});
 
 	app.use(express.static(__dirname + '/static'));
 
 	app.get('*', function (req,res){
-	  res.sendFile(__dirname + '/static/index.html');
+	  	res.sendFile(__dirname + '/static/index.html');
 	});
 
 	/* API endpointit */
@@ -98,11 +102,7 @@ module.exports = function(app, express, passport) {
 	        	if (err) { return next(err); }
 	        	return res.redirect('/');
 	    	});
-	    	//getDevices(req);	  
-	    	var test = [{ value: '123', label: 'lbl'}, {value: '321', label: 'diidada'}]; 
-	    	req.user.devices = test;
 
-	    	console.log(req.user.devices);
 	    	subscribeDevices(req);
 	    })(req, res, next);
 	});
@@ -115,6 +115,40 @@ module.exports = function(app, express, passport) {
 		    failureFlash: true 
 		})
 	);	
+
+	app.post('/tilaus', function(req, res, next) {
+		isLoggedIn(req, res, next);
+	},function(req,res){
+		console.log('Nimi: ' + req.body.name);
+		if(req.body)
+		{
+			addDevice(req, function(message){				
+				res.sendStatus(message);
+			});
+		}
+		else
+		{
+			console.log('Empty post request.')
+			res.send(400);
+		}
+	});	
+
+	function addDevice(req, cb)
+	{
+		var name = req.body.name;
+		var mac = req.body.mac;
+		var userId = req.user.id;
+		connection.query("INSERT INTO Device (name, mac, FK_user_id, FK_devtype_id) VALUES (?, ?, ?, 1)",[name, mac, userId], function(err, rows){
+			if(err)
+			{
+				cb(500,err);
+			}
+			else
+			{				
+				cb(200);
+			}
+		});
+	}
 
 	function sendScheduleToApp(res) 
 	{

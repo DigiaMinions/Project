@@ -30,6 +30,7 @@ export default class HeaderComponent extends React.Component {
 				<Nav>
 					<NavItem><Link to='/'>Koti</Link></NavItem>
 					<NavItem><Link to='aikataulu'>Aikataulu</Link></NavItem>
+					<NavItem><Link to='/tilaus'>Lisää laite</Link></NavItem>
 					<NavItem><Link onClick={() => this.logout()}>Kirjaudu ulos</Link></NavItem>
 				</Nav>
 			</Navbar>
