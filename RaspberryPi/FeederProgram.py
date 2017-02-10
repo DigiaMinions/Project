@@ -24,13 +24,6 @@ import re
 #################################
 ### CLASS DECLARATIONS ##########
 
-# Global variables
-class globalVars:
-	def __init__(self):
-		self.messagesList = [0] * 12
-		self.ID = 0
-		self.scheduledFeed = None
-
 # GPIO variables
 class servoControl:
 	def __init__(self):
@@ -86,20 +79,16 @@ def callback_userdata(client, userdata, message):
 		elif flags is 'get_schedule':
 			getScheduleToApp()
 
-			
-			
-
-
 #OK
 # Kirjoittaa käyttäjän pään payloadissa tulevan jsonin filuun
 def schedule_writeToFile(content):
-	with open('test_schedule.dat', 'w') as file:
+	with open('schedule.dat', 'w') as file:
 		file.write(content)
 
 #OK
 # Lukee schedulen laitteesta ja palauttaa sen kutsujalle	
 def schedule_readFromFile():
-	with open('test_schedule.dat', 'r') as file:
+	with open('schedule.dat', 'r') as file:
 		content = str(file.read())
 	return content
 	
@@ -416,87 +405,85 @@ def parseRep(repValue):
 			currentValue = currentValue / 2
 	return repList
 
-def checkFeedSchedule(): # TODO tähän sitten joku superfunktio lukemaan tadaa tiedostosta ja poistelemaan yms.
-with open('schedule.dat', 'r') as file:
-    data = file.read()
+def checkFeedSchedule(): # Superfunktio lukemaan tadaa tiedostosta ja poistelemaan yms.
+	schedule = json.loads(schedule_readFromFile())
 
-schedule = json.loads(data)
-
-# Go through each object in 'schedule'-array
-for content in schedule['schedule']:
-    if validateDate(content['rep']):
-        print("Schedule " + content['id'] + " is non-repeating")
-        if getDateTime() >= content['time'] and content['isActive'] == 'true':
-            schedule_markAsInactive(content['id'])
-            print("servo_feedFood()")
-    else:
-        print("Schedule " + content['id'] + " is repeating")
-        if getTodaysNumber() in parseRep(int(content['rep'])):
-            time = content['time']
-            if getDateTime() >= content['time'] and content['isActive'] == 'true':
-                if schedule_isFedToday(content['id']) == True:
-                    print("Already fed today!")
-                elif schedule_isFedToday(content['id']) == False:
-                    print("servo_foodFeed()")
-                    schedule_markAsFedToday(content['id'])
-                
-        else:
-            print("Not today")
+	# Go through each object in 'schedule'-array
+	for content in schedule['schedule']:
+			if validateDate(content['rep']):
+			print("Schedule " + content['id'] + " is non-repeating")
+			if getDateTime() >= content['time'] and content['isActive'] == 'true':
+				servo_feedFood()
+				schedule_markAsInactive(content['id'])
+		else:
+			print("Schedule " + content['id'] + " is repeating")
+			if getTodaysNumber() in parseRep(int(content['rep'])):
+				if getDateTime() >= content['time'] and content['isActive'] == 'true':
+					if schedule_isFedToday(content['id']) == True:
+						print("Already fed today!")
+					elif schedule_isFedToday(content['id']) == False:
+						servo_feedFood()
+						schedule_markAsFedToday(content['id'])
+			else:
+				print("Not today")
 
 
-# TÄMÄ FUNKTIO KOODIIN
+# Validates given date and returns True/False of its validity
 def validateDate(content):
-    dateFormat = '%Y-%m-%d'
-    try:
-        datetime.strptime(content, dateFormat)
-        return True
-    except ValueError:
-       # raise ValueError("Incorrect date format, should be YYYY-MM-DD")
-        return False
+	dateFormat = '%Y-%m-%d'
+	try:
+		datetime.strptime(content, dateFormat)
+		return True
+	except ValueError:
+		# raise ValueError("Incorrect date format, should be YYYY-MM-DD")
+		return False
 
-# TÄMÄ FUNKTIO KOODIIN
+# Marks given id as inactive to schedule.dat
 def schedule_markAsInactive(id):
-    print("ID " + id + " to be deleted..")
-    with open('schedule.dat', 'r+') as file:
-        data = json.load(file)
-        file.seek(0)
+	print("ID " + id + " to be deleted..")
+	with open('schedule.dat', 'r+') as file:
+		data = json.load(file)
+		file.seek(0)
 
-        for object in data['schedule']:
-            print(object['id'])
-            if id == object['id']:
-                object['isActive'] = 'false'
-                print("Deleted from file")
-                file.write(json.dumps(data))
-                file.truncate()
+		for object in data['schedule']:
+			print(object['id'])
+			if id == object['id']:
+				object['isActive'] = 'false'
+				print("Deleted from file")
+				file.write(json.dumps(data))
+				file.truncate()
                 
-            else:
-                print("not found..")
+			else:
+				print("not found..")
 
-# TÄMÄ FUNKTIO KOODIIN KORVAAMAAN VANHA feedschedule_markAsFed
+# marks given id as already fed this day to schedule_fedtoday.dat
 def schedule_markAsFedToday(id):
-    with open('schedule_fedtoday.dat', 'w') as file:
-        file.write(str(id) + "\n")
+	with open('schedule_fedtoday.dat', 'w') as file:
+		file.write(str(id) + "\n")
 
-# TÄMÄ FUNKTIO KOODIIN KORVAAMAAN VANHA feedSchedule_getList
+# Checks if already fed today with given id and returns True/False
 def schedule_isFedToday(id):
-    isFound = False
+	isFound = False
 
-    with open('schedule_fedtoday.dat', 'r') as file:
-        if os.stat('schedule_fedtoday.dat').st_size == 0:
-            return False
-        else:
-                with open('schedule_fedtoday.dat', 'r') as file:
-                    content = file.read().splitlines()
-                for line in content:
-                    if line == id:
-                        isFound = True
-    return isFound
+	with open('schedule_fedtoday.dat', 'r') as file:
+		if os.stat('schedule_fedtoday.dat').st_size == 0:
+			return False
+		else:
+				with open('schedule_fedtoday.dat', 'r') as file:
+					content = file.read().splitlines()
+				for line in content:
+					if line == id:
+						isFound = True
+	return isFound
 
-def schedule_clearTodaysFed():
+# Clears schedule_fedtoday.dat file
+def schedule_clearFedToday():
 	print("Clearing schedule_fedtoday.dat")
 	with open('schedule_fedtoday.dat', 'w') as file:
 		pass
 
+# Checks if day has changed and clears schedule_fedtoday.dat if daychange noticed.
+# Compares todays number with todaysnumber.dat file.
 def check_dayChange():
 	with open('todaysnumber.dat', 'r') as file:
 		content = int(file.read())
@@ -505,15 +492,15 @@ def check_dayChange():
 		with open('todaysnumber.dat', 'w') as file:
 			print("clearing already fed")
 			file.write(str(today))
-			schedule_clearTodaysFed()
+			schedule_clearFedToday()
 	else:
 		pass
-	
+
 
 
 #################################
 ### MESSAGE FUNCTIONS ###########
-		
+	
 '''
 {
 	"schedule": [{
@@ -573,17 +560,6 @@ def validateMessage(payload):
 	print('Flags ' + str(flags))
 	return flags
 
-
-	
-def scheduleFileWrite(schedule):
-    with open("schedule.dat", "w") as file:
-        for index in range(len(schedule)):
-            if schedule[index] is 'invalid':
-                JsonCreator.createObject('Error', 'invalid time detected')
-                print('Error')
-            else:
-                file.write(schedule[index] + '\n')
-
 # Create a message part to AWS IoT
 def createMessageSegment(load, index):
 	global JsonCreator
@@ -593,13 +569,13 @@ def createMessageSegment(load, index):
 # Add ID stamp to AWS IoT message
 def createMessageIDStamp():
 	global JsonCreator
-	JsonCreator.createObject("ID", gVars.ID)
+	JsonCreator.createObject("ID", ID)
 
 # Assemble the full message from parts created
 def getFinalMessage():
 	global JsonCreator
 	return JsonCreator.getJson()
- 
+
 
 
 #################################
@@ -637,18 +613,19 @@ def thread1():
 		check_dayChange()
 		checkFeedSchedule()
 		time.sleep(interval)
-		
+
 		
 
 #################################
 ### MAIN program ################
+messagesList = [0] * 12
+ID = getMac()  # Get MAC address for identification
+
 
 cell = None # Load cell variable gets initialized here
 servoStatus = False # Boolean telling if servos being currently used
 JsonCreator = None
 
-gVars = globalVars() # Init globalVars -class
-gVars.ID = getMac() # Get MAC address for identification
 
 servoVars = servoControl() # Initialize custom servo data
 pi = pigpio.pi() # Initialize pigpio library
