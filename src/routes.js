@@ -1,14 +1,40 @@
-// load up the user model
-var mysql = require('mysql');
-var connection = mysql.createConnection({
-    host    : process.env.DB_HOST,
-    user    : process.env.DB_USER,
-    password : process.env.DB_PASSWORD
-});
 
-connection.query('USE ' + process.env.DB);
 
-module.exports = function(app, express, passport) {
+module.exports = function(app, express, passport, upload, connection, session, sessionStore) {
+
+	// HUOM! järjestys oleellinen!
+
+	app.get('/css/style.css', function (req,res){	
+	console.log('sending css');	
+		res.sendFile(__dirname + '/static/css/style.css');
+	});
+
+	app.get('/js/bundle.js', function (req,res){		
+		console.log('sending bundle');	
+		res.sendFile(__dirname + '/static/js/bundle.js');
+	});
+
+	app.get('/js/bundle.js.map', function (req,res){		
+		console.log('sending map');	
+		res.sendFile(__dirname + '/static/js/bundle.js.map');
+	});
+
+	app.use(passport.initialize());
+	app.use(passport.session());
+
+	app.get('/logout', logout);
+
+	app.get('/', isLoggedIn, function (req,res){		
+		res.sendFile(__dirname + '/static/index.html');
+	});
+	
+	app.get('/aikataulu', isLoggedIn, function (req,res){
+		res.sendFile(__dirname + '/static/index.html');
+	});
+
+	app.get('/tilaus', isLoggedIn, function (req,res){
+	  	res.sendFile(__dirname + '/static/index.html');
+	});
 
 	/* AWS IoT Device SDK */
 	var awsIot = require('aws-iot-device-sdk');
@@ -28,30 +54,12 @@ module.exports = function(app, express, passport) {
 		console.log(payload.toString());
 	});
 
-	// HUOM! Älä vaihtele app.get / app.use järjestystä!
-
 	app.get('/devices/', isLoggedIn, function (req, res){
-		var rows = getDevices(req, function(rows){
+		getDevices(req, function(rows){
 			console.log(rows);
 			res.send(rows);
-		});		
-	})	
-
-	app.get('/logout', logout);
-
-	app.get('/', isLoggedIn, function (req,res){		
-		res.sendFile(__dirname + '/static/index.html');
+		});
 	});
-	
-	app.get('/aikataulu', isLoggedIn, function (req,res){
-		res.sendFile(__dirname + '/static/index.html');
-	});
-
-	app.get('/tilaus', isLoggedIn, function (req,res){
-	  	res.sendFile(__dirname + '/static/index.html');
-	});
-
-	app.use(express.static(__dirname + '/static'));
 
 	app.get('*', function (req,res){
 	  	res.sendFile(__dirname + '/static/index.html');
@@ -92,31 +100,30 @@ module.exports = function(app, express, passport) {
 		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ tare: 'JUST_DO_IT' }));
 	});
 
+	// bodyparser EI tue multipart dataa
+	// apuja formeihin ja multipart dataan
+	// https://philna.sh/blog/2016/06/13/the-surprise-multipart-form-data/
+
 	/* Login */
-	app.post('/login', function(req, res, next) {
-		passport.authenticate('local-login', function(err, user, info) {
-	    	if (err) { return next(err); }
-	    	if (!user) { return res.redirect('/login'); }
-	    	
-	    	req.logIn(user, function(err) {
-	        	if (err) { return next(err); }
-	        	return res.redirect('/');
-	    	});
-
+	app.post('/login', upload.array(),
+	    passport.authenticate('local-login', { failureRedirect: '/login' }),
+	    function (req,res){
+	    	// jostain syystä redirect ei toimi tätä kautta, vaan täytyy uudelleenohjata clientin päässä successin jälkeen
 	    	subscribeDevices(req);
-	    })(req, res, next);
-	});
-
-	/* Signup */
-	app.post('/signup',
-	    passport.authenticate('local-signup', { 
-		  	successRedirect: '/',
-	 		failureRedirect: '/login',
-		    failureFlash: true 
-		})
+	    	return res.redirect('/');
+	    }
 	);	
 
-	app.post('/tilaus', function(req, res, next) {
+	/* Signup */
+	app.post('/signup', upload.array(),
+	    passport.authenticate('local-signup', { failureRedirect: '/signup' }),
+		function (req,res){
+			// jostain syystä redirect ei toimi tätä kautta, vaan täytyy uudelleenohjata clientin päässä successin jälkeen
+			return res.redirect('/');
+		}
+	);	
+
+	app.post('/tilaus', upload.array(), function(req, res, next) {
 		isLoggedIn(req, res, next);
 	},function(req,res){
 		console.log('Nimi: ' + req.body.name);
@@ -138,9 +145,11 @@ module.exports = function(app, express, passport) {
 		var name = req.body.name;
 		var mac = req.body.mac;
 		var userId = req.user.id;
+
 		connection.query("INSERT INTO Device (name, mac, FK_user_id, FK_devtype_id) VALUES (?, ?, ?, 1)",[name, mac, userId], function(err, rows){
 			if(err)
 			{
+				console.log(err);
 				cb(500,err);
 			}
 			else
@@ -219,9 +228,7 @@ module.exports = function(app, express, passport) {
 	            console.log("Virhe SQL-kyselyssä.");
 	            res.send(err);
 	        }
-	        //console.log("Palautetaan devicet");
 	        cb(rows);
 	    });
 	}
 };
-

@@ -5,8 +5,8 @@ import { Col, Grid, Row } from 'react-bootstrap'
 export default class App extends React.Component {
 
 	constructor(props) {		
-		super(props);
-		var placeholder = [{value: '0', label: 'Valitse laite'}];
+		super(props);	
+		var placeholder = [{value: '0', label: 'Valitse laite'}];	
 		this.state = { userDevices: [], activeDevice: placeholder[0] };
 		this.onSelect = this.onSelect.bind(this);
 	}
@@ -26,18 +26,23 @@ export default class App extends React.Component {
 			  return response.json();
 			})
 			.then(function(jsonData) {
-				var data = '[';
-				// PARSITAAN JSON UUTEEN MUOTOON. mac -> value | name -> label				
-				for (var i = 0;i<jsonData.length;i++)
+				if(jsonData.length)
 				{
-					data += '{ "value": "' + jsonData[i].mac + '", "label": "' + jsonData[i].name + '"}';
-					if (i<jsonData.length-1) {data += ","};
-				}
-				data += "]";
+					console.log('Käyttäjällä on laitteita! Asetetaan menuun.');
+					var data = '[';
+					// PARSITAAN JSON UUTEEN MUOTOON. mac -> value | name -> label				
+					for (var i = 0;i<jsonData.length;i++)
+					{
+						data += '{ "value": "' + jsonData[i].mac + '", "label": "' + jsonData[i].name + '"}';
+						if (i<jsonData.length-1) {data += ","};
+					}
+					data += "]";
 
-				var devices = JSON.parse(data);
-				that.setState({userDevices: devices});
-				that.setState({activeDevice: devices[0]});
+					var devices = JSON.parse(data);
+					that.setState({userDevices: devices});
+					that.setState({activeDevice: devices[0]});
+				}
+				
 			})
 			.catch(function(err) {
 				console.log("Erroria puskee: ", err);

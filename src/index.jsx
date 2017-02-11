@@ -10,8 +10,9 @@ import NotFound from './components/NotFound.jsx'
 import AuthPage from './components/AuthPage.jsx'
 import LoginForm from './components/LoginForm.jsx'
 import SignUpForm from './components/SignUpForm.jsx'
-import Message from './components/Message.jsx'
 
+
+//http://stackoverflow.com/questions/35687353/react-bootstrap-link-item-in-a-navitem
 
 render(
 	(
@@ -22,15 +23,14 @@ render(
 			<Route path='/signup' component={SignUpForm} />
 		</Route>
 		<Route component={Container}>
-			<Route path='/tilaus' component={OrderForm}>
-			{/*	<Route component={Message} />*/}
-			</Route>
+			<Route path='/tilaus' component={OrderForm} />
 			<Route path='/' component={App} >
 				<IndexRoute component={Home} />
 				<Route path='aikataulu' component={Schedule} />			
 			</Route>			
-			<Route path='*' component={NotFound} />
+			
 		</Route>
+		<Route path='*' component={NotFound} />
 	</Router>
 	), document.getElementById('app')
 );
