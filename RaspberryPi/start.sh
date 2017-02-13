@@ -112,8 +112,21 @@ subversion=$(dpkg -s subversion > /dev/null 2>&1 && echo ok || echo error)
 		echo "OK!"
 	fi
 
+if [ -e ./cert/4847123d22-certificate.pem.crt -a -e ./cert/4847123d22-public.pem.key -a -e ./cert/4847123d22-private.pem.key ]; then
+	python createcert.py -e axqdhi517toju.iot.eu-west-1.amazonaws.com -r ./cert/root-CA.crt -c ./cert/4847123d22-certificate.pem.crt -k ./cert/4847123d22-private.pem.key
+fi
+
+value=`cat idconf.py`
+IFS== read var1 var2 <<< $value
+var2=`echo "$var2" | grep -o "[a-zA-Z0-9]\+"`
+echo $var2
+path="./cert/"
+cert="$path$var2.cert.pem"
+priv="$path$var2.private.key"
+echo $cert
+echo $priv
 
 connectionCheck
-# run DogFeeder program using certificates
+# run DogFeeder program using certificatesY
 echo "Starting DogFeeder program..."
-python FeederProgram.py -e axqdhi517toju.iot.eu-west-1.amazonaws.com -r ./cert/root-CA.crt -c ./cert/DogFeeder.cert.pem -k ./cert/DogFeeder.private.key
+`python FeederProgram.py -e axqdhi517toju.iot.eu-west-1.amazonaws.com -r ./cert/root-CA.crt -c $cert -k $priv`

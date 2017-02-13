@@ -5,6 +5,7 @@ import time
 import getopt
 import json
 import os
+<<<<<<< HEAD
 import sys
 import subprocess
 import thread
@@ -12,69 +13,85 @@ if os.path.exists('idconf.py'):
 	import idconf
 	curid = idconf.id	
 # Custom MQTT message callback
+=======
+#import idconf
+import sys
+import subprocess
+
+if os.path.exists('idconf.pyc'):
+	import idconf
+	#curid = idconf.id
+else:
+	f = open('idconf.py', 'w+')
+	f.write("id = ''")
+	f.close
+	import idconf
+		
+>>>>>>> 8bf1634... cert creator fixed
 def customCallback(client, userdata, message):
-	#print("Received a new message: ")
-	#print(message.payload)
-	#print("from topic: ")
-	#print(message.topic)
-	#print("--------------\n\n")
+
 	try:
-		curid
+		idconf.id
 	except NameError:
 		print "curid not defined"
 	else:
+		curid= idconf.id
 		try:
-			os.remove(curid + '.cert.pem')
+			os.remove('cert/' + curid + '.cert.pem')
 		except OSError:
 			pass
 		try:
-			os.remove(curid + '.public.key')
+			os.remove('cert/' + curid + '.public.key')
 		except OSError:
 			pass
 		try:
-			os.remove(curid + '.private.key')
+			os.remove('cert/' + curid + '.private.key')
 		except OSError:
 			pass
 	cert = json.loads(message.payload)
 	id = cert['certificateArn'].split('/')
-	#var = ids[1].split("'")
-	#id = var[1]
 	f = open('idconf.py', 'w')
 	f.write("id = '" + id[1] + "'")
 	f.close
+	#idconf.id = id[1]
 
-	certpem= str(id[1]) +'.cert.pem'
+	certpem= 'cert/' + str(id[1]) +'.cert.pem'
 	f = open(certpem, 'w')
 	f.write(cert['certificatePem'])
 	f.close
 
-	certpub= str(id[1]) + '.public.key'
+	certpub= 'cert/' + str(id[1]) + '.public.key'
 	f = open (certpub, 'w')
 	f.write(cert['keyPair']['PublicKey'])
 	f.close
 
-	certpriv= str(id[1]) +'.private.key'
+	certpriv= 'cert/' + str(id[1]) +'.private.key'
 	f = open(certpriv, 'w')
 	f.write(cert['keyPair']['PrivateKey'])
 	f.close
 
 	try:
-		os.remove('4847123d22-certificate.pem.crt')
+		os.remove('cert/4847123d22-certificate.pem.crt')
 	except OSError:
 		pass
 	try:
-		os.remove('4847123d22-public.pem.key')
+		os.remove('cert/4847123d22-public.pem.key')
 	except OSError:
 		pass
 	try:
-		os.remove('4847123d22-private.pem.key')
+		os.remove('cert/4847123d22-private.pem.key')
 	except OSError:
 		pass
 
 	print id[1]
 	#print cert[0]['certificatePem']
+<<<<<<< HEAD
 	idconf.flag = 1
 
+=======
+	#sys.exit()
+	idconf.flag = 1
+>>>>>>> 8bf1634... cert creator fixed
 
 # Usage
 usageInfo = """Usage:
@@ -178,11 +195,13 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Connect and subscribe to AWS IoT
 myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe("Generic/CliId1/rep", 1, customCallback)
+#myAWSIoTMQTTClient.subscribe("Generic/CliId1/rep", 1, customCallback)
 time.sleep(2)
-
+myAWSIoTMQTTClient.subscribe("Generic/CliId1/rep", 1, customCallback)
 # Publish to the same topic in a loop forever
+
 if __name__ == "__main__":
+<<<<<<< HEAD
 	msg = json.dumps({'ThingName':'CliId1', 'ThingType':'Feeder'})
 	myAWSIoTMQTTClient.publish("Generic/CliId1/req", msg, 1)
 	if idconfig.flag:
@@ -192,3 +211,17 @@ if __name__ == "__main__":
 		sys.exit()
 	else:
 		print "something went horribly wrong"
+=======
+	while 1:
+		msg = json.dumps({'ThingName':'CliId1', 'ThingType':'Feeder'})
+		myAWSIoTMQTTClient.publish("Generic/CliId1/req", msg, 1)
+		time.sleep(5)
+		if idconf.flag:
+			print "everything works fine"
+			idconf.flag = 0
+			myAWSIoTMQTTClient.disconnect()
+			sys.exit()
+		else:	
+			print "something went horribly wrong"
+
+>>>>>>> 8bf1634... cert creator fixed
