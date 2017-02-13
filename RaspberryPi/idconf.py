@@ -1,3 +1,3 @@
 #contains connection id for pi
 id =''
-flag = 0
+flag = 1
