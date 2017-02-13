@@ -8,6 +8,8 @@ import os
 import sys
 import subprocess
 import thread
+import uuid
+
 if os.path.exists('idconf.py'):
 	import idconf
 	curid = idconf.id	
