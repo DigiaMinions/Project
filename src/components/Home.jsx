@@ -16,11 +16,11 @@ export default class Home extends React.Component {
 	}
 
 	onStartTimeChange(time) {
-		this.setState({ startTime: time.getTime()})
+		this.setState({ startTime: new Date(time).getTime()})
 	}
 
 	onEndTimeChange(time) {
-		this.setState({ endTime: time.getTime()})
+		this.setState({ endTime: new Date(time).getTime()})
 	}
 
 	onFeedButtonPress() {
