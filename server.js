@@ -56,7 +56,7 @@ connection.query('USE ' + process.env.DB);
 
 // sessionin ymmärtämiseen
 // https://github.com/expressjs/session
-app.use(session({ cookie: { path: '/', secure : false, maxAge : 60000 }, 
+app.use(session({ cookie: { path: '/', secure : false, maxAge : 360000 }, 
 	secret: process.env.COOKIE_SECRET,
 	store: sessionStore,
 	resave: false, 

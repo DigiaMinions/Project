@@ -8,9 +8,7 @@ export default class Home extends React.Component {
 
 	constructor(props) {
 		super(props);
-		//this.state = { activeDeviceVal: this.props.activeDeviceVal, startTime: new Date().getTime()-86400000, endTime: new Date().getTime() } // Oletuksena näyttää viim. 24h
-		this.state = { activeDeviceVal: this.props.activeDeviceVal, startTime: new Date().getTime()-3600000, endTime: new Date().getTime() } // Oletuksena näyttää viim. 24h
-
+		this.state = { activeDeviceVal: this.props.activeDeviceVal, startTime: new Date().getTime()-86400000, endTime: new Date().getTime() } // Oletuksena näyttää viim. 24h
 		this.onStartTimeChange = this.onStartTimeChange.bind(this)
 		this.onEndTimeChange = this.onEndTimeChange.bind(this)
 		this.onFeedButtonPress = this.onFeedButtonPress.bind(this)
