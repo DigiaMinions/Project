@@ -59,6 +59,13 @@ def customCallback(client, userdata, message):
 	f.close
 
 	try:
+		open(certpem, "r")
+		open(certpub, "r")
+		open(certpriv, "r")
+	except IOError:
+		print "Error: File does not appear to exist."
+		return 0
+	try:
 		os.remove('4847123d22-certificate.pem.crt')
 	except OSError:
 		pass
@@ -72,7 +79,6 @@ def customCallback(client, userdata, message):
 		pass
 
 	print id[1]
-	#print cert[0]['certificatePem']
 	idconf.flag = 1
 
 
