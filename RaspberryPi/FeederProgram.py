@@ -109,15 +109,18 @@ def getScheduleToApp():
 #callback for load cell
 def callback_loadcell(count, mode, reading):
 	global loadList
+	global loadList_tare
 	global lc_offset
 	global lc_referenceUnit
 	if tare is False:
 		load = (reading - lc_offset) / lc_referenceUnit
-	else:
+		loadList.append(load)
+	elif tare is True:
 		load = reading / lc_referenceUnit
+		loadList_tare.append(load)
+		loadList.append(0)
 #	if load < 0 and tare is False :
 #		load = 0
-	loadList.append(load)
 #	print('Raw load: '+ str(reading) +', Calculated load: '+ str(load))
 
 
@@ -304,7 +307,7 @@ def lc_setReferenceUnit(value):
 	lc_referenceUnit = value
 
 def lc_tare(): # Calculates and sets load cell offset
-	global loadList
+	global loadList_tare
 	global lc_referenceUnit
 	global lc_offset
 	global tare
@@ -315,12 +318,12 @@ def lc_tare(): # Calculates and sets load cell offset
 	lc_referenceUnit = 1 # Temporarily set reference unit to 1
 	loadAverage = 0
 	
-	while len(loadList) is 0: # Wait until data available
+	while len(loadList_tare) is 0: # Wait until data available
 		time.sleep(0.1)
 		
 	for i in range (0, 20): # take 20 samples
-		if len(loadList) is not 0:
-			loadAverage += loadList[len(loadList)-1]
+		if len(loadList_tare) is not 0:
+			loadAverage += loadList_tare[len(loadList_tare)-1]
 			time.sleep(0.25)
 		else:
 			i = i - 1
@@ -365,7 +368,7 @@ def getMac():
 		mac = ':'.join(mac_addr[i : i + 2] for i in range(0, 11, 2))
 	except:
 		print("Error retrieving MAC address")
-	return "00:14:22:01:23:45" # mac
+	return "00:11:22:33:44:55" # mac
 
 # Download available update
 def fetchUpdate():
@@ -651,6 +654,7 @@ CH_B_GAIN_32 = 2 # Channel B gain 32. Preset for load cell
 
 tare = False
 loadList = [] # Global array for load cell data
+loadList_tare = []
 lc_offset = readOffset()
 lc_referenceUnit = 1000 #932
 
