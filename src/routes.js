@@ -56,7 +56,8 @@ module.exports = function(app, express, passport, upload, connection, session, s
 
 	app.get('/devices/', isLoggedIn, function (req, res){
 		getDevices(req, function(rows){
-			console.log(rows);
+			//console.log('Users devices.');
+			//console.log(rows);
 			res.send(rows);
 		});
 	});

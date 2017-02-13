@@ -1,6 +1,6 @@
 import React from 'react'
 
-const graphanaUrl = "http://34.250.240.162:3000/dashboard-solo/db/newdashboard?panelId=1&var-mac=";
+const graphanaUrl = "http://34.250.162.239:3000/dashboard-solo/db/newdashboard?panelId=1&var-mac=";
 const theme = "&theme=light";
 
 export default class GraphComponent extends React.Component {
