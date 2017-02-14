@@ -11,31 +11,35 @@ export default class SignUpForm extends React.Component {
 		this.handleEmailChange = this.handleEmailChange.bind(this)
 		this.handleFirstnameChange = this.handleFirstnameChange.bind(this)
 		this.handleLastnameChange = this.handleLastnameChange.bind(this)
+		this.handleKeyDown = this.handleKeyDown.bind(this)
 		this.onSignUp = this.onSignUp.bind(this)		
 	}
 
 	handlePasswordChange(event)
 	{
-		console.log(event.target.value)
 		this.setState({password: event.target.value})
 	}
 
 	handleEmailChange(event)
 	{
-		console.log(event.target.value)
 		this.setState({email: event.target.value})
 	}
 
 	handleLastnameChange(event)
 	{
-		console.log(event.target.value)
 		this.setState({lastname: event.target.value})
 	}
 
 	handleFirstnameChange(event)
 	{
-		console.log(event.target.value)
 		this.setState({firstname: event.target.value})
+	}
+
+	handleKeyDown(event) 
+	{
+		if (event.key == 'Enter') {
+			this.onSignUp();
+		}
 	}
 
 	onSignUp()
@@ -69,19 +73,19 @@ export default class SignUpForm extends React.Component {
 			<div className="login">
 				<div className="top-row">
 					<div className="field-wrap">
-						<input name="firstname" type="text"  onChange={this.handleFirstnameChange} required placeholder="Etunimi" autoComplete="off" />
+						<input name="firstname" type="text"  onChange={this.handleFirstnameChange} required placeholder="Etunimi" autoComplete="off" onKeyDown={this.handleKeyDown} />
 					</div>      
 					<div className="field-wrap">
-						<input name="lastname" type="text"  onChange={this.handleLastnameChange} required placeholder="Sukunimi" autoComplete="off"/>
+						<input name="lastname" type="text"  onChange={this.handleLastnameChange} required placeholder="Sukunimi" autoComplete="off" onKeyDown={this.handleKeyDown}/>
 					</div>
 				</div>
 
 				<div className="field-wrap">
-					<input name="email" type="email" onChange={this.handleEmailChange} required placeholder="Sähköposti" autoComplete="off"/>
+					<input name="email" type="email" onChange={this.handleEmailChange} required placeholder="Sähköposti" autoComplete="off" onKeyDown={this.handleKeyDown}/>
 				</div>
 				
 				<div className="field-wrap">
-					<input name="password" type="password"  onChange={this.handlePasswordChange} required placeholder="Salasana" autoComplete="off"/>
+					<input name="password" type="password"  onChange={this.handlePasswordChange} required placeholder="Salasana" autoComplete="off" onKeyDown={this.handleKeyDown} />
 				</div>
 				
 				<button onClick={() => this.onSignUp()} className="button button-lg button-block">Rekisteröidy</button> 

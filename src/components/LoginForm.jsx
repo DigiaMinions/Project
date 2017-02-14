@@ -9,7 +9,8 @@ export default class LoginForm extends React.Component {
 		this.state = {email: '', password: ''};
 		this.handlePasswordChange = this.handlePasswordChange.bind(this)
 		this.handleEmailChange = this.handleEmailChange.bind(this)
-		this.onLogin = this.onLogin.bind(this)		
+		this.handleKeyDown = this.handleKeyDown.bind(this)
+		this.onLogin = this.onLogin.bind(this)
 	}
 
 	handlePasswordChange(event)
@@ -20,6 +21,13 @@ export default class LoginForm extends React.Component {
 	handleEmailChange(event)
 	{
 		this.setState({email: event.target.value})
+	}
+
+	handleKeyDown(event) 
+	{
+		if (event.key == 'Enter') {
+			this.onLogin();
+		}
 	}
 
 	onLogin()
@@ -52,10 +60,10 @@ export default class LoginForm extends React.Component {
 		return(
 				<div className="login">
 						<div className="field-wrap">
-							<input name="email" type="email" required placeholder="Sähköposti" onChange={this.handleEmailChange} autoComplete="on"/>
+							<input name="email" type="email" required placeholder="Sähköposti" onChange={this.handleEmailChange} autoComplete="on" onKeyDown={this.handleKeyDown} />
 						</div>
 						<div className="field-wrap">
-							<input name="password" type="password" required placeholder="Salasana" onChange={this.handlePasswordChange} autoComplete="on"/>
+							<input name="password" type="password" required placeholder="Salasana" onChange={this.handlePasswordChange} autoComplete="on" onKeyDown={this.handleKeyDown} />
 						</div>
 						{/*<p className="forgot"><a href="#">Forgot Password?</a></p>*/}
 						<button onClick={() => this.onLogin()} className="button button-lg button-block">Kirjaudu</button>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Panel } from 'react-bootstrap'
+import { Button, Panel, Alert } from 'react-bootstrap'
 import CreateScheduleComponent from './CreateScheduleComponent.jsx'
 import ScheduleListComponent from './ScheduleListComponent.jsx'
 import 'whatwg-fetch'
@@ -8,16 +8,25 @@ export default class Schedule extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { schedules: [] };
+		this.state = { schedules: [], showMsg: '' };
 		this.sendSchedulesToDevice = this.sendSchedulesToDevice.bind(this)
 		this.getSchedulesForDevice = this.getSchedulesForDevice.bind(this);
 	}
 
 	render() {
+		let msg = null;
+		if (this.state.showMsg == 'success') {
+			msg = <Alert bsStyle="success">Tallennus onnistui.</Alert>;
+		}
+		else if (this.state.showMsg == 'error') {
+			msg = <Alert bsStyle="danger">Tallennus epäonnistui.</Alert>;
+		}
+
 		return (
 			<div>
 				<div className="well">
 					<h2>Ruokinta aikataulu</h2><br />
+					{msg}
 					<CreateScheduleComponent createSchedule={this.createSchedule.bind(this)} /><br />
 					<ScheduleListComponent schedules={this.state.schedules} toggleSchedule={this.toggleSchedule.bind(this)} deleteSchedule={this.deleteSchedule.bind(this)} /><br />
 					<button type="button" className="button button-block" onClick={this.sendSchedulesToDevice}>Tallenna</button>
@@ -72,9 +81,11 @@ export default class Schedule extends React.Component {
 		})
 		})
 		.then(function(res) {
+			this.setState({ showMsg: 'success' });
 			console.log("Success: ", res);
 		})
 		.catch(function(err) {
+			this.setState({ showMsg: 'error' });
 			console.log("Error: ", err);
 		});
 	}
