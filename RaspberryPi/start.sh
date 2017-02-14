@@ -30,7 +30,7 @@ echo -n "AWS IoT Root CA certificate "
 if [ ! -f ./cert/root-CA.crt ]; then
 	echo -n "not found, downloading from Symantec.."
 	connectionCheck
-	curl https://www.symantec.com/content/en/us/enterprise/verisign/roots/VeriSign-Class%203-Public-Primary-Certification-Authority-G5.pem > root-CA.crt
+	curl https://www.symantec.com/content/en/us/enterprise/verisign/roots/VeriSign-Class%203-Public-Primary-Certification-Authority-G5.pem > ./cert/root-CA.crt
 	echo "OK!"
 else
 	echo "OK!"
@@ -114,7 +114,7 @@ subversion=$(dpkg -s subversion > /dev/null 2>&1 && echo ok || echo error)
 
 if [ -e ./cert/default/4847123d22-certificate.pem.crt -a -e ./cert/default/4847123d22-public.pem.key -a -e ./cert/default/4847123d22-private.pem.key ]; then
 	connectionCheck
-	python createcert.py -e axqdhi517toju.iot.eu-west-1.amazonaws.com -r cert/root-CA.crt -c cert/default/4847123d22-certificate.pem.crt -k cert/default/4847123d22-private.pem.key
+	python createcert.py -e axqdhi517toju.iot.eu-west-1.amazonaws.com -r ./cert/root-CA.crt -c ./cert/default/4847123d22-certificate.pem.crt -k ./cert/default/4847123d22-private.pem.key
 fi
 
 source ./idconf.py
