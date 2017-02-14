@@ -3,4 +3,3 @@ src/static/js/
 src/static/js/credentials.json
 *.env
 certs/
-RaspberryPi/createcert.py

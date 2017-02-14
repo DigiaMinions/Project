@@ -18,8 +18,9 @@ import urllib # Download updates
 import json # Parsing Json
 import thread # Threading
 import re
-#import statistics # For calculating median
-#import numpy
+import idconf
+
+uid = idconf.id
 
 #################################
 ### CLASS DECLARATIONS ##########
@@ -103,7 +104,7 @@ def schedule_readFromFile():
 # Returns currently saved schedule to end user
 def getScheduleToApp():
 	content = schedule_readFromFile()
-	myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + getMac(), str(content), 1)	
+	myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(content), 1)	
 
 
 #callback for load cell
@@ -274,7 +275,7 @@ if useWebsocket:
 	myAWSIoTMQTTClient.configureEndpoint(host, 443)
 	myAWSIoTMQTTClient.configureCredentials(rootCAPath)
 else:
-	myAWSIoTMQTTClient = AWSIoTMQTTClient("DogFeeder")
+	myAWSIoTMQTTClient = AWSIoTMQTTClient(uid)
 	myAWSIoTMQTTClient.configureEndpoint(host, 8883)
 	myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
 
@@ -282,7 +283,7 @@ else:
 myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
 myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
 myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
-myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
+myAWSIoTMQTTClient.configureConnectDisconnectTimeout(20)  # 20 sec
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 
@@ -580,7 +581,7 @@ def createMessageSegment(load, index):
 # Add ID stamp to AWS IoT message
 def createMessageIDStamp():
 	global JsonCreator
-	JsonCreator.createObject("ID", ID)
+	JsonCreator.createObject("ID", uid)
 
 # Assemble the full message from parts created
 def getFinalMessage():
@@ -594,8 +595,8 @@ def getFinalMessage():
 
 # Connect and subscribe to AWS IoT (partly AWS)
 myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe("DogFeeder/Data/" + getMac(), 1, callback_data) # TODO Is this needed in the end product? Repeats sent message in terminal
-myAWSIoTMQTTClient.subscribe("DogFeeder/AppToDevice/" + getMac(), 1, callback_userdata)
+myAWSIoTMQTTClient.subscribe("DogFeeder/Data/" + uid, 1, callback_data) # TODO Is this needed in the end product? Repeats sent message in terminal
+myAWSIoTMQTTClient.subscribe("DogFeeder/AppToDevice/" + uid, 1, callback_userdata)
 myAWSIoTMQTTClient.subscribe("DogFeeder/Update", 1, callback_update) # Updates available. Shared topic for all DogFeeders
 time.sleep(1)
 
@@ -616,7 +617,7 @@ def thread0():
 			loop_count += 1
 			time.sleep(interval)
 		createMessageIDStamp()
-		myAWSIoTMQTTClient.publish("DogFeeder/Data/" + getMac(), str(getFinalMessage()), 1) # Create final message from previously made pieces and send it to AWS IoT
+		myAWSIoTMQTTClient.publish("DogFeeder/Data/" + uid, str(getFinalMessage()), 1) # Create final message from previously made pieces and send it to AWS IoT
 		
 def thread1():
 	interval = 1
@@ -673,6 +674,7 @@ try:
 	thread.start_new_thread( thread1, ()) # Food feed scheduling
 except (KeyboardInterrupt, SystemExit):
 	cleanup_stop_thread();
+	myAWSIoTMQTTClient.disconnect()
 	cell.stop()
 	pi.stop()
 	sys.exit()
