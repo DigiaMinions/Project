@@ -13,13 +13,11 @@ import uuid
 if os.path.exists('idconf.py'):
 	import idconf
 	curid = idconf.id	
-# Custom MQTT message callback
-def customCallback(client, userdata, message):
-	#print("Received a new message: ")
-	#print(message.payload)
-	#print("from topic: ")
-	#print(message.topic)
-	#print("--------------\n\n")
+
+	
+
+# Certificate request callback
+def callback_cert(client, userdata, message):
 	try:
 		curid
 	except NameError:
@@ -42,7 +40,7 @@ def customCallback(client, userdata, message):
 	#var = ids[1].split("'")
 	#id = var[1]
 	f = open('idconf.py', 'w')
-	f.write("id = '" + id[1] + "'")
+	f.write("id = '" + id[1] + "'\n flag=1")
 	f.close
 
 	certpem= str(id[1]) +'.cert.pem'
@@ -68,21 +66,32 @@ def customCallback(client, userdata, message):
 		print "Error: File does not appear to exist."
 		return 0
 	try:
-		os.remove('4847123d22-certificate.pem.crt')
+		os.remove('cert/default/4847123d22-certificate.pem.crt')
 	except OSError:
 		pass
 	try:
-		os.remove('4847123d22-public.pem.key')
+		os.remove('cert/default/4847123d22-public.pem.key')
 	except OSError:
 		pass
 	try:
-		os.remove('4847123d22-private.pem.key')
+		os.remove('cert/default/4847123d22-private.pem.key')
 	except OSError:
 		pass
 
+	idconf.flag = 0
 	print id[1]
-	idconf.flag = 1
-
+	
+	
+	
+def getMac():
+	try:
+		mac_addr = hex(uuid.getnode()).replace('0x', '0').upper()
+		mac = ':'.join(mac_addr[i : i + 2] for i in range(0, 11, 2))
+		mac = mac.replace(":","")
+	except:
+		print("Error retrieving MAC address")
+	return mac
+	
 
 # Usage
 usageInfo = """Usage:
@@ -108,7 +117,6 @@ helpInfo = """-e, --endpoint
 """
 
 # Read in command-line parameters
-useWebsocket = False
 host = ""
 rootCAPath = ""
 certificatePath = ""
@@ -161,16 +169,13 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
+uid = getMac()
+
 # Init AWSIoTMQTTClient
 myAWSIoTMQTTClient = None
-if useWebsocket:
-	myAWSIoTMQTTClient = AWSIoTMQTTClient("basicPubSub", useWebsocket=True)
-	myAWSIoTMQTTClient.configureEndpoint(host, 443)
-	myAWSIoTMQTTClient.configureCredentials(rootCAPath)
-else:
-	myAWSIoTMQTTClient = AWSIoTMQTTClient("CliId1")
-	myAWSIoTMQTTClient.configureEndpoint(host, 8883)
-	myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
+myAWSIoTMQTTClient = AWSIoTMQTTClient(uid)
+myAWSIoTMQTTClient.configureEndpoint(host, 8883)
+myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
 
 # AWSIoTMQTTClient connection configuration
 myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
@@ -181,17 +186,24 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Connect and subscribe to AWS IoT
 myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe("Generic/CliId1/rep", 1, customCallback)
+myAWSIoTMQTTClient.subscribe("Generic/"+uid+"/rep", 1, callback_cert)
 time.sleep(2)
+
+
 
 # Publish to the same topic in a loop forever
 if __name__ == "__main__":
-	msg = json.dumps({'ThingName':'CliId1', 'ThingType':'Feeder'})
-	myAWSIoTMQTTClient.publish("Generic/CliId1/req", msg, 1)
-	if idconfig.flag:
-		print "everything went well"
-		idconfig.flag= 0
-		cleanup_stop_thread();
-		sys.exit()
-	else:
-		print "something went horribly wrong"
+	msg = json.dumps({'ThingName':uid, 'ThingType':'DogFeeder'})
+	myAWSIoTMQTTClient.publish("Generic/"+uid+"/req", msg, 1)
+	
+	while True:
+		time.sleep(2)
+		if idconf.flag == 0:
+			print "everything went well"
+			myAWSIoTMQTTClient.publish("Generic/"+uid+"/done", msg, 1)
+			idconf.flag = 1
+			myAWSIoTMQTTClient.disconnect()
+			sys.exit()
+		else:
+			msg = json.dumps({'ThingName':uid, 'ThingType':'DogFeeder'})
+			myAWSIoTMQTTClient.publish("Generic/"+uid+"/req", msg, 1)
