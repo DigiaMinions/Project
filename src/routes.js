@@ -1,7 +1,11 @@
 
 
 module.exports = function(app, express, passport, upload, connection, session, sessionStore) {
+	var AWS = require('aws-sdk');
 
+	var iot = new AWS.Iot({ accessKeyId: process.env.ACCESSKEYID, region:'eu-west-1', secretAccessKey: process.env.SECRETACCESSKEY});
+
+	AWS.config.update({});
 	// HUOM! järjestys oleellinen!
 
 	app.get('/css/style.css', function (req,res){	
@@ -126,10 +130,11 @@ module.exports = function(app, express, passport, upload, connection, session, s
 
 	app.post('/tilaus', upload.array(), function(req, res, next) {
 		isLoggedIn(req, res, next);
-	},function(req,res){
+	},function(req,res, next){
 		console.log('Nimi: ' + req.body.name);
 		if(req.body)
 		{
+
 			addDevice(req, function(message){				
 				res.sendStatus(message);
 			});
@@ -147,6 +152,8 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		var mac = req.body.mac;
 		var userId = req.user.id;
 
+		
+
 		connection.query("INSERT INTO Device (name, mac, FK_user_id, FK_devtype_id) VALUES (?, ?, ?, 1)",[name, mac, userId], function(err, rows){
 			if(err)
 			{
@@ -154,7 +161,8 @@ module.exports = function(app, express, passport, upload, connection, session, s
 				cb(500,err);
 			}
 			else
-			{				
+			{
+				CreateNewDocVersion(mac, iot);
 				cb(200);
 			}
 		});
@@ -232,4 +240,60 @@ module.exports = function(app, express, passport, upload, connection, session, s
 	        cb(rows);
 	    });
 	}
+
+	function DeleteOldDocVersion(iot){
+
+		var policyv = {
+			policyName: 'Generic' /* required */
+
+		};
+		iot.listPolicyVersions(policyv, function(err, data) {
+			if (err) console.log(err, err.stack); // an error occurred
+			else     console.log('listPolicyVersions success');         // successful response
+
+			var oldVersion = data.policyVersions[1].versionId;
+
+			var params = {
+				  policyName: 'Generic', 
+				  policyVersionId: oldVersion
+				};
+			iot.deletePolicyVersion(params, function(err, newdata) {
+			  if (err) console.log(err, err.stack); // an error occurred
+			  else     console.log('deletePolicyVersion success');           // successful response
+			});
+		});
+		
+	}
+
+	function CreateNewDocVersion(mac, iot)
+	{
+		var doc = {
+			policyName: 'Generic' /* required */
+		};
+		iot.getPolicy(doc, function(err, data) {
+			if (err) console.log(err, err.stack); // an error occurred
+			else     console.log('getPolicy success');           // successful response
+			var policyDoc = JSON.parse(data.policyDocument);
+
+			policyDoc.Statement[0].Resource.push("arn:aws:iot:eu-west-1:774482297846:client/" + mac);
+			var policyData = JSON.stringify(policyDoc);
+
+			var params = {
+				policyDocument: policyData,
+				policyName: 'Generic', 
+				setAsDefault: true
+			};
+
+			iot.createPolicyVersion(params, function(err, newdata) {
+				if (err) console.log(err, err.stack); // an error occurred
+				else     console.log('createPolicyVersion success');           // successful response
+
+				DeleteOldDocVersion(iot);
+			});
+
+			
+		});
+
+	}
+
 };
