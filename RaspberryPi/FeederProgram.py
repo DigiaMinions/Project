@@ -104,7 +104,7 @@ def schedule_readFromFile():
 # Returns currently saved schedule to end user
 def getScheduleToApp():
 	content = schedule_readFromFile()
-	myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(content), 1)	
+	myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(content), 1)
 
 
 #callback for load cell
@@ -433,14 +433,14 @@ def checkFeedSchedule(): # Superfunktio lukemaan tadaa tiedostosta ja poistelema
 		
 		elif validateDate(str(content['rep'])) == False:
 			if getTodaysNumber() in parseRep(int(content['rep'])):
-				if getTime() >= str(content['time']) and content['isActive'] is True:
+				if getTime() == str(content['time']) and content['isActive'] is True:
 					if schedule_isFedToday(str(content['id'])) == True:
 						pass
 					elif schedule_isFedToday(str(content['id'])) == False:
 						servo_feedFood()
 						schedule_markAsFedToday(str(content['id']))
 			else:
-				print("Scheduled to another day")
+				pass
 
 
 # Validates given date and returns True/False of its validity

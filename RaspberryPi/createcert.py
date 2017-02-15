@@ -184,7 +184,7 @@ myAWSIoTMQTTClient.publish("Generic/"+uid+"/req", msg, 1)
 
 # Loop until answer received from AWS IoT	
 while True:
-	time.sleep(4)
+	time.sleep(10)
 	if idconf.flag == 0:
 		print("New certificates created")
 		myAWSIoTMQTTClient.publish("Generic/"+uid+"/done", msg, 1)
