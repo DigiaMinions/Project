@@ -34,7 +34,7 @@ var connection = mysql.createConnection({
 
 var sessionStore = new MySQLStore({
   	host: process.env.DB_HOST,// Host name for database connection. 
-    port: 3306,// Port number for database connection. 
+    port: process.env.DB_PORT,// Port number for database connection. 
     user: process.env.DB_USER,// Database user. 
     password: process.env.DB_PASSWORD,// Password for the above database user. 
     database: process.env.DB,// Database name. 
@@ -56,7 +56,7 @@ connection.query('USE ' + process.env.DB);
 
 // sessionin ymmärtämiseen
 // https://github.com/expressjs/session
-app.use(session({ cookie: { path: '/', secure : false, maxAge : 360000 }, 
+app.use(session({ cookie: { path: '/', secure : false, maxAge : 1800000 }, 
 	secret: process.env.COOKIE_SECRET,
 	store: sessionStore,
 	resave: false, 

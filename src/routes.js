@@ -152,8 +152,6 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		var mac = req.body.mac;
 		var userId = req.user.id;
 
-		
-
 		connection.query("INSERT INTO Device (name, mac, FK_user_id, FK_devtype_id) VALUES (?, ?, ?, 1)",[name, mac, userId], function(err, rows){
 			if(err)
 			{
