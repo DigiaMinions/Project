@@ -72,10 +72,10 @@ export default class Home extends React.Component {
 				<GraphComponent activeDeviceVal={this.props.activeDeviceVal} startTime={this.state.startTime} endTime={this.state.endTime} />
 				<Panel header="Näytä ruokailu ajalta">
 				<Col xs={6} md={4}>
-					<CalendarComponent onUpdate={this.onStartTimeChange} labelText="Mistä:" />
+					<strong>Mistä:</strong><CalendarComponent onUpdate={this.onStartTimeChange} labelText="Mistä:" />
 				</Col>
 				<Col xs={6} md={4}>
-					<CalendarComponent onUpdate={this.onEndTimeChange} labelText="Mihin:" />
+					<strong>Mihin:</strong><CalendarComponent onUpdate={this.onEndTimeChange} labelText="Mihin:" />
 				</Col>
 				</Panel>
 			</div>

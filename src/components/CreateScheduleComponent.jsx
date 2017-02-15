@@ -63,7 +63,7 @@ export default class CreateScheduleComponent extends React.Component {
 						</span>
 					</div>
 				</div>
-				<div className="form-group col-xs-6">
+				<div className="form-group col-xs-5">
 					{recurring}
 					{nonrecurring}
 				</div>
