@@ -293,10 +293,17 @@ module.exports = function(app, express, passport, upload, connection, session, s
 				};
 
 				iot.createPolicyVersion(params, function(err, newdata) {
-					if (err) console.log(err, err.stack); // an error occurred
-					else     console.log('createPolicyVersion success');           // successful response
+					if(err)
+					{
+						console.log(err, err.stack); // an error occurred
+					} 
+					else
+					{ 
+						console.log('createPolicyVersion success');           // successful response
+						DeleteOldDocVersion(iot);
+					}    
 
-					DeleteOldDocVersion(iot);
+					
 				});
 			}
 		});
