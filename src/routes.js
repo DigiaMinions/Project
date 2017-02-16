@@ -94,6 +94,7 @@ module.exports = function(app, express, passport, upload, connection, session, s
 	/* Pyydetään laitteelta aikataulu -> raspi lähettää DeviceToApp topicciin aikataulun -> se lähetetään responsessa frontille */
 	app.post('/device/', function(req, res){
 		deviceSchedule = ''; // tyhjätään muuttujasta entinen aikataulu
+
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ get: 'schedule' })); // lähetetään raspille pyyntö aikataulusta
 		sendScheduleToApp(res); // odotellaan että raspi lähettää aikataulun
@@ -246,21 +247,25 @@ module.exports = function(app, express, passport, upload, connection, session, s
 
 		};
 		iot.listPolicyVersions(policyv, function(err, data) {
-			if (err) console.log(err, err.stack); // an error occurred
-			else     console.log('listPolicyVersions success');         // successful response
+			if(err) 
+			{
+				console.log(err, err.stack); // an error occurred
+			}
+			else
+			{
+				console.log('listPolicyVersions success');       // successful response
+				var oldVersion = data.policyVersions[1].versionId;
 
-			var oldVersion = data.policyVersions[1].versionId;
-
-			var params = {
-				  policyName: 'Generic', 
-				  policyVersionId: oldVersion
-				};
-			iot.deletePolicyVersion(params, function(err, newdata) {
-			  if (err) console.log(err, err.stack); // an error occurred
-			  else     console.log('deletePolicyVersion success');           // successful response
-			});
-		});
-		
+				var params = {
+					  policyName: 'Generic', 
+					  policyVersionId: oldVersion
+					};
+				iot.deletePolicyVersion(params, function(err, newdata) {
+				  if (err) console.log(err, err.stack); // an error occurred
+				  else     console.log('deletePolicyVersion success');           // successful response
+				});
+			}     
+		});		
 	}
 
 	function CreateNewDocVersion(mac, iot)
@@ -269,29 +274,32 @@ module.exports = function(app, express, passport, upload, connection, session, s
 			policyName: 'Generic' /* required */
 		};
 		iot.getPolicy(doc, function(err, data) {
-			if (err) console.log(err, err.stack); // an error occurred
-			else     console.log('getPolicy success');           // successful response
-			var policyDoc = JSON.parse(data.policyDocument);
+			if(err)
+			{
+				console.log(err, err.stack); // an error occurred
+			} 
+			else     
+			{
+				console.log('getPolicy success');           // successful response
+				var policyDoc = JSON.parse(data.policyDocument);
 
-			policyDoc.Statement[0].Resource.push("arn:aws:iot:eu-west-1:774482297846:client/" + mac);
-			var policyData = JSON.stringify(policyDoc);
+				policyDoc.Statement[0].Resource.push("arn:aws:iot:eu-west-1:774482297846:client/" + mac);
+				var policyData = JSON.stringify(policyDoc);
 
-			var params = {
-				policyDocument: policyData,
-				policyName: 'Generic', 
-				setAsDefault: true
-			};
+				var params = {
+					policyDocument: policyData,
+					policyName: 'Generic', 
+					setAsDefault: true
+				};
 
-			iot.createPolicyVersion(params, function(err, newdata) {
-				if (err) console.log(err, err.stack); // an error occurred
-				else     console.log('createPolicyVersion success');           // successful response
+				iot.createPolicyVersion(params, function(err, newdata) {
+					if (err) console.log(err, err.stack); // an error occurred
+					else     console.log('createPolicyVersion success');           // successful response
 
-				DeleteOldDocVersion(iot);
-			});
-
-			
+					DeleteOldDocVersion(iot);
+				});
+			}
 		});
-
 	}
 
 };
