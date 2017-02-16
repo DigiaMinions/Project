@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Panel, Alert } from 'react-bootstrap'
+import { Button, Panel, Modal } from 'react-bootstrap'
 import CreateScheduleComponent from './CreateScheduleComponent.jsx'
 import ScheduleListComponent from './ScheduleListComponent.jsx'
 import 'whatwg-fetch'
@@ -8,25 +8,53 @@ export default class Schedule extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { schedules: [], showMsg: '' };
+		this.state = { schedules: [], showModal: false, saveState: '' };
 		this.sendSchedulesToDevice = this.sendSchedulesToDevice.bind(this)
 		this.getSchedulesForDevice = this.getSchedulesForDevice.bind(this);
+		this.openModal = this.openModal.bind(this);
+		this.closeModal = this.closeModal.bind(this);
 	}
 
 	render() {
-		let msg = null;
-		if (this.state.showMsg == 'success') {
-			msg = <Alert bsStyle="success">Tallennus onnistui.</Alert>;
+		let title = null;
+		let info = null;
+		let progressBar = null;
+		let closeButton = null;
+
+		if (this.state.saveState == 'saving') {
+			title = <Modal.Title>Tallennetaan laitteelle</Modal.Title>
+			info = <p>Odota hetki...</p>
+			progressBar = <div className="progress"><div className="progress-bar progress-bar-striped active" style={{ width: "100%" }}></div></div>
 		}
-		else if (this.state.showMsg == 'error') {
-			msg = <Alert bsStyle="danger">Tallennus epäonnistui.</Alert>;
+		else if (this.state.saveState == 'success') {
+			title = <Modal.Title>Tallennus onnistui</Modal.Title>
+			info = <p>Uusi aikataulu tallennettu ja toiminnassa!</p>
+			progressBar = <div className="progress"><div className="progress-bar progress-bar-success progress-bar-striped" style={{ width: "100%" }}></div></div>
+			closeButton = <Button onClick={this.closeModal}>Sulje</Button>
+		}
+		else if (this.state.saveState == 'fail') {
+			title = <Modal.Title>Tallennus epäonnistui</Modal.Title>
+			info = <p>Onko Raspi päällä ja yhdistetty nettiin?</p>
+			progressBar = <div className="progress"><div className="progress-bar progress-bar-danger progress-bar-striped" style={{ width: "100%" }}></div></div>
+			closeButton = <Button onClick={this.closeModal}>Sulje</Button>
 		}
 
 		return (
 			<div>
 				<div className="well">
+					<Modal show={this.state.showModal} onHide={this.closeModal}>
+						<Modal.Header closeButton>
+							{title}
+						</Modal.Header>
+						<Modal.Body>
+							{info}
+							{progressBar}
+						</Modal.Body>
+						<Modal.Footer>
+							{closeButton}
+						</Modal.Footer>
+					</Modal>
 					<h2>Ruokinta aikataulu</h2><br />
-					{msg}
 					<CreateScheduleComponent createSchedule={this.createSchedule.bind(this)} /><br />
 					<ScheduleListComponent schedules={this.state.schedules} toggleSchedule={this.toggleSchedule.bind(this)} deleteSchedule={this.deleteSchedule.bind(this)} /><br />
 					<button type="button" className="button button-block" onClick={this.sendSchedulesToDevice}>Tallenna</button>
@@ -69,6 +97,9 @@ export default class Schedule extends React.Component {
 	}
 
 	sendSchedulesToDevice() {
+		var self = this;
+		// avataan lataus ikkuna ja odotellaan raspilta kuittausta tallennuksesta
+		this.openModal();
 		// API kutsu Fetchillä
 		fetch('/schedule/', {
 			method: 'POST',
@@ -81,11 +112,35 @@ export default class Schedule extends React.Component {
 		})
 		})
 		.then(function(res) {
-			this.setState({ showMsg: 'success' });
-			console.log("Success: ", res);
+			return res.json();
+		})
+		.then(function(json) {
+			var result = JSON.parse(json).confirmSave;
+			self.setState({ saveState: result });
 		})
 		.catch(function(err) {
-			this.setState({ showMsg: 'error' });
+			console.log("Error: ", err);
+		});
+	}
+
+	// Haetaan laitteen aikataulut
+	getSchedulesForDevice(device, callback) {
+		fetch('/device/', {
+			method: 'POST',
+			headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			mac: device
+		})
+		})
+		.then(function(res) {
+			return res.json();
+		})
+		.then(function(scheduleJson) {
+			callback(JSON.parse(scheduleJson).schedule); // parsitaan taulukko schedule-objekteja JSON:ista
+		})
+		.catch(function(err) {
 			console.log("Error: ", err);
 		});
 	}
@@ -107,27 +162,11 @@ export default class Schedule extends React.Component {
 		});	
 	}
 
-	// Haetaan laitteen aikataulut
-	getSchedulesForDevice(device, callback) {
-		fetch('/device/', {
-			method: 'POST',
-			headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			mac: device
-		})
-		})
-		.then(function(res) {
-			return res.json();
-		})
-		.then(function(scheduleJson) {
-			console.log(scheduleJson);
-			callback(JSON.parse(scheduleJson).schedule); // parsitaan taulukko schedule-objekteja JSON:ista
-		})
-		.catch(function(err) {
-			console.log("Error: ", err);
-		});
+	closeModal() {
+		this.setState({ showModal: false, saveState: '' });
 	}
 
+	openModal() {
+		this.setState({ showModal: true, saveState: 'saving' });
+	}
 }

@@ -1,11 +1,9 @@
-
-
 module.exports = function(app, express, passport, upload, connection, session, sessionStore) {
 	var AWS = require('aws-sdk');
-
 	var iot = new AWS.Iot({ accessKeyId: process.env.ACCESSKEYID, region:'eu-west-1', secretAccessKey: process.env.SECRETACCESSKEY});
-
 	AWS.config.update({});
+	var _ = require('lodash');
+
 	// HUOM! järjestys oleellinen!
 
 	app.get('/css/style.css', function (req,res){	
@@ -50,12 +48,22 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		region: "eu-west-1"
 	});
 
-	// Kuunnellaan topicin viestejä, viimeisin viesti muuttujaan
+	// Kuunnellaan topicin 'DeviceToApp' viestejä
 	var deviceSchedule = '';
+	var confirmMsg = '';
 	device
 	.on('message', function(topic, payload) {
-		deviceSchedule = payload.toString();
-		console.log(payload.toString());
+		var payloadString = payload.toString();
+		// saapuu viesti aikataulusta
+		if (_.includes(payloadString, 'schedule'))
+		{
+			deviceSchedule = payloadString;
+		}
+		// saapuu viesti tallennuksen kuittauksesta
+		else if (_.includes(payloadString, 'confirmSave')) {
+			confirmMsg = payloadString;
+		}
+		
 	});
 
 	app.get('/devices/', isLoggedIn, function (req, res){
@@ -86,9 +94,11 @@ module.exports = function(app, express, passport, upload, connection, session, s
 
 	/* Schedule feed: Lähetetään laitteelle ruokinta aikataulu */
 	app.post('/schedule/', function(req, res){
+		confirmMsg = '';
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		var schedule = req.body.schedule;
 		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ schedule }));
+		getConfirmFromDevice(res); // odotellaan että raspi lähettää kuittauksen tallennuksesta
 	});
 
 	/* Pyydetään laitteelta aikataulu -> raspi lähettää DeviceToApp topicciin aikataulun -> se lähetetään responsessa frontille */
@@ -173,7 +183,17 @@ module.exports = function(app, express, passport, upload, connection, session, s
 			res.json(deviceSchedule); // palautetaan aikataulu frontille responsessa
 		}
 		else {
-			setTimeout(sendScheduleToApp, 500, res) // odotellaan raspia kunnes se lähettää aikataulunsa
+			setTimeout(sendScheduleToApp, 500, res); // odotellaan raspia kunnes se lähettää aikataulunsa
+		}
+	}
+
+	function getConfirmFromDevice(res)
+	{
+		if (confirmMsg) {
+			res.json(confirmMsg);
+		}
+		else {
+			setTimeout(getConfirmFromDevice, 500, res); // odotellaan kuittausta raspilta tallennuksesta
 		}
 	}
 

@@ -8,11 +8,12 @@ export default class Home extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { activeDeviceVal: this.props.activeDeviceVal, startTime: new Date().getTime()-86400000, endTime: new Date().getTime() } // Oletuksena näyttää viim. 24h
+		this.state = { activeDeviceVal: this.props.activeDeviceVal, startTime: 'now%2Fd', endTime: 'now' } // Oletuksena näyttää tämän päivän (tähän asti)
 		this.onStartTimeChange = this.onStartTimeChange.bind(this)
 		this.onEndTimeChange = this.onEndTimeChange.bind(this)
 		this.onFeedButtonPress = this.onFeedButtonPress.bind(this)
 		this.onCalibrateButtonPress = this.onCalibrateButtonPress.bind(this)
+		this.setQuickRange = this.setQuickRange.bind(this)
 	}
 
 	onStartTimeChange(time) {
@@ -60,6 +61,9 @@ export default class Home extends React.Component {
 		});
 	}
 
+	setQuickRange(startTime, endTime) {
+		this.setState({ startTime: startTime, endTime: endTime })
+	}
 
 	render() {
 		return (
@@ -71,6 +75,12 @@ export default class Home extends React.Component {
 				</Row>
 				<GraphComponent activeDeviceVal={this.props.activeDeviceVal} startTime={this.state.startTime} endTime={this.state.endTime} />
 				<Panel header="Näytä ruokailu ajalta">
+				<Col xs={6} md={4}>
+					<a href="javascript:void(0)" onClick={() => this.setQuickRange("now-1h", "now")}>Viimeinen 1 tunti</a><br/>
+					<a href="javascript:void(0)" onClick={() => this.setQuickRange("now-24h", "now")}>Viimeiset 24 tuntia</a><br/>
+					<a href="javascript:void(0)" onClick={() => this.setQuickRange("now-1d%2Fd", "now-1d%2Fd")}>Eilen</a><br/>
+					<a href="javascript:void(0)" onClick={() => this.setQuickRange("now%2Fw", "now%2Fw")}>Tällä viikolla</a><br/>
+				</Col>
 				<Col xs={6} md={4}>
 					<strong>Mistä:</strong><CalendarComponent onUpdate={this.onStartTimeChange} labelText="Mistä:" />
 				</Col>
