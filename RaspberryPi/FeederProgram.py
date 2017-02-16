@@ -21,6 +21,7 @@ import re
 import idconf
 
 uid = idconf.id
+path = "/home/terminal/feeder/"
 
 #################################
 ### CLASS DECLARATIONS ##########
@@ -84,7 +85,7 @@ def callback_userdata(client, userdata, message):
 # Kirjoittaa käyttäjän pään payloadissa tulevan jsonin filuun
 def schedule_writeToFile(content):
 	try:
-		with open('schedule.dat', 'w') as file:
+		with open(path + 'schedule.dat', 'w+') as file:
 			file.write(content)
 	except:
 		print("FATAL ERROR WRITING SCHEDULE TO FILE")
@@ -93,7 +94,7 @@ def schedule_writeToFile(content):
 # Lukee schedulen laitteesta ja palauttaa sen kutsujalle	
 def schedule_readFromFile():
 	try:
-		with open('schedule.dat', 'r') as file:
+		with open(path + 'schedule.dat', 'r+') as file:
 			content = str(file.read())
 			return content
 	except:
@@ -296,7 +297,7 @@ def lc_init():
 	print("Start Load Cell with callback")
 	global cell
 	cell = HX711.sensor(pi, DATA=9, CLOCK=11, mode=CH_A_GAIN_64, callback=callback_loadcell) # GPIO PORTS 9 AND 11
-	time.sleep(3)
+	time.sleep(2)
 
 # HOW TO CALCULATE THE REFFERENCE UNIT
 # To set the reference unit to 1. Put 1kg on your sensor or anything you have and know exactly how much it weights.
@@ -338,14 +339,18 @@ def lc_tare(): # Calculates and sets load cell offset
 	saveOffset(lc_offset) # Save offset to file
 
 def saveOffset(value):
-	with open('offset.dat', 'w') as file:
+	with open(path + 'offset.dat', 'w+') as file:
 		file.write(str(value))
 		print("Offset saved to file")
 	
 def readOffset(): # Read offset from file and save it to lc_offset
-	with open("offset.dat", "r") as file:
-		offset = int(file.read())
-		print("Offset loaded from file")
+	try:
+		with open(path + "offset.dat", "r") as file:
+			offset = int(file.read())
+			print("Offset loaded from file")
+	except:
+		print("Offset does not exist")
+		offset = 0
 	return offset
 
 # Get sensor data from load cell
@@ -363,20 +368,21 @@ def getLoadCellValue():
 ### HARDWARE MISC ##############
 
 # Get hardware MAC address
-def getMac():
+def getMac(): # Not needed anymore.. replaced by uid
 	try:
 		mac_addr = hex(uuid.getnode()).replace('0x', '0').upper()
 		mac = ':'.join(mac_addr[i : i + 2] for i in range(0, 11, 2))
 	except:
 		print("Error retrieving MAC address")
-	return "00:11:22:33:44:55" # mac
+	return mac
 
 # Download available update
 def fetchUpdate():
+	global path
 	url = 'https://github.com/DigiaMinions/Project/trunk/RaspberryPi' # INCOMPLETE. Should there be an update folder after testing?
 	location = 'update/'
 	# Download the file using system command and save it locally
-	os.system("svn export " + url + " " + location + " --force")
+	os.system("svn export " + url + " " + path + location + " --force")
 
 
 
@@ -456,7 +462,7 @@ def validateDate(content):
 # Marks given id as inactive to schedule.dat
 def schedule_markAsInactive(id):
 	print("Marking ID " + id + " as inactive..")
-	with open('schedule.dat', 'r+') as file:
+	with open(path + 'schedule.dat', 'r+') as file:
 		data = json.load(file)
 		file.seek(0)
 
@@ -470,18 +476,18 @@ def schedule_markAsInactive(id):
 
 # marks given id as already fed this day to schedule_fedtoday.dat
 def schedule_markAsFedToday(id):
-	with open('schedule_fedtoday.dat', 'w') as file:
+	with open(path + 'schedule_fedtoday.dat', 'w+') as file:
 		file.write(str(id) + "\n")
 
 # Checks if already fed today with given id and returns True/False
 def schedule_isFedToday(id):
 	isFound = False
 
-	with open('schedule_fedtoday.dat', 'r') as file:
+	with open(path + 'schedule_fedtoday.dat', 'r+') as file:
 		if os.stat('schedule_fedtoday.dat').st_size == 0:
 			return False
 		else:
-				with open('schedule_fedtoday.dat', 'r') as file:
+				with open(path + 'schedule_fedtoday.dat', 'r') as file:
 					content = file.read().splitlines()
 				for line in content:
 					if line == id:
@@ -491,13 +497,13 @@ def schedule_isFedToday(id):
 # Clears schedule_fedtoday.dat file
 def schedule_clearFedToday():
 	print("Clearing schedule_fedtoday.dat")
-	with open('schedule_fedtoday.dat', 'w') as file:
+	with open(path + 'schedule_fedtoday.dat', 'w+') as file:
 		pass
 
 # Checks if day has changed and clears schedule_fedtoday.dat if daychange noticed.
 # Compares todays number with todaysnumber.dat file.
 def check_dayChange():
-	with open('todaysnumber.dat', 'r') as file:
+	with open(path + 'todaysnumber.dat', 'r') as file:
 		content = int(file.read())
 	today = getTodaysNumber()
 	if content is not today:

@@ -10,9 +10,15 @@ import subprocess
 import thread
 import uuid
 
-if os.path.exists('idconf.py'):
+path = "/home/terminal/feeder/"
+certPath = "/home/terminal/feeder/cert/"
+
+if os.path.exists(path + 'idconf.py'):
 	import idconf
 	curid = idconf.id	
+
+with open(path + 'idconf.py', 'w') as file:
+	file.write("id=''\nflag=1")
 
 # Certificate request callback
 def callback_cert(client, userdata, message):
@@ -22,32 +28,32 @@ def callback_cert(client, userdata, message):
 		print "curid not defined"
 	else:
 		try:
-			os.remove('./cert/' + curid + '.cert.pem')
+			os.remove(certPath + curid + '.cert.pem')
 		except OSError:
 			pass
 		try:
-			os.remove('./cert/' + curid + '.public.key')
+			os.remove(certPath + curid + '.public.key')
 		except OSError:
 			pass
 		try:
-			os.remove('./cert/' + curid + '.private.key')
+			os.remove(certPath + curid + '.private.key')
 		except OSError:
 			pass
 	cert = json.loads(message.payload)
 	id = cert['certificateArn'].split('/')
 
-	with open('idconf.py', 'w') as file:
+	with open(path + 'idconf.py', 'w') as file:
 		file.write("id='" + id[1] + "'\nflag=1")
 
-	certpem= str('./cert/' + id[1]) +'.cert.pem'
+	certpem= str(certPath + id[1]) +'.cert.pem'
 	with open(certpem, 'w') as file:
 		file.write(cert['certificatePem'])
 
-	certpub= str('./cert/' + id[1]) + '.public.key'
+	certpub= str(certPath + id[1]) + '.public.key'
 	with open(certpub, 'w') as file:
 		file.write(cert['keyPair']['PublicKey'])
 
-	certpriv= str('./cert/' + id[1]) +'.private.key'
+	certpriv= str(certPath + id[1]) +'.private.key'
 	with open(certpriv, 'w') as file:
 		file.write(cert['keyPair']['PrivateKey'])
 
@@ -61,9 +67,9 @@ def callback_cert(client, userdata, message):
 		return 0
 	finally:
 		try:
-			os.remove('./cert/default/4847123d22-certificate.pem.crt')
-			os.remove('./cert/default/4847123d22-public.pem.key')
-			os.remove('./cert/default/4847123d22-private.pem.key')
+			os.remove(certPath + 'default/4847123d22-certificate.pem.crt')
+			os.remove(certPath + 'default/4847123d22-public.pem.key')
+			os.remove(certPath + 'default/4847123d22-private.pem.key')
 		except OSError:
 			pass
 
@@ -171,7 +177,7 @@ myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificateP
 myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
 myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
 myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
-myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
+myAWSIoTMQTTClient.configureConnectDisconnectTimeout(30)  # 10 sec
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Connect and subscribe to AWS IoT
@@ -184,13 +190,14 @@ myAWSIoTMQTTClient.publish("Generic/"+uid+"/req", msg, 1)
 
 # Loop until answer received from AWS IoT	
 while True:
-	time.sleep(10)
-	if idconf.flag == 0:
-		print("New certificates created")
-		myAWSIoTMQTTClient.publish("Generic/"+uid+"/done", msg, 1)
-		idconf.flag = 1
-		myAWSIoTMQTTClient.disconnect()
-		sys.exit()
-	else:
-		msg = json.dumps({'ThingName':uid, 'ThingType':'DogFeeder'})
-		myAWSIoTMQTTClient.publish("Generic/"+uid+"/req", msg, 1)
+	for x in range(0, 10):
+		time.sleep(1)
+		if idconf.flag == 0:
+			print("New certificates created")
+			myAWSIoTMQTTClient.publish("Generic/"+uid+"/done", msg, 1)
+			idconf.flag = 1
+			myAWSIoTMQTTClient.disconnect()
+			sys.exit()
+		
+	msg = json.dumps({'ThingName':uid, 'ThingType':'DogFeeder'})
+	myAWSIoTMQTTClient.publish("Generic/"+uid+"/req", msg, 1)
