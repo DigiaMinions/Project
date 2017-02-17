@@ -98,7 +98,7 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		var schedule = req.body.schedule;
 		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ schedule }));
-		getConfirmFromDevice(res); // odotellaan että raspi lähettää kuittauksen tallennuksesta
+		getConfirmFromDevice(res, 0); // odotellaan että raspi lähettää kuittauksen tallennuksesta
 	});
 
 	/* Pyydetään laitteelta aikataulu -> raspi lähettää DeviceToApp topicciin aikataulun -> se lähetetään responsessa frontille */
@@ -187,13 +187,21 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		}
 	}
 
-	function getConfirmFromDevice(res)
+	function getConfirmFromDevice(res, loops)
 	{
 		if (confirmMsg) {
 			res.json(confirmMsg);
 		}
 		else {
-			setTimeout(getConfirmFromDevice, 500, res); // odotellaan kuittausta raspilta tallennuksesta
+			loops++;
+			if (loops < 5) {
+				setTimeout(getConfirmFromDevice, 500, res, loops); // odotellaan kuittausta raspilta tallennuksesta
+			}
+			else {
+				// raspilta ei tullut vastausta järkevässä ajassa
+				confirmMsg = '{"confirmSave":"fail"}';
+				res.json(confirmMsg);
+			}
 		}
 	}
 
