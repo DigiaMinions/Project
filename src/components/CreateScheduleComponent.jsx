@@ -57,13 +57,13 @@ export default class CreateScheduleComponent extends React.Component {
 			<form onSubmit={this.handleCreate.bind(this)} className="form-inline">
 				<div className="form-group col-xs-3">
 					<div className="input-group">
-						<input type="text" ref="timeInput" className="form-control" placeholder="Kellonaika (HH:MM)" />
+						<input type="text" ref="timeInput" className="form-control" placeholder="Klo (HH:MM)" />
 						<span className="input-group-addon">
 							<span className="glyphicon glyphicon-time"></span>
 						</span>
 					</div>
 				</div>
-				<div className="form-group col-xs-6">
+				<div className="form-group col-xs-5">
 					{recurring}
 					{nonrecurring}
 				</div>

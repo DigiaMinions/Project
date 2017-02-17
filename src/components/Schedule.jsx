@@ -1,29 +1,17 @@
 import React from 'react'
-import { Button, Panel } from 'react-bootstrap'
 import CreateScheduleComponent from './CreateScheduleComponent.jsx'
 import ScheduleListComponent from './ScheduleListComponent.jsx'
+import ModalComponent from './ModalComponent.jsx'
 import 'whatwg-fetch'
 
 export default class Schedule extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { schedules: [] };
+		this.state = { schedules: [], saveState: '' };
 		this.sendSchedulesToDevice = this.sendSchedulesToDevice.bind(this)
 		this.getSchedulesForDevice = this.getSchedulesForDevice.bind(this);
-	}
-
-	render() {
-		return (
-			<div>
-				<div className="well">
-					<h2>Ruokinta aikataulu</h2><br />
-					<CreateScheduleComponent createSchedule={this.createSchedule.bind(this)} /><br />
-					<ScheduleListComponent schedules={this.state.schedules} toggleSchedule={this.toggleSchedule.bind(this)} deleteSchedule={this.deleteSchedule.bind(this)} /><br />
-					<button type="button" className="button button-block" onClick={this.sendSchedulesToDevice}>Tallenna</button>
-				</div>
-			</div>
-		);
+		this.resetStates = this.resetStates.bind(this)
 	}
 
 	generateId() {
@@ -60,7 +48,8 @@ export default class Schedule extends React.Component {
 	}
 
 	sendSchedulesToDevice() {
-		// API kutsu Fetchillä
+		var self = this;
+		this.setState({ saveState: 'working' })
 		fetch('/schedule/', {
 			method: 'POST',
 			headers: {
@@ -72,7 +61,37 @@ export default class Schedule extends React.Component {
 		})
 		})
 		.then(function(res) {
-			console.log("Success: ", res);
+			return res.json();
+		})
+		.then(function(json) {
+			if (json != null) {
+				var result = JSON.parse(json).confirmSave;
+				self.setState({ saveState: result });
+			}
+			else
+				self.setState({ saveState: "fail" });
+		})
+		.catch(function(err) {
+			console.log("Error: ", err);
+		});
+	}
+
+	// Haetaan laitteen aikataulut
+	getSchedulesForDevice(device, callback) {
+		fetch('/device/', {
+			method: 'POST',
+			headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			mac: device
+		})
+		})
+		.then(function(res) {
+			return res.json();
+		})
+		.then(function(scheduleJson) {
+			callback(JSON.parse(scheduleJson).schedule); // parsitaan taulukko schedule-objekteja JSON:ista
 		})
 		.catch(function(err) {
 			console.log("Error: ", err);
@@ -91,32 +110,41 @@ export default class Schedule extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		var self = this;
 		this.getSchedulesForDevice(nextProps.activeDeviceVal, function(schedules) {
-			console.log(schedules);
 			self.setState({ schedules: schedules });
 		});	
 	}
 
-	// Haetaan laitteen aikataulut
-	getSchedulesForDevice(device, callback) {
-		fetch('/device/', {
-			method: 'POST',
-			headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			mac: device
-		})
-		})
-		.then(function(res) {
-			return res.json();
-		})
-		.then(function(scheduleJson) {
-			console.log(scheduleJson);
-			callback(JSON.parse(scheduleJson).schedule); // parsitaan taulukko schedule-objekteja JSON:ista
-		})
-		.catch(function(err) {
-			console.log("Error: ", err);
-		});
+	resetStates() {
+		this.setState({ saveState: '' })
 	}
 
+	render() {
+		let modal = null;
+		if (this.state.saveState) 
+		{
+			switch(this.state.saveState) {
+				case 'working':
+					modal = <ModalComponent title="Tallennetaan laitteelle" info="Odota hetki..." barClass="progress-bar progress-bar-striped active" showCloseBtn={false} onCloseModal={this.resetStates} />
+					break;
+				case 'success':
+					modal = <ModalComponent title="Tallennus onnistui" info="Uusi aikataulu tallennettu ja toiminnassa!" barClass="progress-bar progress-bar-success progress-bar-striped" showCloseBtn={true} onCloseModal={this.resetStates} />
+					break;
+				case 'fail':
+					modal = <ModalComponent title="Tallennus epäonnistui" info="Onko Raspi päällä ja yhdistetty nettiin?" barClass="progress-bar progress-bar-danger progress-bar-striped" showCloseBtn={true} onCloseModal={this.resetStates} />
+					break;
+			}
+		}
+
+		return (
+			<div>
+				{modal}
+				<div className="well">
+					<h2>Ruokinta aikataulu</h2><br />
+					<CreateScheduleComponent createSchedule={this.createSchedule.bind(this)} /><br />
+					<ScheduleListComponent schedules={this.state.schedules} toggleSchedule={this.toggleSchedule.bind(this)} deleteSchedule={this.deleteSchedule.bind(this)} /><br />
+					<button type="button" className="button button-block" onClick={this.sendSchedulesToDevice}>Tallenna</button>
+				</div>
+			</div>
+		);
+	}
 }

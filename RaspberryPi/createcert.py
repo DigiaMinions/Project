@@ -10,55 +10,53 @@ import subprocess
 import thread
 import uuid
 
-if os.path.exists('idconf.py'):
+path = "/home/terminal/feeder/"
+certPath = "/home/terminal/feeder/cert/"
+
+if os.path.exists(path + 'idconf.py'):
 	import idconf
 	curid = idconf.id	
-# Custom MQTT message callback
-def customCallback(client, userdata, message):
-	#print("Received a new message: ")
-	#print(message.payload)
-	#print("from topic: ")
-	#print(message.topic)
-	#print("--------------\n\n")
+
+with open(path + 'idconf.py', 'w') as file:
+	file.write("id=''\nflag=1")
+
+# Certificate request callback
+def callback_cert(client, userdata, message):
 	try:
 		curid
 	except NameError:
 		print "curid not defined"
 	else:
 		try:
-			os.remove(curid + '.cert.pem')
+			os.remove(certPath + curid + '.cert.pem')
 		except OSError:
 			pass
 		try:
-			os.remove(curid + '.public.key')
+			os.remove(certPath + curid + '.public.key')
 		except OSError:
 			pass
 		try:
-			os.remove(curid + '.private.key')
+			os.remove(certPath + curid + '.private.key')
 		except OSError:
 			pass
 	cert = json.loads(message.payload)
 	id = cert['certificateArn'].split('/')
-	#var = ids[1].split("'")
-	#id = var[1]
-	f = open('idconf.py', 'w')
-	f.write("id = '" + id[1] + "'")
-	f.close
 
-	certpem= str(id[1]) +'.cert.pem'
-	f = open(certpem, 'w')
-	f.write(cert['certificatePem'])
-	f.close
+	with open(path + 'idconf.py', 'w') as file:
+		file.write("id='" + id[1] + "'\nflag=1")
 
-	certpub= str(id[1]) + '.public.key'
-	f = open (certpub, 'w')
-	f.write(cert['keyPair']['PublicKey'])
-	f.close
+	certpem= str(certPath + id[1]) +'.cert.pem'
+	with open(certpem, 'w') as file:
+		file.write(cert['certificatePem'])
 
-	certpriv= str(id[1]) +'.private.key'
-	f = open(certpriv, 'w')
-	f.write(cert['keyPair']['PrivateKey'])
-	f.close
+	certpub= str(certPath + id[1]) + '.public.key'
+	with open(certpub, 'w') as file:
+		file.write(cert['keyPair']['PublicKey'])
+
+	certpriv= str(certPath + id[1]) +'.private.key'
+	with open(certpriv, 'w') as file:
+		file.write(cert['keyPair']['PrivateKey'])
+
 
 	try:
 		open(certpem, "r")
@@ -67,32 +65,35 @@ def customCallback(client, userdata, message):
 	except IOError:
 		print "Error: File does not appear to exist."
 		return 0
-	try:
-		os.remove('4847123d22-certificate.pem.crt')
-	except OSError:
-		pass
-	try:
-		os.remove('4847123d22-public.pem.key')
-	except OSError:
-		pass
-	try:
-		os.remove('4847123d22-private.pem.key')
-	except OSError:
-		pass
+	finally:
+		try:
+			os.remove(certPath + 'default/4847123d22-certificate.pem.crt')
+			os.remove(certPath + 'default/4847123d22-public.pem.key')
+			os.remove(certPath + 'default/4847123d22-private.pem.key')
+		except OSError:
+			pass
 
-	print id[1]
-	idconf.flag = 1
-
+	idconf.flag = 0
+	
+	
+# Get hardware MAC address	
+def getMac():
+	try:
+		mac_addr = hex(uuid.getnode()).replace('0x', '0').upper()
+		mac = ':'.join(mac_addr[i : i + 2] for i in range(0, 11, 2))
+		mac = mac.replace(":","")
+	except:
+		print("Error retrieving MAC address")
+	print("mac: " + mac)
+	return mac
+	
 
 # Usage
 usageInfo = """Usage:
-
 Use certificate based mutual authentication:
 python basicPubSub.py -e <endpoint> -r <rootCAFilePath> -c <certFilePath> -k <privateKeyFilePath>
-
 Use MQTT over WebSocket:
 python basicPubSub.py -e <endpoint> -r <rootCAFilePath> -w
-
 Type "python basicPubSub.py -h" for available options.
 """
 # Help info
@@ -108,8 +109,6 @@ helpInfo = """-e, --endpoint
 	Use MQTT over WebSocket
 -h, --help
 	Help information
-
-
 """
 
 # Read in command-line parameters
@@ -166,37 +165,47 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
-# Init AWSIoTMQTTClient
+uid = getMac()
 myAWSIoTMQTTClient = None
-if useWebsocket:
-	myAWSIoTMQTTClient = AWSIoTMQTTClient("basicPubSub", useWebsocket=True)
-	myAWSIoTMQTTClient.configureEndpoint(host, 443)
-	myAWSIoTMQTTClient.configureCredentials(rootCAPath)
-else:
-	myAWSIoTMQTTClient = AWSIoTMQTTClient("CliId1")
-	myAWSIoTMQTTClient.configureEndpoint(host, 8883)
-	myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
+myAWSIoTMQTTClient_connect():
+	try:
+		global myAWSIoTMQTTClient
+		# Init AWSIoTMQTTClient
+		# myAWSIoTMQTTClient = None
+		myAWSIoTMQTTClient = AWSIoTMQTTClient(uid)
+		myAWSIoTMQTTClient.configureEndpoint(host, 8883)
+		myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
 
-# AWSIoTMQTTClient connection configuration
-myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
-myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
-myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
-myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
+		# AWSIoTMQTTClient connection configuration
+		myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
+		myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
+		myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
+		myAWSIoTMQTTClient.configureConnectDisconnectTimeout(30)  # 10 sec
+		myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
-# Connect and subscribe to AWS IoT
-myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe("Generic/CliId1/rep", 1, customCallback)
-time.sleep(2)
+		# Connect and subscribe to AWS IoT
+		myAWSIoTMQTTClient.connect()
+		myAWSIoTMQTTClient.subscribe("Generic/"+uid+"/rep", 1, callback_cert)
+		time.sleep(2)
+	except:
+		myAWSIoTMQTTClient_connect()
 
-# Publish to the same topic in a loop forever
-if __name__ == "__main__":
-	msg = json.dumps({'ThingName':'CliId1', 'ThingType':'Feeder'})
-	myAWSIoTMQTTClient.publish("Generic/CliId1/req", msg, 1)
-	if idconfig.flag:
-		print "everything went well"
-		idconfig.flag= 0
-		cleanup_stop_thread();
-		sys.exit()
-	else:
-		print "something went horribly wrong"
+myAWSIoTMQTTClient_connect()
+
+msg = json.dumps({'ThingName':uid, 'ThingType':'DogFeeder'})
+myAWSIoTMQTTClient.publish("Generic/"+uid+"/req", msg, 1)
+
+# Loops until answer received from AWS IoT
+# Waits 20 seconds and if answer not received, requests certificates again
+while True:
+	for x in range(0, 20):
+		time.sleep(1)
+		if idconf.flag == 0:
+			print("New certificates created")
+			myAWSIoTMQTTClient.publish("Generic/"+uid+"/done", msg, 1)
+			idconf.flag = 1
+			myAWSIoTMQTTClient.disconnect()
+			sys.exit()
+		
+	msg = json.dumps({'ThingName':uid, 'ThingType':'DogFeeder'})
+	myAWSIoTMQTTClient.publish("Generic/"+uid+"/req", msg, 1)

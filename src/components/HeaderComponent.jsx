@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router'
 import { Nav, Navbar, NavItem, Header, Brand } from 'react-bootstrap'
+import { LinkContainer, IndexLinkContainer } from 'react-router-bootstrap';
 
 export default class HeaderComponent extends React.Component {
 
@@ -28,9 +29,10 @@ export default class HeaderComponent extends React.Component {
 				</Navbar.Brand>
 				</Navbar.Header>
 				<Nav>
-					<NavItem><Link to='/'>Koti</Link></NavItem>
-					<NavItem><Link to='aikataulu'>Aikataulu</Link></NavItem>
-					<NavItem><Link onClick={() => this.logout()}>Kirjaudu ulos</Link></NavItem>
+					<IndexLinkContainer to='/'><NavItem>Koti</NavItem></IndexLinkContainer>
+					<LinkContainer to='/aikataulu'><NavItem>Aikataulu</NavItem></LinkContainer>
+					<LinkContainer to='/tilaus'><NavItem>Lisää laite</NavItem></LinkContainer>
+					<NavItem onClick={() => this.logout()}>Kirjaudu ulos</NavItem>
 				</Nav>
 			</Navbar>
 		);

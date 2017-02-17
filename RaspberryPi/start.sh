@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # stop script on error
-set -e
+#set -e
+
+path='/home/terminal/feeder/'
 
 # Check if connected to internet by pinging default gateway
 function connectionCheck {
@@ -17,17 +19,17 @@ function connectionCheck {
 }
 
 # Check if updatefile available and install
-update=$(find "update/" -type f -exec echo ok {} \; | cut -d " " -f 1 | head -1)
+update=$(find $path"update/" -type f -exec echo ok {} \; | cut -d " " -f 1 | head -1)
 	if [ "$update" == "ok" ]; then
 		echo "Update file(s) found, installing"
-		mv update/* ./
+		mv $path'update/*' $path
 		echo "Updated"
 	fi
 
 
 # Check to see if root CA file exists, download if not
 echo -n "AWS IoT Root CA certificate "
-if [ ! -f ./cert/root-CA.crt ]; then
+if [ ! -f /root-CA.crt ]; then
 	echo -n "not found, downloading from Symantec.."
 	connectionCheck
 	curl https://www.symantec.com/content/en/us/enterprise/verisign/roots/VeriSign-Class%203-Public-Primary-Certification-Authority-G5.pem > root-CA.crt
@@ -39,7 +41,7 @@ fi
 
 # install AWS Device SDK for Python if not already installed
 echo -n "AWS IoT SDK "
-if [ ! -d ./aws-iot-device-sdk-python ]; then
+if [ ! -d aws-iot-device-sdk-python ]; then
 	echo -n "not found, installing.."
 	connectionCheck
 	git clone https://github.com/aws/aws-iot-device-sdk-python.git
@@ -54,14 +56,14 @@ fi
 
 # install PiGpio library if not already installed
 echo -n "PiGPIO library "
-if [ ! -d ./PIGPIO ]; then
+if [ ! -d $path'PIGPIO' ]; then
 	echo -n "not found, installing.."
 	connectionCheck
-	wget abyz.co.uk/rpi/pigpio/pigpio.zip
-	unzip pigpio.zip
-	make -C PIGPIO/ -j4
-	make -C PIGPIO/ install
-	rm pigpio.zip
+	wget abyz.co.uk/rpi/pigpio/pigpio.zip -P $path
+	unzip $path'pigpio.zip' -d $path
+	make -C $path'PIGPIO/' -j4
+	make -C $path'PIGPIO/' install
+	rm $path'pigpio.zip'
 	echo "OK!"
 else
 	echo "OK!"
@@ -87,17 +89,16 @@ fi
 
 # Check if HX711 -library exists, download if not
 echo -n "HX711 -library "
-if [ ! -f ./HX711.py ]; then
+if [ ! -f $path'HX711.py' ]; then
 	echo -n "not found, downloading.."
 	connectionCheck
-	wget abyz.co.uk/rpi/pigpio/code/HX711_py.zip
-	unzip HX711_py.zip
-	rm HX711_py.zip
+	wget abyz.co.uk/rpi/pigpio/code/HX711_py.zip -P $path
+	unzip $path'HX711_py.zip' -d $path
+	rm $path'HX711_py.zip'
 	echo "OK!"
 else
 	echo "OK!"
 fi
-
 
 # Check if Subversion is installed, install if not
 echo -n "Subversion "
@@ -112,8 +113,33 @@ subversion=$(dpkg -s subversion > /dev/null 2>&1 && echo ok || echo error)
 		echo "OK!"
 	fi
 
+certPath="/home/terminal/feeder/cert/"
+
+pemCount=`ls -1 /home/terminal/feeder/cert/*.pem 2>/dev/null | wc -l`
+keyCount=`ls -1  /home/terminal/feeder/cert/*.key 2>/dev/null | wc -l`
+echo -n "Number of PEMs found: "
+echo $pemCount
+echo -n "Number of KEYs found: "
+echo $keyCount
+
+if  [ $pemCount != 1 -a $keyCount != 2 ]; then
+	echo "Certificates not found"
+	if [ -e $certPath'default/4847123d22-certificate.pem.crt' -a -e $certPath'default/4847123d22-public.pem.key' -a -e $certPath'default/4847123d22-private.pem.key' ]; then
+		echo "Requesting new certificates"
+		connectionCheck
+		python $path'createcert.py' -e axqdhi517toju.iot.eu-west-1.amazonaws.com -r /root-CA.crt -c $certPath'default/4847123d22-certificate.pem.crt' -k $certPath'default/4847123d22-private.pem.key'
+	fi
+fi
+
+
+source $path'idconf.py'
+echo 'Device id: '
+echo $id
+
+cert="$certPath$id.cert.pem"
+priv="$certPath$id.private.key"
 
 connectionCheck
-# run DogFeeder program using certificates
+# run DogFeeder program using certificatesY
 echo "Starting DogFeeder program..."
-python FeederProgram.py -e axqdhi517toju.iot.eu-west-1.amazonaws.com -r ./cert/root-CA.crt -c ./cert/DogFeeder.cert.pem -k ./cert/DogFeeder.private.key
+python $path'FeederProgram.py' -e axqdhi517toju.iot.eu-west-1.amazonaws.com -r /root-CA.crt -c $cert -k $priv
