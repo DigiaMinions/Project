@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # coding=utf-8
+# comment
 
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import sys
