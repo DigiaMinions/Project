@@ -166,31 +166,39 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 uid = getMac()
-
-# Init AWSIoTMQTTClient
 myAWSIoTMQTTClient = None
-myAWSIoTMQTTClient = AWSIoTMQTTClient(uid)
-myAWSIoTMQTTClient.configureEndpoint(host, 8883)
-myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
+myAWSIoTMQTTClient_connect():
+	try:
+		global myAWSIoTMQTTClient
+		# Init AWSIoTMQTTClient
+		# myAWSIoTMQTTClient = None
+		myAWSIoTMQTTClient = AWSIoTMQTTClient(uid)
+		myAWSIoTMQTTClient.configureEndpoint(host, 8883)
+		myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
 
-# AWSIoTMQTTClient connection configuration
-myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
-myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
-myAWSIoTMQTTClient.configureConnectDisconnectTimeout(30)  # 10 sec
-myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
+		# AWSIoTMQTTClient connection configuration
+		myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
+		myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
+		myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
+		myAWSIoTMQTTClient.configureConnectDisconnectTimeout(30)  # 10 sec
+		myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
-# Connect and subscribe to AWS IoT
-myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe("Generic/"+uid+"/rep", 1, callback_cert)
-time.sleep(2)
+		# Connect and subscribe to AWS IoT
+		myAWSIoTMQTTClient.connect()
+		myAWSIoTMQTTClient.subscribe("Generic/"+uid+"/rep", 1, callback_cert)
+		time.sleep(2)
+	except:
+		myAWSIoTMQTTClient_connect()
+
+myAWSIoTMQTTClient_connect()
 
 msg = json.dumps({'ThingName':uid, 'ThingType':'DogFeeder'})
 myAWSIoTMQTTClient.publish("Generic/"+uid+"/req", msg, 1)
 
-# Loop until answer received from AWS IoT	
+# Loops until answer received from AWS IoT
+# Waits 20 seconds and if answer not received, requests certificates again
 while True:
-	for x in range(0, 10):
+	for x in range(0, 20):
 		time.sleep(1)
 		if idconf.flag == 0:
 			print("New certificates created")
