@@ -11,6 +11,10 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		res.sendFile(__dirname + '/static/css/style.css');
 	});
 
+	app.get('/img/robot.gif', function (req,res){	
+		res.sendFile(__dirname + '/static/img/robot.gif');
+	});
+
 	app.get('/js/bundle.js', function (req,res){		
 		console.log('sending bundle');	
 		res.sendFile(__dirname + '/static/js/bundle.js');
@@ -59,8 +63,8 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		{
 			deviceSchedule = payloadString;
 		}
-		// saapuu viesti tallennuksen kuittauksesta
-		else if (_.includes(payloadString, 'confirmSave')) {
+		// saapuu viesti kuittauksesta
+		else if (_.includes(payloadString, 'confirm')) {
 			confirmMsg = payloadString;
 		}
 		
@@ -81,8 +85,10 @@ module.exports = function(app, express, passport, upload, connection, session, s
 	/* API endpointit */
 	/* Insta feed: lähetetään laitteelle viesti ruokinnasta heti */
 	app.post('/feed/', function(req, res){
+		confirmMsg = '';
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ feed: 'JUST_DO_IT' }));
+		getConfirmFromDevice(res, 0); // odotellaan että raspi lähettää kuittauksen
 
 		/* postin debuggausta varten */
 		/*
@@ -98,13 +104,12 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		var schedule = req.body.schedule;
 		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ schedule }));
-		getConfirmFromDevice(res, 0); // odotellaan että raspi lähettää kuittauksen tallennuksesta
+		getConfirmFromDevice(res, 0); // odotellaan että raspi lähettää kuittauksen
 	});
 
 	/* Pyydetään laitteelta aikataulu -> raspi lähettää DeviceToApp topicciin aikataulun -> se lähetetään responsessa frontille */
 	app.post('/device/', function(req, res){
 		deviceSchedule = ''; // tyhjätään muuttujasta entinen aikataulu
-
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ get: 'schedule' })); // lähetetään raspille pyyntö aikataulusta
 		sendScheduleToApp(res); // odotellaan että raspi lähettää aikataulun
@@ -112,8 +117,10 @@ module.exports = function(app, express, passport, upload, connection, session, s
 
 	/* Anturin kalibrointi */
 	app.post('/calibrate/', function(req, res){
+		confirmMsg = '';
 		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ tare: 'JUST_DO_IT' }));
+		getConfirmFromDevice(res, 0); // odotellaan että raspi lähettää kuittauksen		
 	});
 
 	// bodyparser EI tue multipart dataa
@@ -194,12 +201,12 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		}
 		else {
 			loops++;
-			if (loops < 5) {
+			if (loops < 40) {
 				setTimeout(getConfirmFromDevice, 500, res, loops); // odotellaan kuittausta raspilta tallennuksesta
 			}
 			else {
 				// raspilta ei tullut vastausta järkevässä ajassa
-				confirmMsg = '{"confirmSave":"fail"}';
+				confirmMsg = null;
 				res.json(confirmMsg);
 			}
 		}
