@@ -57,7 +57,6 @@ def callback_data(client, userdata, message): # Is this necessary?
 # When update available
 def callback_update(client, userdata, message):
 	print("Update available:")
-	print("Current version: " + versionInfo)
 	print("New version: " + message.payload)
 	fetchUpdate()
 
@@ -396,7 +395,7 @@ def fetchUpdate():
 	url = 'https://github.com/DigiaMinions/Project/trunk/RaspberryPi' # INCOMPLETE. Should there be an update folder after testing?
 	location = 'update/'
 	# Download the file using system command and save it locally
-	os.system("svn export " + url + " " + path + location + " --force")
+	os.system("svn export " + url + " " + path + " --force")
 
 
 
