@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "./node_modules/.bin/webpack-dev-server --content-base src --inline --hot --history-api-fallback",
     "build": "./node_modules/.bin/webpack",
-    "test": "mocha"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -52,10 +52,8 @@
     "whatwg-fetch": "^2.0.2"
   },
   "devDependencies": {
-    "connect-flash": "^0.1.1",
-    "express-session": "^1.15.0",
-    "mysql": "^2.13.0",
-    "passport": "^0.3.2",
-    "passport-local": "^1.0.0"
+    "babel-jest": "^18.0.0",
+    "jest": "^18.1.0",
+    "react-addons-test-utils": "^15.4.2"
   }
 }
