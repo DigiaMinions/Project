@@ -5,8 +5,6 @@ files:
     destination: /home/ec2-user/release
 hooks:
   BeforeInstall:
-    - location: Scripts/installnode.sh
-      runas: root
     - location: Scripts/clean_deployment.sh
       runas: root
   AfterInstall:
