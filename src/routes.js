@@ -217,8 +217,8 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		getDevices(req, function(rows){
 			for(var i = 0; i<rows.length;i++)
 			{			
-				console.log("Subscribing " + rows[i].mac);
-				device.subscribe('DogFeeder/DeviceToApp/' + rows[i].mac);			
+				console.log("Subscribing " + rows[i].uid);
+				device.subscribe('DogFeeder/DeviceToApp/' + rows[i].uid);			
 			}
 		});
 	}
@@ -228,8 +228,8 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		getDevices(req, function(rows){
 			for(var i = 0; i<rows.length;i++)
 			{			
-				console.log("Unsubscribing " + rows[i].mac);
-				device.unsubscribe('DogFeeder/DeviceToApp/' + rows[i].mac);			
+				console.log("Unsubscribing " + rows[i].uid);
+				device.unsubscribe('DogFeeder/DeviceToApp/' + rows[i].uid);			
 			}
 		});
 	}
@@ -265,7 +265,7 @@ module.exports = function(app, express, passport, upload, connection, session, s
 	}
 
 	function getDevices(req, cb){
-		connection.query("SELECT name, mac FROM Device WHERE FK_user_id = ?",[req.user.id], function(err, rows){
+		connection.query("SELECT name, uid FROM Device WHERE FK_user_id = ?",[req.user.id], function(err, rows){
 	        if(err)
 	        {
 	            console.log("Virhe SQL-kyselyssä.");
