@@ -10,8 +10,8 @@ import subprocess
 import thread
 import uuid
 
-path = "/home/terminal/feeder/"
-certPath = "/home/terminal/feeder/cert/"
+path = "/feeder/"
+certPath = "/feeder/cert/"
 
 if os.path.exists(path + 'idconf.py'):
 	import idconf
@@ -167,7 +167,7 @@ logger.addHandler(streamHandler)
 
 uid = getMac()
 myAWSIoTMQTTClient = None
-myAWSIoTMQTTClient_connect():
+def myAWSIoTMQTTClient_connect():
 	try:
 		global myAWSIoTMQTTClient
 		# Init AWSIoTMQTTClient
