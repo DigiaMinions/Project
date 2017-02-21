@@ -10,8 +10,8 @@ import subprocess
 import thread
 import uuid
 
-path = "/home/terminal/feeder/"
-certPath = "/home/terminal/feeder/cert/"
+path = "/feeder/"
+certPath = "/feeder/cert/"
 
 if os.path.exists(path + 'idconf.py'):
 	import idconf

@@ -21,7 +21,7 @@ import re
 import idconf
 
 uid = idconf.id
-path = "/home/terminal/feeder/"
+path = "/feeder/"
 
 
 
@@ -341,7 +341,7 @@ def lc_tare(): # Calculates and sets load cell offset
 
 		
 def saveOffset(value):
-	with open(path + 'offset.dat', 'w+') as file:
+	with open(path + 'offset.dat', 'w') as file:
 		file.write(str(value))
 		print("Offset saved to file")
 
@@ -396,6 +396,14 @@ def fetchUpdate():
 	location = 'update/'
 	# Download the file using system command and save it locally
 	os.system("svn export " + url + " " + path + " --force")
+	
+def createFiles():
+	if not os.path.exists(path + 'schedule.dat'):
+		open(path + 'schedule.dat', 'w').close()
+	if not os.path.exists(path + 'schedule_fedtoday.dat'):
+		open(path + 'schedule_fedtoday.dat', 'w').close()
+	if not os.path.exists(path + 'todaysnumber.dat'):
+		open(path + 'todaysnumber.dat', 'w').close()
 
 
 
@@ -464,7 +472,7 @@ def check_dayChange():
 		content = int(file.read())
 	today = getTodaysNumber()
 	if content is not today:
-		with open('todaysnumber.dat', 'w') as file:
+		with open(path + 'todaysnumber.dat', 'w') as file:
 			print("clearing already fed")
 			file.write(str(today))
 			schedule_clearFedToday()
@@ -507,7 +515,7 @@ def schedule_writeToFile(content):
 	failMessage = JsonCreator.createObject("confirmSave", "fail")
 	
 	try:
-		with open(path + 'schedule.dat', 'w+') as file:
+		with open(path + 'schedule.dat', 'w') as file:
 			file.write(content)
 		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(successMessage), 1)
 		
@@ -519,7 +527,7 @@ def schedule_writeToFile(content):
 # Read schedule from file and return to caller
 def schedule_readFromFile():
 	try:
-		with open(path + 'schedule.dat', 'r+') as file:
+		with open(path + 'schedule.dat', 'r') as file:
 			content = str(file.read())
 			return content
 	except:
@@ -536,7 +544,7 @@ def schedule_getToApp():
 # Marks given id as inactive to schedule.dat
 def schedule_markAsInactive(id):
 	print("Marking ID " + id + " as inactive..")
-	with open(path + 'schedule.dat', 'r+') as file:
+	with open(path + 'schedule.dat', 'r') as file:
 		data = json.load(file)
 		file.seek(0)
 
@@ -552,13 +560,13 @@ def schedule_markAsInactive(id):
 # Clears schedule_fedtoday.dat file
 def schedule_clearFedToday():
 	print("Clearing schedule_fedtoday.dat")
-	with open(path + 'schedule_fedtoday.dat', 'w+') as file:
+	with open(path + 'schedule_fedtoday.dat', 'w') as file:
 		pass
 
 
 # marks given id as already fed this day to schedule_fedtoday.dat
 def schedule_markAsFedToday(id):
-	with open(path + 'schedule_fedtoday.dat', 'w+') as file:
+	with open(path + 'schedule_fedtoday.dat', 'w') as file:
 		file.write(str(id) + "\n")
 
 
@@ -566,7 +574,7 @@ def schedule_markAsFedToday(id):
 def schedule_isFedToday(id):
 	isFound = False
 
-	with open(path + 'schedule_fedtoday.dat', 'r+') as file:
+	with open(path + 'schedule_fedtoday.dat', 'r') as file:
 		if os.stat('schedule_fedtoday.dat').st_size == 0:
 			return False
 		else:
@@ -707,6 +715,7 @@ def thread1():
 #################################
 ### MAIN program ################
 
+createFiles() # Create necessary files on boot if not exists
 
 messagesList = [0] * 12
 ID = getMac()  # Get MAC address for identification
