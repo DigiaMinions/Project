@@ -167,7 +167,7 @@ logger.addHandler(streamHandler)
 
 uid = getMac()
 myAWSIoTMQTTClient = None
-myAWSIoTMQTTClient_connect():
+def myAWSIoTMQTTClient_connect():
 	try:
 		global myAWSIoTMQTTClient
 		# Init AWSIoTMQTTClient

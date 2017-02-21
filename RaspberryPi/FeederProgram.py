@@ -403,7 +403,10 @@ def createFiles():
 	if not os.path.exists(path + 'schedule_fedtoday.dat'):
 		open(path + 'schedule_fedtoday.dat', 'w').close()
 	if not os.path.exists(path + 'todaysnumber.dat'):
-		open(path + 'todaysnumber.dat', 'w').close()
+		with open(path + 'todaysnumber.dat', 'w') as file:
+			file.write(str(getTodaysNumber()))
+	if not os.path.exists(path + 'offset.dat'):
+		open(path + 'offset.dat', 'w').close()
 
 
 
@@ -487,26 +490,29 @@ def check_dayChange():
 
 # Goes through current schedule and determines if feeding is needed
 def schedule_check():
-	schedule = json.loads(schedule_readFromFile())
+	try:
+		schedule = json.loads(schedule_readFromFile())
 
-	# Go through each object in 'schedule'-array
-	for content in schedule['schedule']:
-		# one time schedule with date	
-		if validateDate(str(content['rep'])):
-			if getDate() >= str(content['rep']) and getTime() >= str(content['time']) and content['isActive'] is True:
-				servo_feedFood()
-				schedule_markAsInactive(str(content['id']))
+		# Go through each object in 'schedule'-array
+		for content in schedule['schedule']:
+			# one time schedule with date	
+			if validateDate(str(content['rep'])):
+				if getDate() >= str(content['rep']) and getTime() >= str(content['time']) and content['isActive'] is True:
+					servo_feedFood()
+					schedule_markAsInactive(str(content['id']))
 		
-		elif validateDate(str(content['rep'])) == False:
-			if getTodaysNumber() in parseRep(int(content['rep'])):
-				if getTime() == str(content['time']) and content['isActive'] is True:
-					if schedule_isFedToday(str(content['id'])) == True:
-						pass
-					elif schedule_isFedToday(str(content['id'])) == False:
-						servo_feedFood()
-						schedule_markAsFedToday(str(content['id']))
-			else:
-				pass
+			elif validateDate(str(content['rep'])) == False:
+				if getTodaysNumber() in parseRep(int(content['rep'])):
+					if getTime() == str(content['time']) and content['isActive'] is True:
+						if schedule_isFedToday(str(content['id'])) == True:
+							pass
+						elif schedule_isFedToday(str(content['id'])) == False:
+							servo_feedFood()
+							schedule_markAsFedToday(str(content['id']))
+				else:
+					pass
+	except:
+		pass
 
 
 # Write payload json to file
@@ -520,7 +526,7 @@ def schedule_writeToFile(content):
 		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(successMessage), 1)
 		
 	except:
-		print("FATAL: COULDN'T  WRITING SCHEDULE TO FILE")
+		print("FATAL: COULDN'T WRITE SCHEDULE TO FILE")
 		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(failMessage), 1)
 
 
@@ -722,7 +728,7 @@ ID = getMac()  # Get MAC address for identification
 
 cell = None # Load cell variable gets initialized here
 servoStatus = False # Boolean telling if servos being currently used
-JsonCreator = None
+JsonCreator = JSONMaker()
 
 servoVars = servoControl() # Initialize custom servo data
 pi = pigpio.pi() # Initialize pigpio library
