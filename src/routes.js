@@ -45,9 +45,9 @@ module.exports = function(app, express, passport, upload, connection, session, s
 	/* AWS IoT Device SDK */
 	var awsIot = require('aws-iot-device-sdk');
 	var device = awsIot.device({
-		keyPath: "certs/DogFeeder.private.key",
-		certPath: "certs/DogFeeder.cert.pem",
-		caPath: "certs/rootCA.pem",
+		keyPath: "../certs/DogFeeder.private.key",
+		certPath: "../certs/DogFeeder.cert.pem",
+		caPath: "../certs/rootCA.pem",
 		clientId: "Asiakas" + Math.floor(Math.random() * 9999),
 		region: "eu-west-1"
 	});
