@@ -33,7 +33,7 @@ export default class App extends React.Component {
 					// PARSITAAN JSON UUTEEN MUOTOON. mac -> value | name -> label				
 					for (var i = 0;i<jsonData.length;i++)
 					{
-						data += '{ "value": "' + jsonData[i].mac + '", "label": "' + jsonData[i].name + '"}';
+						data += '{ "value": "' + jsonData[i].uid + '", "label": "' + jsonData[i].name + '"}';
 						if (i<jsonData.length-1) {data += ","};
 					}
 					data += "]";
