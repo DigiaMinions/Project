@@ -47,8 +47,7 @@ export default class App extends React.Component {
 	}
 
 	render() {
-		console.log(this.state.userDevices);
-		console.log(this.state.activeDevice.value);
+		console.log(this.state.activeDevice);
 		return (
 			<div>				
 				<Grid>
@@ -56,7 +55,8 @@ export default class App extends React.Component {
 						<Col xs={12} md={3}>
 							<div>
 								Valitse laite:
-								<Dropdown options={this.state.userDevices} onChange={this.onSelect} value={this.state.activeDevice} placeholder="Valitse laite" />
+								{console.log(this.state.activeDevice)}
+								<Dropdown options={this.state.userDevices} onChange={this.onSelect} placeholder={this.state.activeDevice.label} />
 							</div>
 						</Col>
 						<Col xs={12} md={9}>
