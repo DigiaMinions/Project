@@ -45,9 +45,9 @@ module.exports = function(app, express, passport, upload, connection, session, s
 	/* AWS IoT Device SDK */
 	var awsIot = require('aws-iot-device-sdk');
 	var device = awsIot.device({
-		keyPath: "../certs/DogFeeder.private.key",
-		certPath: "../certs/DogFeeder.cert.pem",
-		caPath: "../certs/rootCA.pem",
+		keyPath: "./../certs/DogFeeder.private.key",
+		certPath: "./../certs/DogFeeder.cert.pem",
+		caPath: "./../certs/rootCA.pem",
 		clientId: "Asiakas" + Math.floor(Math.random() * 9999),
 		region: "eu-west-1"
 	});
@@ -70,6 +70,7 @@ module.exports = function(app, express, passport, upload, connection, session, s
 		
 	});
 
+	/* Hakee käyttäjän laitteet kannasta */
 	app.get('/devices/', isLoggedIn, function (req, res){
 		getDevices(req, function(rows){
 			//console.log('Users devices.');
@@ -82,12 +83,10 @@ module.exports = function(app, express, passport, upload, connection, session, s
 	  	res.sendFile(__dirname + '/static/index.html');
 	});
 
-	/* API endpointit */
 	/* Insta feed: lähetetään laitteelle viesti ruokinnasta heti */
 	app.post('/feed/', function(req, res){
 		confirmMsg = '';
-		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
-		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ feed: 'JUST_DO_IT' }));
+		device.publish('DogFeeder/AppToDevice/' + String(req.body.mac), JSON.stringify({ feed: 'JUST_DO_IT' }));
 		getConfirmFromDevice(res, 0); // odotellaan että raspi lähettää kuittauksen
 
 		/* postin debuggausta varten */
@@ -101,25 +100,22 @@ module.exports = function(app, express, passport, upload, connection, session, s
 	/* Schedule feed: Lähetetään laitteelle ruokinta aikataulu */
 	app.post('/schedule/', function(req, res){
 		confirmMsg = '';
-		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
 		var schedule = req.body.schedule;
-		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ schedule }));
+		device.publish('DogFeeder/AppToDevice/' + String(req.body.mac), JSON.stringify({ schedule }));
 		getConfirmFromDevice(res, 0); // odotellaan että raspi lähettää kuittauksen
 	});
 
 	/* Pyydetään laitteelta aikataulu -> raspi lähettää DeviceToApp topicciin aikataulun -> se lähetetään responsessa frontille */
 	app.post('/device/', function(req, res){
 		deviceSchedule = ''; // tyhjätään muuttujasta entinen aikataulu
-		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
-		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ get: 'schedule' })); // lähetetään raspille pyyntö aikataulusta
+		device.publish('DogFeeder/AppToDevice/' + String(req.body.mac), JSON.stringify({ get: 'schedule' })); // lähetetään raspille pyyntö aikataulusta
 		sendScheduleToApp(res); // odotellaan että raspi lähettää aikataulun
 	})
 
 	/* Anturin kalibrointi */
 	app.post('/calibrate/', function(req, res){
 		confirmMsg = '';
-		var macParsed = String(req.body.mac).replace(/%3A/g, ":");
-		device.publish('DogFeeder/AppToDevice/' + macParsed, JSON.stringify({ tare: 'JUST_DO_IT' }));
+		device.publish('DogFeeder/AppToDevice/' + String(req.body.mac), JSON.stringify({ tare: 'JUST_DO_IT' }));
 		getConfirmFromDevice(res, 0); // odotellaan että raspi lähettää kuittauksen		
 	});
 
