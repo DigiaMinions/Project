@@ -72,9 +72,6 @@ get_schedule = client end asks current schedule, return it from file
 def callback_userdata(client, userdata, message):
 	print("callback_userdata")
 	flags = validateMessage(message.payload)
-	
-	successMessage = JsonCreator.createObject("confirmFeed", "success")
-	failMessage = JsonCreator.createObject("confirmFeed", "fail")
 
 	if flags is not 'invalid': # If validation ok
 		if flags is 'set_feed':
@@ -82,9 +79,9 @@ def callback_userdata(client, userdata, message):
 			try:
 				JsonCreator.createObject('instantFeedClick', getDateTime()) # Tell AWS IoT the feed button has been clicked
 				servo_feedFood()
-				myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(successMessage), 1)
+				myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('feed', True)), 1)
 			except:
-				myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(failMessage), 1)
+				myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('feed', False)), 1)
 		elif flags is 'set_schedule':
 			schedule_writeToFile(message.payload)
 			#JsonCreator.createObject('newSchedule', getDateTime())
@@ -300,15 +297,35 @@ def lc_setReferenceUnit(value):
 	global lc_referenceUnit
 	lc_referenceUnit = value
 
+def replyMessage(type, success):
+	message = {}
+	
+	if type is 'feed':
+		if success is True:
+			message['confirmFeed'] = 'success'
+		elif success is False:
+			message['confirmTare'] = 'fail'
+	
+	elif type is 'setOffset'
+		if success is True:
+			message['confirmTare'] = 'success'
+		elif success is False:
+			message['confirmTare'] = 'fail'
+	
+	elif type is 'setSchedule':
+		if success is True:
+			message['confirmSave'] = 'success'
+		elif success is False:
+			message['confirmSave'] = 'fail'
+	
+	return json.dumps(message)
+		
 	
 def lc_tare(): # Calculates and sets load cell offset
 	global loadList_tare
 	global lc_referenceUnit
 	global lc_offset
 	global tare
-	
-	successMessage = JsonCreator.createObject("confirmTare", "success")
-	failMessage = JsonCreator.createObject("confirmTare", "fail")
 	
 	tare = True
 	JsonCreator.createObject('Tare start', getDateTime())
@@ -335,9 +352,9 @@ def lc_tare(): # Calculates and sets load cell offset
 		JsonCreator.createObject('Tare end', getDateTime())
 		
 		saveOffset(lc_offset) # Save offset to file
-		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(successMessage), 1)
+		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setOffset', True)), 1)
 	except:
-		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(failMessage), 1)
+		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setOffset', False)), 1)
 
 		
 def saveOffset(value):
@@ -516,18 +533,15 @@ def schedule_check():
 
 
 # Write payload json to file
-def schedule_writeToFile(content):
-	successMessage = JsonCreator.createObject("confirmSave", "success")
-	failMessage = JsonCreator.createObject("confirmSave", "fail")
-	
+def schedule_writeToFile(content):	
 	try:
 		with open(path + 'schedule.dat', 'w') as file:
 			file.write(content)
-		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(successMessage), 1)
+		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setSchedule', True)), 1)
 		
 	except:
 		print("FATAL: COULDN'T WRITE SCHEDULE TO FILE")
-		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(failMessage), 1)
+		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setSchedule', False)), 1)
 
 
 # Read schedule from file and return to caller
