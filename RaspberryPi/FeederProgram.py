@@ -306,7 +306,7 @@ def replyMessage(type, success):
 		elif success is False:
 			message['confirmTare'] = 'fail'
 	
-	elif type is 'setOffset'
+	elif type is 'setOffset':
 		if success is True:
 			message['confirmTare'] = 'success'
 		elif success is False:
@@ -564,7 +564,7 @@ def schedule_getToApp():
 # Marks given id as inactive to schedule.dat
 def schedule_markAsInactive(id):
 	print("Marking ID " + id + " as inactive..")
-	with open(path + 'schedule.dat', 'r') as file:
+	with open(path + 'schedule.dat', 'w') as file:
 		data = json.load(file)
 		file.seek(0)
 
