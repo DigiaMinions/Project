@@ -126,8 +126,8 @@ export default class Home extends React.Component {
 				{modal}
 				<br />
 				<Row>
-					<Col xs={6}><button type="button" onClick={this.onFeedButtonPress} className="button button-block">Pötyä pöytään!</button></Col>
-					<Col xs={6}><button type="button" onClick={this.onCalibrateButtonPress} className="button button-block">Kalibroi anturi</button></Col>
+					<Col xs={6}><button type="button" onClick={this.onFeedButtonPress} className="button button-block" ref="btnFeed">Pötyä pöytään!</button></Col>
+					<Col xs={6}><button type="button" onClick={this.onCalibrateButtonPress} className="button button-block" ref="btnCalib">Kalibroi anturi</button></Col>
 				</Row>
 				<GraphComponent activeDeviceVal={this.props.activeDeviceVal} startTime={this.state.startTime} endTime={this.state.endTime} />
 				<Panel header="Näytä ruokailu ajalta">

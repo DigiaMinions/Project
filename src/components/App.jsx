@@ -6,18 +6,17 @@ export default class App extends React.Component {
 
 	constructor(props) {		
 		super(props);	
-		var placeholder = [{value: '0', label: 'Valitse laite'}];	
-		this.state = { userDevices: [], activeDevice: placeholder[0] };
+		this.state = { userDevices: [], activeDevice: '' };
 		this.onSelect = this.onSelect.bind(this);
 	}
 
-	onSelect (option) {
+	onSelect(option) {
 		this.setState({activeDevice: option})
 	}
 
-	componentDidMount(){	
-		var that = this;
-		fetch('/devices', {
+	componentDidMount() {
+		var self = this;
+		fetch('/devices/', {
 				credentials: 'same-origin',
 				method: 'GET'
 			})
@@ -28,19 +27,17 @@ export default class App extends React.Component {
 			.then(function(jsonData) {
 				if(jsonData.length)
 				{
-					console.log('Käyttäjällä on laitteita! Asetetaan menuun.');
 					var data = '[';
 					// PARSITAAN JSON UUTEEN MUOTOON. mac -> value | name -> label				
 					for (var i = 0;i<jsonData.length;i++)
 					{
-						data += '{ "value": "' + jsonData[i].mac + '", "label": "' + jsonData[i].name + '"}';
+						data += '{ "value": "' + jsonData[i].uid + '", "label": "' + jsonData[i].name + '"}';
 						if (i<jsonData.length-1) {data += ","};
 					}
 					data += "]";
-
 					var devices = JSON.parse(data);
-					that.setState({userDevices: devices});
-					that.setState({activeDevice: devices[0]});
+					self.setState({userDevices: devices});
+					self.setState({activeDevice: devices[0]});
 				}
 				
 			})
@@ -50,8 +47,6 @@ export default class App extends React.Component {
 	}
 
 	render() {
-		const activeDevice = this.state.activeDevice;
-		const activeDeviceVal = activeDevice.value;
 		return (
 			<div>				
 				<Grid>
@@ -59,11 +54,11 @@ export default class App extends React.Component {
 						<Col xs={12} md={3}>
 							<div>
 								Valitse laite:
-								<Dropdown options={this.state.userDevices} onChange={this.onSelect} value={this.state.activeDevice} placeholder="Valitse laite" />
+								<Dropdown options={this.state.userDevices} onChange={this.onSelect} placeholder={this.state.activeDevice.label} />
 							</div>
 						</Col>
 						<Col xs={12} md={9}>
-							{React.cloneElement(this.props.children, { activeDeviceVal: activeDeviceVal })}
+							{React.cloneElement(this.props.children, { activeDeviceVal: this.state.activeDevice.value })}
 						</Col>
 					</Row>
 				</Grid>

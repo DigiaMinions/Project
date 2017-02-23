@@ -21,7 +21,7 @@ import re
 import idconf
 
 uid = idconf.id
-path = "/home/terminal/feeder/"
+path = "/feeder/"
 
 
 
@@ -341,7 +341,7 @@ def lc_tare(): # Calculates and sets load cell offset
 
 		
 def saveOffset(value):
-	with open(path + 'offset.dat', 'w+') as file:
+	with open(path + 'offset.dat', 'w') as file:
 		file.write(str(value))
 		print("Offset saved to file")
 
@@ -396,6 +396,17 @@ def fetchUpdate():
 	location = 'update/'
 	# Download the file using system command and save it locally
 	os.system("svn export " + url + " " + path + " --force")
+	
+def createFiles():
+	if not os.path.exists(path + 'schedule.dat'):
+		open(path + 'schedule.dat', 'w').close()
+	if not os.path.exists(path + 'schedule_fedtoday.dat'):
+		open(path + 'schedule_fedtoday.dat', 'w').close()
+	if not os.path.exists(path + 'todaysnumber.dat'):
+		with open(path + 'todaysnumber.dat', 'w') as file:
+			file.write(str(getTodaysNumber()))
+	if not os.path.exists(path + 'offset.dat'):
+		open(path + 'offset.dat', 'w').close()
 
 
 
@@ -464,7 +475,7 @@ def check_dayChange():
 		content = int(file.read())
 	today = getTodaysNumber()
 	if content is not today:
-		with open('todaysnumber.dat', 'w') as file:
+		with open(path + 'todaysnumber.dat', 'w') as file:
 			print("clearing already fed")
 			file.write(str(today))
 			schedule_clearFedToday()
@@ -479,26 +490,29 @@ def check_dayChange():
 
 # Goes through current schedule and determines if feeding is needed
 def schedule_check():
-	schedule = json.loads(schedule_readFromFile())
+	try:
+		schedule = json.loads(schedule_readFromFile())
 
-	# Go through each object in 'schedule'-array
-	for content in schedule['schedule']:
-		# one time schedule with date	
-		if validateDate(str(content['rep'])):
-			if getDate() >= str(content['rep']) and getTime() >= str(content['time']) and content['isActive'] is True:
-				servo_feedFood()
-				schedule_markAsInactive(str(content['id']))
+		# Go through each object in 'schedule'-array
+		for content in schedule['schedule']:
+			# one time schedule with date	
+			if validateDate(str(content['rep'])):
+				if getDate() >= str(content['rep']) and getTime() >= str(content['time']) and content['isActive'] is True:
+					servo_feedFood()
+					schedule_markAsInactive(str(content['id']))
 		
-		elif validateDate(str(content['rep'])) == False:
-			if getTodaysNumber() in parseRep(int(content['rep'])):
-				if getTime() == str(content['time']) and content['isActive'] is True:
-					if schedule_isFedToday(str(content['id'])) == True:
-						pass
-					elif schedule_isFedToday(str(content['id'])) == False:
-						servo_feedFood()
-						schedule_markAsFedToday(str(content['id']))
-			else:
-				pass
+			elif validateDate(str(content['rep'])) == False:
+				if getTodaysNumber() in parseRep(int(content['rep'])):
+					if getTime() == str(content['time']) and content['isActive'] is True:
+						if schedule_isFedToday(str(content['id'])) == True:
+							pass
+						elif schedule_isFedToday(str(content['id'])) == False:
+							servo_feedFood()
+							schedule_markAsFedToday(str(content['id']))
+				else:
+					pass
+	except:
+		pass
 
 
 # Write payload json to file
@@ -507,19 +521,19 @@ def schedule_writeToFile(content):
 	failMessage = JsonCreator.createObject("confirmSave", "fail")
 	
 	try:
-		with open(path + 'schedule.dat', 'w+') as file:
+		with open(path + 'schedule.dat', 'w') as file:
 			file.write(content)
 		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(successMessage), 1)
 		
 	except:
-		print("FATAL: COULDN'T  WRITING SCHEDULE TO FILE")
+		print("FATAL: COULDN'T WRITE SCHEDULE TO FILE")
 		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(failMessage), 1)
 
 
 # Read schedule from file and return to caller
 def schedule_readFromFile():
 	try:
-		with open(path + 'schedule.dat', 'r+') as file:
+		with open(path + 'schedule.dat', 'r') as file:
 			content = str(file.read())
 			return content
 	except:
@@ -536,7 +550,7 @@ def schedule_getToApp():
 # Marks given id as inactive to schedule.dat
 def schedule_markAsInactive(id):
 	print("Marking ID " + id + " as inactive..")
-	with open(path + 'schedule.dat', 'r+') as file:
+	with open(path + 'schedule.dat', 'r') as file:
 		data = json.load(file)
 		file.seek(0)
 
@@ -552,13 +566,13 @@ def schedule_markAsInactive(id):
 # Clears schedule_fedtoday.dat file
 def schedule_clearFedToday():
 	print("Clearing schedule_fedtoday.dat")
-	with open(path + 'schedule_fedtoday.dat', 'w+') as file:
+	with open(path + 'schedule_fedtoday.dat', 'w') as file:
 		pass
 
 
 # marks given id as already fed this day to schedule_fedtoday.dat
 def schedule_markAsFedToday(id):
-	with open(path + 'schedule_fedtoday.dat', 'w+') as file:
+	with open(path + 'schedule_fedtoday.dat', 'w') as file:
 		file.write(str(id) + "\n")
 
 
@@ -566,7 +580,7 @@ def schedule_markAsFedToday(id):
 def schedule_isFedToday(id):
 	isFound = False
 
-	with open(path + 'schedule_fedtoday.dat', 'r+') as file:
+	with open(path + 'schedule_fedtoday.dat', 'r') as file:
 		if os.stat('schedule_fedtoday.dat').st_size == 0:
 			return False
 		else:
@@ -707,13 +721,14 @@ def thread1():
 #################################
 ### MAIN program ################
 
+createFiles() # Create necessary files on boot if not exists
 
 messagesList = [0] * 12
 ID = getMac()  # Get MAC address for identification
 
 cell = None # Load cell variable gets initialized here
 servoStatus = False # Boolean telling if servos being currently used
-JsonCreator = None
+JsonCreator = JSONMaker()
 
 servoVars = servoControl() # Initialize custom servo data
 pi = pigpio.pi() # Initialize pigpio library

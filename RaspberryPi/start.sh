@@ -3,7 +3,7 @@
 # stop script on error
 #set -e
 
-path='/home/terminal/feeder/'
+path='/feeder/'
 
 # Check if connected to internet by pinging default gateway
 function connectionCheck {
@@ -113,10 +113,10 @@ subversion=$(dpkg -s subversion > /dev/null 2>&1 && echo ok || echo error)
 		echo "OK!"
 	fi
 
-certPath="/home/terminal/feeder/cert/"
+certPath="/feeder/cert/"
 
-pemCount=`ls -1 /home/terminal/feeder/cert/*.pem 2>/dev/null | wc -l`
-keyCount=`ls -1  /home/terminal/feeder/cert/*.key 2>/dev/null | wc -l`
+pemCount=`ls -1 /feeder/cert/*.pem 2>/dev/null | wc -l`
+keyCount=`ls -1  /feeder/cert/*.key 2>/dev/null | wc -l`
 echo -n "Number of PEMs found: "
 echo $pemCount
 echo -n "Number of KEYs found: "

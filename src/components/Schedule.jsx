@@ -2,6 +2,7 @@ import React from 'react'
 import CreateScheduleComponent from './CreateScheduleComponent.jsx'
 import ScheduleListComponent from './ScheduleListComponent.jsx'
 import ModalComponent from './ModalComponent.jsx'
+import _ from 'lodash'
 import 'whatwg-fetch'
 
 export default class Schedule extends React.Component {

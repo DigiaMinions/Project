@@ -1,21 +1,15 @@
---- 
-phases: 
-  build:     
+---
+phases:
+  install:
+    commands:
+      - "npm install"
+  build:
     commands: 
       - "echo Build started on `date`"
-      - "echo Compiling the Node.js code"
-      - "mocha tests/**"
-  install: 
-    commands: 
-      - "echo Installing Mocha..."
-      - "npm install -g mocha"
-  post_build: 
+      - "npm test"
+  post_build:
     commands: 
       - "echo Build completed on `date`"
-  pre_build: 
-    commands: 
-      - "echo Installing source NPM dependencies..."
-      - "npm install unit.js"
 artifacts:
   files:
     - '**/*'

@@ -2,10 +2,12 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ec2-user
+    destination: /home/ec2-user/release
 hooks:
   BeforeInstall:
     - location: Scripts/installnode.sh
+      runas: root
+    - location: Scripts/clean_old_deployment.sh
       runas: root
   AfterInstall:
     - location: Scripts/startnode.sh
