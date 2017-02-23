@@ -83,7 +83,12 @@ def callback_userdata(client, userdata, message):
 			except:
 				myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('feed', False)), 1)
 		elif flags is 'set_schedule':
-			schedule_writeToFile(message.payload)
+			try:
+				schedule_writeToFile(message.payload)
+				myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setSchedule', True)), 1)
+			except:
+				myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setSchedule', False)), 1)
+
 			#JsonCreator.createObject('newSchedule', getDateTime())
 		elif flags is 'set_tare':
 			lc_tare()
@@ -304,7 +309,7 @@ def replyMessage(type, success):
 		if success is True:
 			message['confirmFeed'] = 'success'
 		elif success is False:
-			message['confirmTare'] = 'fail'
+			message['confirmFeed'] = 'fail'
 	
 	elif type is 'setOffset':
 		if success is True:
@@ -537,11 +542,11 @@ def schedule_writeToFile(content):
 	try:
 		with open(path + 'schedule.dat', 'w') as file:
 			file.write(content)
-		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setSchedule', True)), 1)
+		#myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setSchedule', True)), 1)
 		
 	except:
 		print("FATAL: COULDN'T WRITE SCHEDULE TO FILE")
-		myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setSchedule', False)), 1)
+		#myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setSchedule', False)), 1)
 
 
 # Read schedule from file and return to caller
@@ -564,7 +569,7 @@ def schedule_getToApp():
 # Marks given id as inactive to schedule.dat
 def schedule_markAsInactive(id):
 	print("Marking ID " + id + " as inactive..")
-	with open(path + 'schedule.dat', 'w') as file:
+	with open(path + 'schedule.dat', 'r+') as file:
 		data = json.load(file)
 		file.seek(0)
 
