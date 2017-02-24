@@ -33,8 +33,8 @@ path = "/feeder/"
 class servoControl:
 	def __init__(self):
 		# Minimum and maximum pulsewidths
-		self.pw_max = 2500
-		self.pw_min = 500
+		self.pw_max = 1000
+		self.pw_min = 2490
 		# GPIO ports
 		self.servo_upper = 19	# GPIO 19
 		self.servo_lower = 26	# GPIO 26
@@ -720,7 +720,7 @@ def thread0():
 		JsonCreator = JSONMaker()
 		loop_count = 0
 		while loop_count < 12:
-			print(str(loop_count))
+			#print(str(loop_count))
 			message = createMessageSegment(getLoadCellValue(), loop_count)
 			loop_count += 1
 			time.sleep(interval)
