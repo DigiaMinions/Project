@@ -14,7 +14,7 @@ path = "/feeder/"
 certPath = "/feeder/cert/"
 
 if not os.path.exists(path + 'idconf.py'):
-	with open(path + 'idconf.py') as file:
+	with open(path + 'idconf.py', 'w+') as file:
 		file.write("id=''\nflag=1")
 
 import idconf
