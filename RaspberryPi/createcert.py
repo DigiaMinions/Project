@@ -13,12 +13,12 @@ import uuid
 path = "/feeder/"
 certPath = "/feeder/cert/"
 
-if os.path.exists(path + 'idconf.py'):
-	import idconf
-	curid = idconf.id	
+if not os.path.exists(path + 'idconf.py'):
+	with open(path + 'idconf.py') as file:
+		file.write("id=''\nflag=1")
 
-with open(path + 'idconf.py', 'w') as file:
-	file.write("id=''\nflag=1")
+import idconf
+curid = idconf.id
 
 # Certificate request callback
 def callback_cert(client, userdata, message):
