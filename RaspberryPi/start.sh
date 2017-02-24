@@ -18,6 +18,10 @@ function connectionCheck {
 		fi
 }
 
+# Check if update folder exists, create if not
+if [[ ! -e $path"update" ]]; then
+	mkdir $path"update"
+fi
 # Check if updatefile available and install
 update=$(find $path"update/" -type f -exec echo ok {} \; | cut -d " " -f 1 | head -1)
 	if [ "$update" == "ok" ]; then
