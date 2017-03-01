@@ -7,4 +7,4 @@ npm install --production # install node dependencies locally
 npm install forever -g # install forever globally
 killall node # kill existing node processes
 npm run build # run scripts (webpack bundle etc)
-forever start server.js # start node via forever
+forever start ~/release/server.js # start node via forever
