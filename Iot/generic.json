@@ -1,0 +1,41 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iot:Connect",
+      "Resource": [
+        "arn:aws:iot:REGION:ACCOUNTID:client/cliid"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iot:Publish"
+      ],
+      "Resource": [
+        "arn:aws:iot:REGION:ACCOUNTID:topic/Generic/${iot:ClientId}/req",
+        "arn:aws:iot:REGION:ACCOUNTID:topic/Generic/${iot:ClientId}/done",
+        "arn:aws:iot:REGION:ACCOUNTID:rule/GetCertificate"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iot:Subscribe"
+      ],
+      "Resource": [
+        "arn:aws:iot:REGION:ACCOUNTID:topicfilter/Generic/${iot:ClientId}/rep"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iot:Receive"
+      ],
+      "Resource": [
+        "arn:aws:iot:REGION:ACCOUNTID:topic/Generic/${iot:ClientId}/rep"
+      ]
+    }
+  ]
+}
