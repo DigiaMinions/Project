@@ -34,7 +34,7 @@ class servoControl:
 	def __init__(self):
 		# Minimum and maximum pulsewidths
 		self.pw_max = 1000
-		self.pw_min = 2490
+		self.pw_min = 2500
 		# GPIO ports
 		self.servo_upper = 19	# GPIO 19
 		self.servo_lower = 26	# GPIO 26
@@ -89,7 +89,6 @@ def callback_userdata(client, userdata, message):
 			except:
 				myAWSIoTMQTTClient.publish("DogFeeder/DeviceToApp/" + uid, str(replyMessage('setSchedule', False)), 1)
 
-			#JsonCreator.createObject('newSchedule', getDateTime())
 		elif flags is 'set_tare':
 			lc_tare()
 		elif flags is 'get_schedule':
@@ -600,14 +599,13 @@ def schedule_isFedToday(id):
 	isFound = False
 
 	with open(path + 'schedule_fedtoday.dat', 'r') as file:
-		if os.stat('schedule_fedtoday.dat').st_size == 0:
+		if os.stat(path + 'schedule_fedtoday.dat').st_size == 0:
 			return False
 		else:
-				with open(path + 'schedule_fedtoday.dat', 'r') as file:
-					content = file.read().splitlines()
-				for line in content:
-					if line == id:
-						isFound = True
+			content = file.read().splitlines()
+			for line in content:
+				if line == id:
+					isFound = True
 	return isFound
 
 
