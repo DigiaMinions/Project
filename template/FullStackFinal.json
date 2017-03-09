@@ -1,0 +1,1907 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Metadata": {
+    "AWS::CloudFormation::Designer": {
+      "ebb1b439-02db-492a-bf49-7daa3d44e406": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 360,
+          "y": 1420
+        },
+        "z": 3,
+        "parent": "a88aa1ad-5908-4381-84ce-82a9b02d0320",
+        "embeds": [],
+        "dependson": [
+          "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        ],
+        "isrelatedto": [
+          "5dc4c594-5d0e-4b31-9e5e-875b94516656"
+        ]
+      },
+      "67beda55-465b-44a0-b364-78c2ed95745f": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 230,
+          "y": 1420
+        },
+        "z": 3,
+        "parent": "a88aa1ad-5908-4381-84ce-82a9b02d0320",
+        "embeds": [],
+        "isrelatedto": [
+          "5dc4c594-5d0e-4b31-9e5e-875b94516656"
+        ]
+      },
+      "f9aa6fef-596f-42a4-85e9-acd3fae832a7": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 260,
+          "y": 1030
+        },
+        "z": 2,
+        "parent": "8fecc1f9-9cfe-41ee-9e03-61fd383f8680",
+        "embeds": [],
+        "ismemberof": [
+          "73f0d656-4995-4801-8fc4-c17c029f16ac"
+        ]
+      },
+      "a49fbc27-e5a0-4963-90e9-3a3210ca1aad": {
+        "source": {
+          "id": "ebb1b439-02db-492a-bf49-7daa3d44e406"
+        },
+        "target": {
+          "id": "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        },
+        "z": 1
+      },
+      "7e64ab97-632e-4fcc-b178-98bc0e512d3a": {
+        "size": {
+          "width": 1250,
+          "height": 770
+        },
+        "position": {
+          "x": -290,
+          "y": 1290
+        },
+        "z": 1,
+        "embeds": [
+          "5dc4c594-5d0e-4b31-9e5e-875b94516656",
+          "259789c8-9e77-4d54-8c84-bdc30d83778a",
+          "a6bf4c5f-b4c4-49f4-a99f-3ca5d89d7c86",
+          "062dd619-f8b1-4899-b7dc-0dd4a70c46ee",
+          "73f0d656-4995-4801-8fc4-c17c029f16ac",
+          "a88aa1ad-5908-4381-84ce-82a9b02d0320",
+          "d1b80422-38a0-47ba-96bc-18afea51da84"
+        ]
+      },
+      "a88aa1ad-5908-4381-84ce-82a9b02d0320": {
+        "size": {
+          "width": 330,
+          "height": 180
+        },
+        "position": {
+          "x": 160,
+          "y": 1390
+        },
+        "z": 2,
+        "parent": "7e64ab97-632e-4fcc-b178-98bc0e512d3a",
+        "embeds": [
+          "67beda55-465b-44a0-b364-78c2ed95745f",
+          "ebb1b439-02db-492a-bf49-7daa3d44e406"
+        ]
+      },
+      "8fecc1f9-9cfe-41ee-9e03-61fd383f8680": {
+        "size": {
+          "width": 150,
+          "height": 150
+        },
+        "position": {
+          "x": 230,
+          "y": 1000
+        },
+        "z": 1,
+        "embeds": [
+          "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        ],
+        "isconnectedto": [
+          "a88aa1ad-5908-4381-84ce-82a9b02d0320",
+          "062dd619-f8b1-4899-b7dc-0dd4a70c46ee"
+        ]
+      },
+      "73f0d656-4995-4801-8fc4-c17c029f16ac": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 130,
+          "y": 1310
+        },
+        "z": 2,
+        "parent": "7e64ab97-632e-4fcc-b178-98bc0e512d3a",
+        "embeds": []
+      },
+      "062dd619-f8b1-4899-b7dc-0dd4a70c46ee": {
+        "size": {
+          "width": 270,
+          "height": 180
+        },
+        "position": {
+          "x": -210,
+          "y": 1390
+        },
+        "z": 2,
+        "parent": "7e64ab97-632e-4fcc-b178-98bc0e512d3a",
+        "embeds": []
+      },
+      "e05d7554-87b6-4b52-af17-dd261a9b72d4": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 890,
+          "y": 1070
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "a6bf4c5f-b4c4-49f4-a99f-3ca5d89d7c86": {
+        "size": {
+          "width": 320,
+          "height": 350
+        },
+        "position": {
+          "x": 600,
+          "y": 1310
+        },
+        "z": 2,
+        "parent": "7e64ab97-632e-4fcc-b178-98bc0e512d3a",
+        "embeds": [
+          "1bbd6c34-1322-4c96-9a50-1f01509ca77e"
+        ]
+      },
+      "1bbd6c34-1322-4c96-9a50-1f01509ca77e": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 660,
+          "y": 1570
+        },
+        "z": 3,
+        "parent": "a6bf4c5f-b4c4-49f4-a99f-3ca5d89d7c86",
+        "embeds": [],
+        "references": [
+          "e05d7554-87b6-4b52-af17-dd261a9b72d4"
+        ],
+        "dependson": [
+          "f5c7a91d-4f4f-4b6c-95b4-79e33d9d3510"
+        ]
+      },
+      "f5c7a91d-4f4f-4b6c-95b4-79e33d9d3510": {
+        "source": {
+          "id": "e05d7554-87b6-4b52-af17-dd261a9b72d4"
+        },
+        "target": {
+          "id": "7e64ab97-632e-4fcc-b178-98bc0e512d3a"
+        },
+        "z": 1
+      },
+      "548ed6e6-99a4-4538-9370-a28a6b823d5e": {
+        "source": {
+          "id": "1bbd6c34-1322-4c96-9a50-1f01509ca77e"
+        },
+        "target": {
+          "id": "f5c7a91d-4f4f-4b6c-95b4-79e33d9d3510"
+        },
+        "z": 3
+      },
+      "259789c8-9e77-4d54-8c84-bdc30d83778a": {
+        "size": {
+          "width": 320,
+          "height": 390
+        },
+        "position": {
+          "x": -40,
+          "y": 1610
+        },
+        "z": 2,
+        "parent": "7e64ab97-632e-4fcc-b178-98bc0e512d3a",
+        "embeds": [
+          "5dd93eb5-5391-459c-b4fa-eb80b51eae22",
+          "3bcc187c-eb56-475b-8c8c-cfb11f65df84"
+        ]
+      },
+      "3bcc187c-eb56-475b-8c8c-cfb11f65df84": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 120,
+          "y": 1720
+        },
+        "z": 3,
+        "parent": "259789c8-9e77-4d54-8c84-bdc30d83778a",
+        "embeds": []
+      },
+      "5dd93eb5-5391-459c-b4fa-eb80b51eae22": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 120,
+          "y": 1870
+        },
+        "z": 3,
+        "parent": "259789c8-9e77-4d54-8c84-bdc30d83778a",
+        "embeds": []
+      },
+      "d5e4c215-8812-4d77-90f9-aff9322d49be": {
+        "source": {
+          "id": "259789c8-9e77-4d54-8c84-bdc30d83778a"
+        },
+        "target": {
+          "id": "a88aa1ad-5908-4381-84ce-82a9b02d0320"
+        },
+        "z": 2
+      },
+      "5dc4c594-5d0e-4b31-9e5e-875b94516656": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 500,
+          "y": 1310
+        },
+        "z": 2,
+        "parent": "7e64ab97-632e-4fcc-b178-98bc0e512d3a",
+        "embeds": []
+      },
+      "b1fc51cc-c8c4-48ab-a473-7c62724feb2e": {
+        "source": {
+          "id": "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        },
+        "target": {
+          "id": "73f0d656-4995-4801-8fc4-c17c029f16ac"
+        },
+        "z": 4
+      },
+      "9cc7a906-9769-4162-be16-95131ba935d1": {
+        "source": {
+          "id": "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        },
+        "target": {
+          "id": "73f0d656-4995-4801-8fc4-c17c029f16ac"
+        },
+        "z": 4
+      },
+      "5be734f3-61d6-45be-bbd8-fd9b71f23b7f": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 540,
+          "y": 1080
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "7462ce17-81d3-4572-b609-7b9a354491d7": {
+        "source": {
+          "id": "e05d7554-87b6-4b52-af17-dd261a9b72d4"
+        },
+        "target": {
+          "id": "7e64ab97-632e-4fcc-b178-98bc0e512d3a"
+        },
+        "z": 1
+      },
+      "b014e703-183a-45e7-ba4f-b360e350f647": {
+        "source": {
+          "id": "5be734f3-61d6-45be-bbd8-fd9b71f23b7f"
+        },
+        "target": {
+          "id": "7e64ab97-632e-4fcc-b178-98bc0e512d3a"
+        },
+        "z": 1
+      },
+      "6ce3b624-0013-4725-a05d-fda81e6c5c75": {
+        "source": {
+          "id": "a6bf4c5f-b4c4-49f4-a99f-3ca5d89d7c86"
+        },
+        "target": {
+          "id": "a88aa1ad-5908-4381-84ce-82a9b02d0320"
+        },
+        "z": 2
+      },
+      "c927be71-4cdd-40a2-9929-bc793bbf7aba": {
+        "source": {
+          "id": "1bbd6c34-1322-4c96-9a50-1f01509ca77e"
+        },
+        "target": {
+          "id": "e05d7554-87b6-4b52-af17-dd261a9b72d4"
+        },
+        "z": 5
+      },
+      "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -100,
+          "y": 970
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "4eda85ea-06de-4e8f-b898-05b3aab4155a": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -380,
+          "y": 1000
+        },
+        "z": 1,
+        "embeds": [],
+        "isassociatedwith": [
+          "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8"
+        ]
+      },
+      "1b36a2a1-0208-4e54-a10c-bf12a926dd7b": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -380,
+          "y": 930
+        },
+        "z": 1,
+        "embeds": [],
+        "isassociatedwith": [
+          "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8"
+        ]
+      },
+      "e374d327-dda9-4bd4-ae59-a59b2134ef84": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -380,
+          "y": 860
+        },
+        "z": 1,
+        "embeds": [],
+        "isassociatedwith": [
+          "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8"
+        ]
+      },
+      "0f82b8bf-396d-443a-8ff2-b729b8effa69": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -370,
+          "y": 780
+        },
+        "z": 1,
+        "embeds": [],
+        "isassociatedwith": [
+          "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8"
+        ]
+      },
+      "cbc48bba-c1cd-4856-8811-9fada3b72b5e": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -370,
+          "y": 700
+        },
+        "z": 1,
+        "embeds": [],
+        "isassociatedwith": [
+          "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8"
+        ]
+      },
+      "d1b80422-38a0-47ba-96bc-18afea51da84": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -270,
+          "y": 1320
+        },
+        "z": 2,
+        "parent": "7e64ab97-632e-4fcc-b178-98bc0e512d3a",
+        "embeds": [],
+        "isrelatedto": [
+          "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8",
+          "5dc4c594-5d0e-4b31-9e5e-875b94516656",
+          "a88aa1ad-5908-4381-84ce-82a9b02d0320",
+          "062dd619-f8b1-4899-b7dc-0dd4a70c46ee"
+        ]
+      },
+      "4ff5cd2b-e0ed-43b9-b401-fe618c364854": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -20,
+          "y": 1220
+        },
+        "z": 1,
+        "embeds": [],
+        "isrelatedto": [
+          "d1b80422-38a0-47ba-96bc-18afea51da84"
+        ]
+      },
+      "6a4e6d22-9e68-4e09-b27d-ef112e221f6e": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 30,
+          "y": 1080
+        },
+        "z": 0,
+        "embeds": [],
+        "isrelatedto": [
+          "678c75b2-3715-4580-9cd0-9ee6b4bf6847"
+        ]
+      },
+      "678c75b2-3715-4580-9cd0-9ee6b4bf6847": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -100,
+          "y": 1080
+        },
+        "z": 0,
+        "embeds": [],
+        "dependson": [
+          "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        ],
+        "isrelatedto": [
+          "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8",
+          "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        ]
+      },
+      "7958242d-0015-4b13-a59e-386f7b2fe4fe": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -100,
+          "y": 1160
+        },
+        "z": 0,
+        "embeds": [],
+        "isrelatedto": [
+          "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8"
+        ]
+      },
+      "6d9fb4ae-307c-42a1-b207-47603c87ebc4": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 510,
+          "y": 930
+        },
+        "z": 0,
+        "embeds": [],
+        "isrelatedto": [
+          "44865372-d404-4b9e-ac1e-9794b652e83f"
+        ]
+      },
+      "44865372-d404-4b9e-ac1e-9794b652e83f": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 420,
+          "y": 1160
+        },
+        "z": 0,
+        "embeds": [],
+        "isrelatedto": [
+          "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8"
+        ]
+      },
+      "d4663be7-32fd-465c-bda9-79a8bb01dacb": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 30,
+          "y": 1160
+        },
+        "z": 0,
+        "embeds": [],
+        "isrelatedto": [
+          "7958242d-0015-4b13-a59e-386f7b2fe4fe"
+        ]
+      },
+      "a6e4f52b-0e00-40df-b013-a9733b552470": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -190,
+          "y": 1160
+        },
+        "z": 0,
+        "embeds": [],
+        "isassociatedwith": [
+          "7958242d-0015-4b13-a59e-386f7b2fe4fe"
+        ],
+        "isrelatedto": [
+          "d4663be7-32fd-465c-bda9-79a8bb01dacb"
+        ]
+      },
+      "ddb8d42d-3780-4b4a-a1c8-ee592e81e814": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -20,
+          "y": 1290
+        },
+        "z": 0,
+        "embeds": [],
+        "isassociatedwith": [
+          "d1b80422-38a0-47ba-96bc-18afea51da84"
+        ],
+        "isrelatedto": [
+          "4ff5cd2b-e0ed-43b9-b401-fe618c364854"
+        ]
+      },
+      "c317b76b-768b-4d4c-8c3c-73b2614d4d1c": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -190,
+          "y": 1090
+        },
+        "z": 0,
+        "embeds": [],
+        "isassociatedwith": [
+          "678c75b2-3715-4580-9cd0-9ee6b4bf6847"
+        ],
+        "dependson": [
+          "678c75b2-3715-4580-9cd0-9ee6b4bf6847"
+        ],
+        "isrelatedto": [
+          "6a4e6d22-9e68-4e09-b27d-ef112e221f6e"
+        ]
+      },
+      "dcb7ddb3-17ce-4b07-9733-ced8d689cc7b": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 420,
+          "y": 1030
+        },
+        "z": 0,
+        "embeds": [],
+        "isassociatedwith": [
+          "44865372-d404-4b9e-ac1e-9794b652e83f"
+        ],
+        "isrelatedto": [
+          "6d9fb4ae-307c-42a1-b207-47603c87ebc4"
+        ]
+      },
+      "29c9260c-6b2b-4b2d-87ee-b4b8f18745e8": {
+        "source": {
+          "id": "ebb1b439-02db-492a-bf49-7daa3d44e406"
+        },
+        "target": {
+          "id": "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        },
+        "z": 11
+      },
+      "34bc1759-2333-4418-8a41-cc47af594bef": {
+        "source": {
+          "id": "c317b76b-768b-4d4c-8c3c-73b2614d4d1c",
+          "selector": "g:nth-child(1) g:nth-child(4) g:nth-child(2) circle:nth-child(1)     ",
+          "port": "AWS::DependencyLink-*"
+        },
+        "target": {
+          "id": "678c75b2-3715-4580-9cd0-9ee6b4bf6847"
+        },
+        "z": 13
+      },
+      "105cb176-028b-4c6c-938a-8107ca43ae22": {
+        "source": {
+          "id": "c317b76b-768b-4d4c-8c3c-73b2614d4d1c",
+          "selector": "g:nth-child(1) g:nth-child(4) g:nth-child(2) circle:nth-child(1)     ",
+          "port": "AWS::DependencyLink-*"
+        },
+        "target": {
+          "id": "678c75b2-3715-4580-9cd0-9ee6b4bf6847"
+        },
+        "z": 13
+      },
+      "8fce59a5-fbd8-47b0-87bd-99969727a10f": {
+        "source": {
+          "id": "c317b76b-768b-4d4c-8c3c-73b2614d4d1c",
+          "selector": "g:nth-child(1) g:nth-child(4) g:nth-child(2) circle:nth-child(1)     ",
+          "port": "AWS::DependencyLink-*"
+        },
+        "target": {
+          "id": "678c75b2-3715-4580-9cd0-9ee6b4bf6847"
+        },
+        "z": 13
+      },
+      "43e799e8-481c-409e-bf9f-76d4a57e7b2c": {
+        "source": {
+          "id": "678c75b2-3715-4580-9cd0-9ee6b4bf6847"
+        },
+        "target": {
+          "id": "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        },
+        "z": 12
+      },
+      "2475125a-c8a8-4dcd-bcbc-1286602be099": {
+        "source": {
+          "id": "c317b76b-768b-4d4c-8c3c-73b2614d4d1c"
+        },
+        "target": {
+          "id": "678c75b2-3715-4580-9cd0-9ee6b4bf6847"
+        },
+        "z": 13
+      }
+    }
+  },
+  "Resources": {
+    "Front": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "a"
+            ]
+          ]
+        },
+        "ImageId": "ami-cccbe5aa",
+        "InstanceType": "t2.micro",
+        "KeyName": "masiina2avain",
+        "Monitoring": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "WebServer"
+          }
+        ],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "Description": "Primary network interface",
+            "DeviceIndex": 0,
+            "SubnetId": {
+              "Ref": "Subnet1"
+            },
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "172.31.31.14",
+                "Primary": "true"
+              }
+            ],
+            "GroupSet": [
+              {
+                "Ref": "EC2Security"
+              }
+            ],
+            "AssociatePublicIpAddress": "true"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "ebb1b439-02db-492a-bf49-7daa3d44e406"
+        }
+      },
+      "DependsOn": [
+        "MySQL"
+      ]
+    },
+    "GraphiteGrafana": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "a"
+            ]
+          ]
+        },
+        "ImageId": "ami-8d5276eb",
+        "InstanceType": "t2.micro",
+        "KeyName": "masiina2avain",
+        "Monitoring": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Graphite&Grafana"
+          }
+        ],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "Description": "Primary network interface",
+            "DeviceIndex": 0,
+            "SubnetId": {
+              "Ref": "Subnet1"
+            },
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "172.31.31.15",
+                "Primary": "true"
+              }
+            ],
+            "GroupSet": [
+              {
+                "Ref": "EC2Security"
+              }
+            ],
+            "AssociatePublicIpAddress": "true"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "67beda55-465b-44a0-b364-78c2ed95745f"
+        }
+      }
+    },
+    "MySQL": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "PubliclyAccessible": true,
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "a"
+            ]
+          ]
+        },
+        "DBSnapshotIdentifier": "arn:aws:rds:eu-west-1:774482297846:snapshot:mysqlfinal",
+        "DBSubnetGroupName": {
+          "Ref": "RDSSubnet"
+        },
+        "VPCSecurityGroups": [
+          {
+            "Ref": "DBSecurity"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "f9aa6fef-596f-42a4-85e9-acd3fae832a7"
+        }
+      }
+    },
+    "DefaultVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "172.31.31.0/24",
+        "InstanceTenancy": "default",
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Default"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "7e64ab97-632e-4fcc-b178-98bc0e512d3a"
+        }
+      }
+    },
+    "Subnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "a"
+            ]
+          ]
+        },
+        "CidrBlock": "172.31.31.0/25",
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "a88aa1ad-5908-4381-84ce-82a9b02d0320"
+        }
+      }
+    },
+    "RDSSubnet": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "DBSubnetGroupDescription",
+        "SubnetIds": [
+          {
+            "Ref": "Subnet1"
+          },
+          {
+            "Ref": "Subnet2"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "8fecc1f9-9cfe-41ee-9e03-61fd383f8680"
+        }
+      }
+    },
+    "DBSecurity": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "EC2-Security-Group",
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3306",
+            "ToPort": "3306",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "icmp",
+            "FromPort": "0",
+            "ToPort": "-1",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3306",
+            "ToPort": "3306",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "icmp",
+            "FromPort": "0",
+            "ToPort": "-1",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "73f0d656-4995-4801-8fc4-c17c029f16ac"
+        }
+      }
+    },
+    "Subnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "b"
+            ]
+          ]
+        },
+        "CidrBlock": "172.31.31.128/25",
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "062dd619-f8b1-4899-b7dc-0dd4a70c46ee"
+        }
+      }
+    },
+    "Gateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "AccessToInternet"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "e05d7554-87b6-4b52-af17-dd261a9b72d4"
+        }
+      }
+    },
+    "RouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Default"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "a6bf4c5f-b4c4-49f4-a99f-3ca5d89d7c86"
+        }
+      }
+    },
+    "Route1": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        },
+        "GatewayId": {
+          "Ref": "Gateway"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "1bbd6c34-1322-4c96-9a50-1f01509ca77e"
+        }
+      },
+      "DependsOn": [
+        "GW1"
+      ]
+    },
+    "GW1": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "Gateway"
+        },
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "f5c7a91d-4f4f-4b6c-95b4-79e33d9d3510"
+        }
+      }
+    },
+    "NetACL": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "259789c8-9e77-4d54-8c84-bdc30d83778a"
+        }
+      }
+    },
+    "Entry1": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "NetACL"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "3bcc187c-eb56-475b-8c8c-cfb11f65df84"
+        }
+      }
+    },
+    "Entry2": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "true",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "NetACL"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "5dd93eb5-5391-459c-b4fa-eb80b51eae22"
+        }
+      }
+    },
+    "EC2SNAA1D3Q7": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetACL"
+        },
+        "SubnetId": {
+          "Ref": "Subnet1"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "d5e4c215-8812-4d77-90f9-aff9322d49be"
+        }
+      }
+    },
+    "EC2Security": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "EC2-Security-Group",
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "icmp",
+            "FromPort": "0",
+            "ToPort": "-1",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3306",
+            "ToPort": "3306",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "9000",
+            "ToPort": "9000",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "8080",
+            "ToPort": "8080",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "195.148.26.20/32"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "130.234.134.237/32"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "2003",
+            "ToPort": "2003",
+            "CidrIp": "172.31.31.0/25"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3000",
+            "ToPort": "3000",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "65535",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "icmp",
+            "FromPort": "0",
+            "ToPort": "-1",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3306",
+            "ToPort": "3306",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "5dc4c594-5d0e-4b31-9e5e-875b94516656"
+        }
+      }
+    },
+    "DHCPOptions": {
+      "Type": "AWS::EC2::DHCPOptions",
+      "Properties": {
+        "DomainName": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "compute",
+              "internal"
+            ]
+          ]
+        },
+        "DomainNameServers": [
+          "AmazonProvidedDNS"
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "5be734f3-61d6-45be-bbd8-fd9b71f23b7f"
+        }
+      }
+    },
+    "GatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "Gateway"
+        },
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "7462ce17-81d3-4572-b609-7b9a354491d7"
+        }
+      }
+    },
+    "DHCPOptAssociation": {
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Properties": {
+        "DhcpOptionsId": {
+          "Ref": "DHCPOptions"
+        },
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "b014e703-183a-45e7-ba4f-b360e350f647"
+        }
+      }
+    },
+    "EC2SRTA2MHAY": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        },
+        "SubnetId": {
+          "Ref": "Subnet1"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "6ce3b624-0013-4725-a05d-fda81e6c5c75"
+        }
+      }
+    },
+    "DataToGraphite": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Environment": {
+          "Variables": {
+            "server": "172.31.31.15",
+            "port": "2003"
+          }
+        },
+        "Handler": "lambda_function.lambda_handler",
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "EC2Security"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "Subnet1"
+            }
+          ]
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "AwsIotForLambda",
+            "Arn"
+          ]
+        },
+        "Code": {
+          "S3Bucket": "lambda-functions-eu-west-1-136717593190",
+          "S3Key": "AWSIoTtoGraphite.zip"
+        },
+        "Timeout": "3",
+        "MemorySize": "128",
+        "Runtime": "python2.7"
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "d1b80422-38a0-47ba-96bc-18afea51da84"
+        }
+      }
+    },
+    "AwsIotForLambda": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "root",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:*"
+                  ],
+                  "Resource": "arn:aws:logs:*:*:*"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "bd4f3d1d-b705-4aa3-aa17-1b64fd18eed8"
+        }
+      }
+    },
+    "AWSIoTConfigAccess": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "AWSIoTConfigAccess",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "iot:AcceptCertificateTransfer",
+                "iot:AttachPrincipalPolicy",
+                "iot:AttachThingPrincipal",
+                "iot:CancelCertificateTransfer",
+                "iot:CreateCertificateFromCsr",
+                "iot:CreateKeysAndCertificate",
+                "iot:CreatePolicy",
+                "iot:CreatePolicyVersion",
+                "iot:CreateThing",
+                "iot:CreateThingType",
+                "iot:CreateTopicRule",
+                "iot:DeleteCertificate",
+                "iot:DeleteCACertificate",
+                "iot:DeletePolicy",
+                "iot:DeletePolicyVersion",
+                "iot:DeleteRegistrationCode",
+                "iot:DeleteThing",
+                "iot:DeleteThingType",
+                "iot:DeleteTopicRule",
+                "iot:DeprecateThingType",
+                "iot:DescribeCertificate",
+                "iot:DescribeCACertificate",
+                "iot:DescribeEndpoint",
+                "iot:DescribeThing",
+                "iot:DescribeThingType",
+                "iot:DetachPrincipalPolicy",
+                "iot:DetachThingPrincipal",
+                "iot:GetLoggingOptions",
+                "iot:GetPolicy",
+                "iot:GetPolicyVersion",
+                "iot:GetRegistrationCode",
+                "iot:GetTopicRule",
+                "iot:ListCertificates",
+                "iot:ListCACertificates",
+                "iot:ListCertificatesByCA",
+                "iot:ListPolicies",
+                "iot:ListPolicyPrincipals",
+                "iot:ListPolicyVersions",
+                "iot:ListPrincipalPolicies",
+                "iot:ListPrincipalThings",
+                "iot:ListThingPrincipals",
+                "iot:ListThings",
+                "iot:ListThingTypes",
+                "iot:ListTopicRules",
+                "iot:RegisterCertificate",
+                "iot:RegisterCACertificate",
+                "iot:RejectCertificateTransfer",
+                "iot:ReplaceTopicRule",
+                "iot:SetDefaultPolicyVersion",
+                "iot:SetLoggingOptions",
+                "iot:TransferCertificate",
+                "iot:UpdateCertificate",
+                "iot:UpdateCACertificate",
+                "iot:UpdateThing"
+              ],
+              "Resource": "*"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "AwsIotForLambda"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "cbc48bba-c1cd-4856-8811-9fada3b72b5e"
+        }
+      }
+    },
+    "AWSLambdaExecute": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "AWSLambdaExecute",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:*"
+              ],
+              "Resource": "arn:aws:logs:*:*:*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+              ],
+              "Resource": "arn:aws:s3:::*"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "AwsIotForLambda"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "0f82b8bf-396d-443a-8ff2-b729b8effa69"
+        }
+      }
+    },
+    "AWSIoTRuleActions": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "AWSIoTRuleActions",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": {
+            "Effect": "Allow",
+            "Action": [
+              "dynamodb:PutItem",
+              "kinesis:PutRecord",
+              "iot:Publish",
+              "s3:PutObject",
+              "sns:Publish",
+              "sqs:SendMessage*"
+            ],
+            "Resource": "*"
+          }
+        },
+        "Roles": [
+          {
+            "Ref": "AwsIotForLambda"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "e374d327-dda9-4bd4-ae59-a59b2134ef84"
+        }
+      }
+    },
+    "AWSIoTDataAccess": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "AWSIoTDataAccess",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "iot:Connect",
+                "iot:Publish",
+                "iot:Subscribe",
+                "iot:Receive",
+                "iot:GetThingShadow",
+                "iot:UpdateThingShadow"
+              ],
+              "Resource": "*"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "AwsIotForLambda"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "1b36a2a1-0208-4e54-a10c-bf12a926dd7b"
+        }
+      }
+    },
+    "AWSLambdaVPCAccessExecutionRole": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "AWSLambdaVPCAccessExecutionRole",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "ec2:CreateNetworkInterface",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DeleteNetworkInterface"
+              ],
+              "Resource": "*"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "AwsIotForLambda"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "4eda85ea-06de-4e8f-b898-05b3aab4155a"
+        }
+      }
+    },
+    "DogFeederData": {
+      "Type": "AWS::IoT::TopicRule",
+      "Properties": {
+        "RuleName": "DogFeederData",
+        "TopicRulePayload": {
+          "RuleDisabled": "false",
+          "Sql": "SELECT * FROM 'DogFeeder/Data/#'",
+          "Actions": [
+            {
+              "Lambda": {
+                "FunctionArn": {
+                  "Fn::GetAtt": [
+                    "DataToGraphite",
+                    "Arn"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "4ff5cd2b-e0ed-43b9-b401-fe618c364854"
+        }
+      }
+    },
+    "GetCert": {
+      "Type": "AWS::IoT::TopicRule",
+      "Properties": {
+        "RuleName": "GetCert",
+        "TopicRulePayload": {
+          "RuleDisabled": "false",
+          "Sql": "SELECT * FROM 'Generic/+/req'",
+          "Actions": [
+            {
+              "Lambda": {
+                "FunctionArn": {
+                  "Fn::GetAtt": [
+                    "GetCertificate",
+                    "Arn"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "6a4e6d22-9e68-4e09-b27d-ef112e221f6e"
+        }
+      }
+    },
+    "GetCertificate": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Environment": {
+          "Variables": {
+            "area": {
+              "Ref": "AWS::Region"
+            },
+            "awsid": {
+              "Ref": "AWS::AccountId"
+            },
+            "name": "masterminion",
+            "host": {
+              "Fn::GetAtt": [
+                "MySQL",
+                "Endpoint.Address"
+              ]
+            },
+            "dbname": "feeder",
+            "password": "mynewmasterpassword!"
+          }
+        },
+        "Handler": "CertCreatorV2.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "AwsIotForLambda",
+            "Arn"
+          ]
+        },
+        "Code": {
+          "S3Bucket": "lambda-functions-eu-west-1-136717593190",
+          "S3Key": "ThingCreatorV2.zip"
+        },
+        "Timeout": "5",
+        "MemorySize": "128",
+        "Runtime": "python2.7"
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "678c75b2-3715-4580-9cd0-9ee6b4bf6847"
+        }
+      },
+      "DependsOn": [
+        "MySQL"
+      ]
+    },
+    "ModifyPolicy": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Environment": {
+          "Variables": {
+            "area": {
+              "Ref": "AWS::Region"
+            },
+            "awsid": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        },
+        "Handler": "lambda_function.lambda_handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "AwsIotForLambda",
+            "Arn"
+          ]
+        },
+        "Code": {
+          "S3Bucket": "lambda-functions-eu-west-1-136717593190",
+          "S3Key": "ModifyPolicy.zip"
+        },
+        "Timeout": "3",
+        "MemorySize": "128",
+        "Runtime": "python2.7"
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "7958242d-0015-4b13-a59e-386f7b2fe4fe"
+        }
+      }
+    },
+    "UpdatePi": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "DisplayName": "GitStuffToLambda",
+        "Subscription": [
+          {
+            "Endpoint": {
+              "Fn::GetAtt": [
+                "GitHubBot",
+                "Arn"
+              ]
+            },
+            "Protocol": "lambda"
+          }
+        ],
+        "TopicName": "GitStuffToLambda"
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "6d9fb4ae-307c-42a1-b207-47603c87ebc4"
+        }
+      }
+    },
+    "GitHubBot": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "lambda_function.lambda_handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "AwsIotForLambda",
+            "Arn"
+          ]
+        },
+        "Code": {
+          "S3Bucket": "lambda-functions-eu-west-1-136717593190",
+          "S3Key": "GitHubBot.zip"
+        },
+        "Timeout": "3",
+        "MemorySize": "128",
+        "Runtime": "python2.7"
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "44865372-d404-4b9e-ac1e-9794b652e83f"
+        }
+      }
+    },
+    "Modify": {
+      "Type": "AWS::IoT::TopicRule",
+      "Properties": {
+        "RuleName": "Modify",
+        "TopicRulePayload": {
+          "RuleDisabled": "false",
+          "Sql": "SELECT * FROM 'Generic/+/done'",
+          "Actions": [
+            {
+              "Lambda": {
+                "FunctionArn": {
+                  "Fn::GetAtt": [
+                    "ModifyPolicy",
+                    "Arn"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "d4663be7-32fd-465c-bda9-79a8bb01dacb"
+        }
+      }
+    },
+    "LambdaInvokeMod": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "Principal": "iot.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:iot:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":rule/",
+              {
+                "Ref": "Modify"
+              }
+            ]
+          ]
+        },
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "ModifyPolicy",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "a6e4f52b-0e00-40df-b013-a9733b552470"
+        }
+      }
+    },
+    "LambdaInvokeData": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "Principal": "iot.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:iot:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":rule/",
+              {
+                "Ref": "DogFeederData"
+              }
+            ]
+          ]
+        },
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "DataToGraphite",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "ddb8d42d-3780-4b4a-a1c8-ee592e81e814"
+        }
+      }
+    },
+    "LambdaInvokeGet": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "Principal": "iot.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:iot:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":rule/",
+              {
+                "Ref": "GetCert"
+              }
+            ]
+          ]
+        },
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetCertificate",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "c317b76b-768b-4d4c-8c3c-73b2614d4d1c"
+        }
+      },
+      "DependsOn": [
+        "GetCertificate"
+      ]
+    },
+    "LambdaInvokeUpdate": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "Principal": "sns.amazonaws.com",
+        "SourceArn": {
+          "Ref": "UpdatePi"
+        },
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GitHubBot",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "dcb7ddb3-17ce-4b07-9733-ced8d689cc7b"
+        }
+      }
+    }
+  }
+}
