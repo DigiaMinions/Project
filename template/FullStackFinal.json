@@ -704,7 +704,7 @@
             ]
           ]
         },
-        "ImageId": "ami-cccbe5aa",
+        "ImageId": "ami-719bb117",
         "InstanceType": "t2.micro",
         "KeyName": "masiina2avain",
         "Monitoring": "false",
