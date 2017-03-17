@@ -34,7 +34,7 @@ class servoControl:
 	def __init__(self):
 		# Minimum and maximum pulsewidths
 		self.pw_max = 1000
-		self.pw_min = 2500
+		self.pw_min = 2490
 		# GPIO ports
 		self.servo_upper = 19	# GPIO 19
 		self.servo_lower = 26	# GPIO 26
@@ -420,14 +420,14 @@ def fetchUpdate():
 	
 def createFiles():
 	if not os.path.exists(path + 'schedule.dat'):
-		open(path + 'schedule.dat', 'w').close()
+		open(path + 'schedule.dat', 'w+').close()
 	if not os.path.exists(path + 'schedule_fedtoday.dat'):
-		open(path + 'schedule_fedtoday.dat', 'w').close()
+		open(path + 'schedule_fedtoday.dat', 'w+').close()
 	if not os.path.exists(path + 'todaysnumber.dat'):
-		with open(path + 'todaysnumber.dat', 'w') as file:
+		with open(path + 'todaysnumber.dat', 'w+') as file:
 			file.write(str(getTodaysNumber()))
 	if not os.path.exists(path + 'offset.dat'):
-		open(path + 'offset.dat', 'w').close()
+		open(path + 'offset.dat', 'w+').close()
 
 
 
